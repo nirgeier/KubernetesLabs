@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    author: nirgeier@gmail.com
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      annotations:
+        author: nirgeier@gmail.com
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - image: __image__
+        name: myapp

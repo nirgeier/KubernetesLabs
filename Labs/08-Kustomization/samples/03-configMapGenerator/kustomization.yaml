@@ -1,0 +1,20 @@
+# kustomization.yaml for ConfigMap
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# This will add annotation under every metadata entry
+# ex: main metdata, spec.metadata etc
+configMapGenerator:
+  # Generate config file from env file
+  # Check the diffrence between the `files` option below
+  - name: configMapFromEnv
+    env: .env
+  # Generate config file from input file
+  - name: configFromFile
+    files:
+      - .env
+  # Generate configMap from direct input
+  - name: configFromLiterals
+    literals:
+      - Key1=value1
+      - Key2=value2
