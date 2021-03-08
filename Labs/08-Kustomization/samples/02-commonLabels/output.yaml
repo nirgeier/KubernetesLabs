@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    author: nirgeier@gmail.com
+    env: codeWizard-cluster
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+      author: nirgeier@gmail.com
+      env: codeWizard-cluster
+  template:
+    metadata:
+      labels:
+        app: myapp
+        author: nirgeier@gmail.com
+        env: codeWizard-cluster
+    spec:
+      containers:
+      - image: __image__
+        name: myapp

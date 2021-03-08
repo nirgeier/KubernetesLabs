@@ -1,0 +1,12 @@
+namespace: codewizard
+
+resources:
+  - Namespace.yaml
+  - proxy-deployment.yaml
+  - proxy-service.yaml
+  - web-server-service.yaml
+  - web-server1-deployment.yaml
+  - web-server1-service.yaml
+  - web-server2-deployment.yaml
+  - web-server2-service.yaml
+  

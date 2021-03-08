@@ -1,0 +1,16 @@
+version: "3"
+services:
+  proxy:
+    build: istio-proxy
+    image: ${PROXY_IMAGE_NAME}
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      port: ${PORT}
+  web-server:
+      build: istio-web-server
+      image: ${SERVER_IMAGE_NAME}
+      ports:
+        - ${PORT}:${PORT}
+      environment:
+        port: ${PORT}

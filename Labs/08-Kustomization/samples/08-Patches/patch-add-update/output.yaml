@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  # This is the first patch
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      # This is the second patch
+      containers:
+      - name: patch-name
+        resources:
+          limits:
+            memory: 512Mi
+      - image: __image__
+        name: myapp
