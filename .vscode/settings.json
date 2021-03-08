@@ -1,0 +1,11 @@
+{
+    "cSpell.words": [
+        "istio",
+        "kubectl",
+        "kustomization",
+        "kustomize"
+    ],
+    "cSpell.ignoreWords": [
+        "istio"
+    ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "istio-proxy-sample-server",
+  "author": "Nir Geier",
+  "version": "1.0.0",
+  "description": "Sample istio app with a dummy proxy server",
+  "main": "proxy-server.js",
+  "scripts": {
+    "start": "node proxy-server.js"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "ip": "^1.1.5",
+    "request": "^2.88.2"
+  }
+}
