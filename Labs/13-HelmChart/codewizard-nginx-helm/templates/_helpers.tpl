@@ -8,7 +8,7 @@ Note:
 
 {{/* ............ Templates section ............ */}}
 
-{{ */ Define the name of this demo webserver */}}
+{{/* Define the name of this demo webserver */}}
 {{- define "webserver.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}

@@ -20,4 +20,6 @@ type: application
 version: 0.1.0
 
 # This is the version number of the application being deployed. 
-appVersion: 0.0.0
+# In this demo we deploy nginx so we get teh version from DockerHub
+# https://hub.docker.com/_/nginx
+appVersion: 1.19.7

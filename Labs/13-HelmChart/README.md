@@ -29,6 +29,7 @@
     -   ConfigMap
     -   Deployment
     -   Service
+    -   Namespace
 
 - Since we are using Helm we also have the following Helm resources:
     -   Chart.yaml
@@ -37,20 +38,39 @@
 
 ---
 
-# STEP 1:
+### Step 1 - Pack
 Package the ```codewizard-nginx-helm``` chart
 
+## `helm package`
+> Package a chart directory into a chart archive. 
+>  
+> `helm package` packages a chart into a **versioned chart archive file**. 
+>
+> If a path is given, this will look at that path for a chart (which must contain a `Chart.yaml` file) and then package that directory.
 ```
 helm package codewizard-nginx-helm
 ```
 
-# STEP 2:
-Install the ```codewizard-nginx-helm``` chart into Kubernetes cluster
-
-Note: assumes that you have a cluster credentials configured within your local ```~/.kube/config``` file
+### Step 2 - install
+- Install the ```codewizard-nginx-helm``` chart into Kubernetes cluster
+- The install argument must be one of the following:
+    -   Chart URL directory
+    -   Path to a packaged chart
+    -   Path to an unpacked chart 
+    -   Chart URL
 
 ```
-helm install ca-demo1 codewizard-nginx-helm-0.1.0.tgz
+# Install the helm on the current cluster
+helm install charts-demo codewizard-nginx-helm-0.1.0.tgz
+
+# The output should be somethig similar to :
+helm install charts-demo codewizard-helm-demo-0.1.0.tgz 
+NAME: charts-demo
+LAST DEPLOYED: .......
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
 ```
 
 # STEP 3:
@@ -59,45 +79,48 @@ Examine newly created Helm chart release, and all cluster created resources
 ```
 helm ls
 
-kubectl get all
+# output shold be similar to 
+NAME            NAMESPACE       REVISION        UPDATED    STATUS          CHART                           APP VERSION
+charts-demo      default         1               ...        deployed        codewizard-helm-demo-0.1.0      1.19.7   
+
+# check to see that the deployment 
+kubectl get all -n codewizard
 ```
 
 # STEP 4:
-Perform an HTTP GET request, send it to the newly created cluster service and confirm that the response containse the ```CloudAcademy DevOps 2020 v1``` message stored in the ```values.yaml``` file
+Perform an HTTP GET request, send it to the newly created cluster service and confirm that the response containse the message stored in the `values.yaml` file
 
 ```
-kubectl run --image=busybox bbox1 --rm -it --restart=Never \
--- /bin/sh -c "wget -qO- http://ca-demo1-codewizard-nginx-helm"
+kubectl run --image=busybox b1 --rm -it --restart=Never -- /bin/sh -c "wget -qO- http://charts-demo-codewizard-helm-demo.codewizard.svc.cluster.local"
 ```
 
 # STEP 5:
-Perform a Helm upgrade on the ```ca-demo1``` release
+Perform a Helm upgrade on the `charts-demo` release
 
 ```
-helm upgrade ca-demo1 codewizard-nginx-helm-0.1.0.tgz \
---set nginx.conf.message="Helm Rocks"
+helm upgrade charts-demo codewizard-nginx-helm-0.1.0.tgz --set nginx.conf.message="Helm Rocks"
 ```
 
 # STEP 6:
-Perform another HTTP GET request. Confirm that the response now has the updated message ```Helm Rocks```
+Perform another HTTP GET request. Confirm that the response now has the updated message `Helm Rocks`
 
 ```
 kubectl run --image=busybox bbox1 --rm -it --restart=Never \
--- /bin/sh -c "wget -qO- http://ca-demo1-codewizard-nginx-helm"
+-- /bin/sh -c "wget -qO- http://charts-demo-codewizard-nginx-helm"
 ```
 
 # STEP 7:
-Examine the ```ca-demo1``` release history
+Examine the `charts-demo` release history
 
 ```
-helm history ca-demo1
+helm history charts-demo
 ```
 
 # STEP 8:
-Rollback the ```ca-demo1``` release to previous version
+Rollback the `charts-demo` release to previous version
 
 ```
-helm rollback ca-demo1
+helm rollback charts-demo
 ```
 
 # STEP 9:
@@ -105,12 +128,12 @@ Perform another HTTP GET request. Confirm that the response has now been reset t
 
 ```
 kubectl run --image=busybox bbox1 --rm -it --restart=Never \
--- /bin/sh -c "wget -qO- http://ca-demo1-codewizard-nginx-helm"
+-- /bin/sh -c "wget -qO- http://charts-demo-codewizard-nginx-helm"
 ```
 
 # STEP 10:
-Uninstall the ```ca-demo1``` release
+Uninstall the `charts-demo` release
 
 ```
-helm uninstall ca-demo1
+helm uninstall charts-demo
 ```
