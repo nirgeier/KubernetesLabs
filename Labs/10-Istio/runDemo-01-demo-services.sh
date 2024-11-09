@@ -96,6 +96,9 @@ kubectl port-forward \
 
 # echo $KIALI_TOKEN | base64 -d
 
+kubectl get secret -n istio-system $(kubectl get sa kiali-service-account -n istio-system -o "jsonpath={.secrets[0].name}") -o jsonpath={.data.token} | base64 -d
+
+
 ###
 
 # kubectl label namespace default istio-injection=enabled

@@ -68,7 +68,7 @@ Install the `codewizard-nginx-helm` chart into Kubernetes cluster
 helm install charts-demo codewizard-nginx-helm-0.1.0.tgz
 ```
 
-### STEP 3: Verify the installation
+### Step 3: Verify the installation
 
 - Examine newly created Helm chart release, and all cluster created resources
 
@@ -80,7 +80,7 @@ helm ls
 kubectl get all -A
 ```
 
-#### STEP 4: Test the service
+### Step 4: Test the service
 
 - Perform an HTTP GET request, send it to the newly created cluster service
 - Confirm that the response contains the `CloudAcademy DevOps 2020 v1` message passed from the `values.yaml` file
@@ -94,7 +94,7 @@ kubectl run \
         -- /bin/sh -c "wget -qO- http://charts-demo-codewizard-nginx-helm"
 ```
 
-### STEP 5: Upgrade the release to newer version
+### Step 5: Upgrade the release to newer version
 
 - Perform a Helm upgrade on the `charts-demo` release
 
@@ -106,7 +106,7 @@ helm  upgrade \
       --set nginx.conf.message="Helm Rocks"
 ```
 
-### STEP 6: Check the upgrade
+### Step 6: Check the upgrade
 
 - Perform another HTTP GET request.
 - Confirm that the response now has the updated message `Helm Rocks`
@@ -120,35 +120,34 @@ kubectl run \
         -- /bin/sh -c "wget -qO- http://charts-demo-codewizard-nginx-helm"
 ```
 
-### STEP 7:
+### Step 7:
 
-Examine the `charts-demo` release history
+- Examine the `charts-demo` release history
 
 ```
 helm history charts-demo
 ```
 
-# STEP 8:
+### Step 8:
 
-Rollback the `charts-demo` release to previous version
-
+- Rollback the `charts-demo` release to previous version
 ```
 helm rollback charts-demo
 ```
 
-# STEP 9:
+### Step 9:
 
-Perform another HTTP GET request. Confirm that the response has now been reset to the `CloudAcademy DevOps 2020 v1` message stored in the `values.yaml` file
+- Perform another HTTP GET request. 
+- Confirm that the response has now been reset to the `CloudAcademy DevOps 2020 v1` message stored in the `values.yaml` file
 
 ```
 kubectl run --image=busybox bbox1 --rm -it --restart=Never \
 -- /bin/sh -c "wget -qO- http://charts-demo-codewizard-nginx-helm"
 ```
 
-# STEP 10:
+### Step 10:
 
-Uninstall the `charts-demo` release
-
+- Uninstall the `charts-demo` release
 ```
 helm uninstall charts-demo
 ```
@@ -161,7 +160,7 @@ helm uninstall charts-demo
 :arrow_left:&nbsp;
   <a href="../12-Wordpress-MySQL-PVC">12-Wordpress-MySQL-PVC</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../14-Logging">14-Logging</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right: </div>
 
 ---
 
