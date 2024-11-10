@@ -54,7 +54,7 @@
 :arrow_left:&nbsp;
   <a href="../11-CRD-Custom-Resource-Definition">11-CRD-Custom-Resource-Definition</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../13-HelmChart">13-HelmChart</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

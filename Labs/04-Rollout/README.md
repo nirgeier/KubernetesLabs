@@ -225,7 +225,7 @@ kubectl rollout restart deployment [deployment_name]
 :arrow_left:&nbsp;
   <a href="../03-Deployments-Declarative">03-Deployments-Declarative</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../05-Services">05-Services</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

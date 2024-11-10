@@ -167,7 +167,7 @@ kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.
 :arrow_left:&nbsp;
   <a href="../09-StatefulSet">09-StatefulSet</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../11-CRD-Custom-Resource-Definition">11-CRD-Custom-Resource-Definition</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

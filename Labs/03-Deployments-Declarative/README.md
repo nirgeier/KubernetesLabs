@@ -191,7 +191,7 @@ nginx-dc8bb9b45-x7j4g        0/1     Terminating   0          6m27s
 :arrow_left:&nbsp;
   <a href="../02-Deployments-Imperative">02-Deployments-Imperative</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../04-Rollout">04-Rollout</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

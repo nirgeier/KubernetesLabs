@@ -356,7 +356,7 @@ psql \
 :arrow_left:&nbsp;
   <a href="../08-Kustomization">08-Kustomization</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../10-Istio">10-Istio</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

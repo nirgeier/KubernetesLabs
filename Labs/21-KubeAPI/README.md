@@ -115,7 +115,7 @@ kubectl exec -it -n codewizard $POD_NAME sh ./api_query.sh
 :arrow_left:&nbsp;
   <a href="../21-Auditing">21-Auditing</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../22-Rancher">22-Rancher</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

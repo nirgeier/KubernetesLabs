@@ -382,7 +382,7 @@ secret/token replaced
 :arrow_left:&nbsp;
   <a href="../05-Services">05-Services</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../07-nginx-Ingress">07-nginx-Ingress</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

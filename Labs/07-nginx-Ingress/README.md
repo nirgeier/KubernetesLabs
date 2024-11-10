@@ -143,7 +143,7 @@ http://host:port
 :arrow_left:&nbsp;
   <a href="../06-DataStore">06-DataStore</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../08-Kustomization">08-Kustomization</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

@@ -104,7 +104,7 @@ spec:
 :arrow_left:&nbsp;
   <a href="../18-ArgoCD">18-ArgoCD</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../20-CronJob">20-CronJob</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

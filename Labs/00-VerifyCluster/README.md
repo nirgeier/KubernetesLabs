@@ -149,7 +149,7 @@ minikube   Ready    control-plane,master   3m9s   v1.20.0
 
 <div align="center">
   <a href="../01-Namespace">01-Namespace</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

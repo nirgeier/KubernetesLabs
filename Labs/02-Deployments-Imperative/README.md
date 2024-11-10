@@ -142,7 +142,7 @@ Praqma Network MultiTool (with NGINX) ...
 :arrow_left:&nbsp;
   <a href="../01-Namespace">01-Namespace</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../03-Deployments-Declarative">03-Deployments-Declarative</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

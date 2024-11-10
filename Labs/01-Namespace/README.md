@@ -18,10 +18,15 @@
 
 ---
 ## Lab Highlights:
- - [01. Create Namespace](#01-Create-Namespace)
-   - [01.01. Create Namespace](#0101-Create-Namespace)
- - [02. Setting the default Namespace for `kubectl`](#02-Setting-the-default-Namespace-for-kubectl)
- - [03. Verify that you&#39;ve updated the namespace](#03-Verify-that-youve-updated-the-namespace)
+- [K8S Hands-on](#k8s-hands-on)
+- [Namespaces](#namespaces)
+  - [Lab Highlights:](#lab-highlights)
+    - [Pre-Requirements](#pre-requirements)
+    - [01. Create Namespace](#01-create-namespace)
+    - [01.01. Create Namespace](#0101-create-namespace)
+    - [02. Setting the default Namespace for `kubectl`](#02-setting-the-default-namespace-for-kubectl)
+    - [03. Verify that you've updated the namespace](#03-verify-that-youve-updated-the-namespace)
+    - [Note:](#note)
 
 ---
 
@@ -84,10 +89,10 @@ $ kubectl get pods -n <namespace>
 ---
 
 <div align="center">
-:arrow_left:&nbsp;
-  <a href="../00-VerifyCluster">00-VerifyCluster</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../02-Deployments-Imperative">02-Deployments-Imperative</a>
-  &nbsp;:arrow_right:</div>
+
+  [:arrow_left: &nbsp; 00-VerifyCluster](../00-VerifyCluster)&nbsp;&nbsp;||&nbsp;&nbsp;
+  [02-Deployments-Imperative &nbsp; :arrow_right:](../02-Deployments-Imperative)
+</div>
 
 ---
 

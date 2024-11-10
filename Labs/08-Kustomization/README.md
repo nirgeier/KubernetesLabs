@@ -682,7 +682,7 @@ spec:
 :arrow_left:&nbsp;
   <a href="../07-nginx-Ingress">07-nginx-Ingress</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../09-StatefulSet">09-StatefulSet</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

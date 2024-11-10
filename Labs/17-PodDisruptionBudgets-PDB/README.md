@@ -143,7 +143,7 @@ MemoryPressure   False   ...   KubeletHasSufficientMemory   kubelet has sufficie
 :arrow_left:&nbsp;
   <a href="../16-Affinity-Taint-Tolleration">16-Affinity-Taint-Tolleration</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../18-ArgoCD">18-ArgoCD</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

@@ -290,7 +290,7 @@ $ curl -s <EXTERNAL-IP>
 :arrow_left:&nbsp;
   <a href="../04-Rollout">04-Rollout</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../06-DataStore">06-DataStore</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 

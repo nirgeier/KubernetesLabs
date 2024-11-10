@@ -23,7 +23,7 @@ This lab contains script to install both Prometheus & Grafana on your local clus
 :arrow_left:&nbsp;
   <a href="../14-Logging">14-Logging</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../16-Affinity-Taint-Tolleration">16-Affinity-Taint-Tolleration</a>
-  &nbsp;:arrow_right:</div>
+  &nbsp; :arrow_right:</div>
 
 ---
 
@@ -34,3 +34,5 @@ This lab contains script to install both Prometheus & Grafana on your local clus
 ![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
 
 <!-- navigation end -->
+
+https://image.slidesharecdn.com/kubernetes1-230414173238-44b18298/85/Kubernetes-1-27-Webinar-pdf-22-320.jpg 320w, https://image.slidesharecdn.com/kubernetes1-230414173238-44b18298/85/Kubernetes-1-27-Webinar-pdf-22-638.jpg 638w, https://image.slidesharecdn.com/kubernetes1-230414173238-44b18298/75/Kubernetes-1-27-Webinar-pdf-22-2048.jpg 2048w
