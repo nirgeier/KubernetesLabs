@@ -4,11 +4,11 @@
 set -x
 
 # Hack to fix GCP console docker problem
-rm -rf ~/.docker
+# rm -rf ~/.docker
 
 # Make sure minikube is running 
 # the script below will check and will start minikube if required
-source ../../scripts/startMinikube.sh 
+# source ../../scripts/startMinikube.sh 
 
 # Set the desired Istio version to download and install
 export ISTIO_VERSION=1.15.0
@@ -32,9 +32,31 @@ istioctl x precheck
 # Istio support different profiles
 istioctl install --set profile=demo -y
 
+# Mark default namespace for istio
+kubectl label namespace default istio-injection=enabled
+
+# Verify that the label added
+kubectl get ns -l istio-injection=enabled
+
 # install istio addons 
-kubectl apply -f ${ISTIO_HOME}/samples/addons/prometheus.yaml
 kubectl apply -f ${ISTIO_HOME}/samples/addons/grafana.yaml
+kubectl apply -f ${ISTIO_HOME}/samples/httpbin/httpbin.yaml
+kubectl apply -f ${ISTIO_HOME}/samples/addons/prometheus.yaml
+kubectl apply -f ${ISTIO_HOME}/samples/bookinfo/platform/kube/bookinfo.yaml
+kubectl apply -f ${ISTIO_HOME}/samples/bookinfo/networking/bookinfo-gateway.yaml
+kubectl apply -f ${ISTIO_HOME}/samples/bookinfo/networking/destination-rule-all.yaml
+
+export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+export TCP_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="tcp")].port}')
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+
+# Add the helm chart repo
+helm repo add kiali https://kiali.org/helm-charts
+
+# Update the helm chart
+helm repo update
 
 # Install kiali server
 helm install \
@@ -44,32 +66,20 @@ helm install \
   kiali-server \
   kiali-server
 
-# Deploy our first demo 
-cd ./01-demo-services/
-# Build and deploy the resources
-kubectl kustomize ./K8S | kubectl apply -f - 
-cd ..
+# Port forward for kiali gui.
+# Extract the Kiali pod name
+kubectl port-forward \
+        -n istio-system \
+        $(kubectl get pods -n istio-system --selector=app=kiali -o jsonpath='{$.items[*].metadata.name}') \
+        20001:20001 &
 
-# Set defaulalt namespace for our demo
-kubectl config set-context --current --namespace codewizard
+# Enable the ingress addon on minikube
+minikube addons enable ingress
 
-# Add istio label for injecting sidecars
-# This is crucial or otherwise we will not be using istio in our namespace
-# We have to add the istion label
-# -- Reference: https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/#automatic-sidecar-injection
-kubectl label ns codewizard istio-injection=enabled
+# Enable the "LoadBalancer"
+minikube tunnel & 
 
-# Verify that we have the label attached
-# alterantive verification: 
-#       kubectl get ns --show-labels
-kubectl get namespace -L istio-injection
+# Get the token from the secret
+KIALI_TOKEN=$(kubectl get secret kiali-signing-key -n istio-system -o jsonpath={.data.key} )
 
-# We need to wait until the Kiali pod is up and runnig 
-kubectl wait --for=condition=ready pod -l app=kiali -n istio-system
-
-# Wait for our pods to be up and running
-kubectl wait --for=condition=ready pod -l app=webserverv1 -l version=v1 -n codewizard
-
-echo '---------------------------------------------------'
-echo '-- Run `simulateTraffic.sh` to generate traffic -- '
-echo '---------------------------------------------------'
+echo ($KIALI_TOKEN | base64 -d)/n
