@@ -110,7 +110,7 @@ KubeDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/se
 
 # Programmatically get the port and the IP
 CLUSTER_IP=$(kubectl get nodes \
-            --selector=node-role.kubernetes.io/master \
+            --selector=node-role.kubernetes.io/control-plane \
             -o jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 
 NODE_PORT=$(kubectl get -o \
