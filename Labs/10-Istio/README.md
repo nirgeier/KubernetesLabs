@@ -1,180 +1,319 @@
+
 ![](../../resources/k8s-logos.png)
 
-# K8S Hands-on
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
 
----
-# Istio
-![](../../resources/k8s-istio-gcp.png)
-
----
-## Pre-Requirements 
-- K8S cluster (this demo is explained with minikube)
-
-- In this lab we will get to know Istio (https://istio.io/). Istio is an implementation os `Service Mesh`, there are other implementations as well but istio is a known one so i have chosen to demonstrate Istio.
-- Istio has a lot of features build in along side with addons and much more.
-- In this lab we will focus on few of those features
-
-<!-- inPage TOC start -->
-
----
-## Lab Highlights:
- - [01. Download latest Istio release (Linux)](#01-Download-latest-Istio-release-Linux)
- - [01.01 Add the istioctl client to your path (Linux or macOS):](#0101-Add-the-istioctl-client-to-your-path-Linux-or-macOS)
-   - [01.02. Install Istio](#0102-Install-Istio)
-   - [01.03. Add the required label](#0103-Add-the-required-label)
-   - [01.02. Install Kiali server](#0102-Install-Kiali-server)
- - [02. Deploy the demo application](#02-Deploy-the-demo-application)
-   - [02.01. Check the installation](#0201-Check-the-installation)
-   - [02.02. Verify that Istio is working](#0202-Verify-that-Istio-is-working)
-
----
-
-<!-- inPage TOC end -->
-
-#### Step 01
-
-### 01. Download latest Istio release (Linux)
-- I have prepared a startup script which will start minikube, install istio & kiali
-```sh
-# Set the desired Istio version to download and install
-export ISTIO_VERSION=1.10.3
-
-# Set the Istio home, we will use this home for the installation
-export ISTIO_HOME=${PWD}/istio-${ISTIO_VERSION}
-
-# Download Istio with the specific verison
-curl -L https://istio.io/downloadIstio | \
-      ISTIO_VERSION=$ISTIO_VERSION \
-      TARGET_ARCH=arm64 \
-      sh -
-
-# Navigate to the Istio folder
-# The installation directory contains:
-# Sample applications in samples/
-# The istioctl client binary in the bin/ directory.
-```
-### 01.01 Add the istioctl client to your path (Linux or macOS):
-```
-# Add the istio cli to the path
-export PATH="$PATH:${ISTIO_HOME}/bin"
-
-```
-
-### 01.02. Install Istio
-```sh
-# Check if our cluster is ready for istio
-istioctl x precheck 
-
-# For this installation, we use the demo configuration profile
-# Istio support different profiles
-$ istioctl install --set profile=demo -y
-
-# The output should be something like
-✔ Istio core installed
-✔ Istiod installed
-✔ Egress gateways installed
-✔ Ingress gateways installed
-✔ Installation complete
-```
-
-### 01.03. Add the required label
-- Istio will inject its proxy/envoy/sidecar, once we will add the required label to the desired namespace.
-- Add a label to our namespace, instructing Istio to **automatically inject Envoy sidecar** proxies when you deploy your application later:
-```sh
-$ kubectl label namespace default istio-injection=enabled
-namespace/default labeled
-```
-
-### 01.02. Install Kiali server
-- We will use Kiali to track our traffic
-```sh
-# Install kiali server
-helm install \
-  --namespace   istio-system \
-  --set         auth.strategy="anonymous" \
-  --repo        https://kiali.org/helm-charts \
-  kiali-server \
-  kiali-server
-```
-
-### 02. Deploy the demo application
-- The demo application for this tutorial is one of istio samples
-```sh
-# install the demo application
-kubectl apply -f https://github.com/istio/istio/blob/master/samples/bookinfo/platform/kube/bookinfo.yaml
-```
-
-
-### 02.01. Check the installation
-- The application will start. 
-- As each pod becomes ready, the Istio sidecar will be deployed along with it.
-```
-$ kubectl get all
-NAME                                  READY   STATUS   
-pod/details-v1-79c697d759-vwqdw       2/2     Running   
-pod/productpage-v1-65576bb7bf-w2gpr   2/2     Running   
-pod/ratings-v1-7d99676f7f-krwk9       2/2     Running   
-pod/reviews-v1-987d495c-ltxvx         2/2     Running   
-pod/reviews-v2-6c5bf657cf-r74lq       2/2     Running   
-pod/reviews-v3-5f7b9f4f77-qgtn5       2/2     Running 
-
-NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    
-service/details       ClusterIP   10.109.142.110   <none>        9080/TCP   
-service/kubernetes    ClusterIP   10.96.0.1        <none>        443/TCP    
-service/productpage   ClusterIP   10.106.91.75     <none>        9080/TCP   
-service/ratings       ClusterIP   10.106.35.0      <none>        9080/TCP   
-service/reviews       ClusterIP   10.99.208.202    <none>        9080/TCP   
-
-NAME                             READY   UP-TO-DATE   AVAILABLE   
-deployment.apps/details-v1       1/1     1            1           
-deployment.apps/productpage-v1   1/1     1            1           
-deployment.apps/ratings-v1       1/1     1            1           
-deployment.apps/reviews-v1       1/1     1            1           
-deployment.apps/reviews-v2       1/1     1            1           
-deployment.apps/reviews-v3       1/1     1            1           
-
-NAME                                        DESIRED   CURRENT   READY   
-replicaset.apps/details-v1-79c697d759       1         1         1       
-replicaset.apps/productpage-v1-65576bb7bf   1         1         1       
-replicaset.apps/ratings-v1-7d99676f7f       1         1         1       
-replicaset.apps/reviews-v1-987d495c         1         1         1       
-replicaset.apps/reviews-v2-6c5bf657cf       1         1         1       
-replicaset.apps/reviews-v3-5f7b9f4f77       1         1         1       
-```
-
-### 02.02. Verify that Istio is working
-- Run this command to see if the app is running inside the cluster and serving HTML pages by checking for the page title in the response:
-```sh
-kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" \
-        -c ratings \
-        -- curl \
-        -s productpage:9080/productpage \
-        | grep -o "<title>.*</title>"
-```        
-
----
-# Lab - Istio Demo with working example
-
-
-
-
-<!-- navigation start -->
-
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../09-StatefulSet">09-StatefulSet</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../11-CRD-Custom-Resource-Definition">11-CRD-Custom-Resource-Definition</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
+<!-- omit in toc -->
+# K8S Hands-on 
 
 ![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
 
-<!-- navigation end -->
+---
+
+<!-- omit in toc -->
+## PreRequirements
+
+- [Helm](https://helm.sh/docs/intro/install/)
+- K8S cluster
+- **kubectl**  configured to interact with your cluster.
+
+---
+
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
+
+<!-- omit in toc -->
+### **<kbd>CTRL</kbd> + click to open in new window**
+
+---
+
+- [Introduction](#introduction)
+  - [`Istio`](#istio)
+  - [`Kiali`](#kiali)
+- [Part 01 - Installing Istio and Kiali](#part-01---installing-istio-and-kiali)
+  - [Step 01: Install Istio Using Istioctl](#step-01-install-istio-using-istioctl)
+  - [Step 02: Verify Istio installation](#step-02-verify-istio-installation)
+  - [Step 03: Install Kiali](#step-03-install-kiali)
+  - [Step 04: Verify Kiali installation](#step-04-verify-kiali-installation)
+- [Part 02 - Viewing the Network with Istio](#part-02---viewing-the-network-with-istio)
+  - [Step 01: Enable Istio Injection](#step-01-enable-istio-injection)
+  - [Step 2: Deploy Sample Application](#step-2-deploy-sample-application)
+  - [Step 03: Verify the Sample Application](#step-03-verify-the-sample-application)
+  - [Step 04: Expose the Application](#step-04-expose-the-application)
+- [Part 03 - Visualizing the Network with Kiali](#part-03---visualizing-the-network-with-kiali)
+  - [Step 01: Access Kiali Dashboard](#step-01-access-kiali-dashboard)
+  - [Step 02: Explore the Service Mesh Topology](#step-02-explore-the-service-mesh-topology)
+- [Part 04: Creating a Demo Istio VirtualService](#part-04-creating-a-demo-istio-virtualservice)
+  - [Step 1: Define a VirtualService](#step-1-define-a-virtualservice)
+  - [Step 02: Apply the VirtualService](#step-02-apply-the-virtualservice)
+  - [Step 03: Verify the Routing](#step-03-verify-the-routing)
+- [Conclusion](#conclusion)
+
+
+---
+
+<!-- omit in toc -->
+# Istio and Kiali
+- This guide provides a detailed walkthrough on installing and configuring **Istio**  and **Kiali**  in a Kubernetes cluster. 
+- You will also learn how to visualize your service mesh with Istio and Kiali, create a demo **Istio VirtualService**.
+  
+---
+
+
+## Introduction 
+
+### `Istio` 
+
+- **Istio**  is an open-source **service mesh** that provides a way to manage microservices traffic, security, and observability in a Kubernetes cluster. 
+- It acts as a layer of infrastructure that sits between your services, **intercepting and controlling the traffic** between them. 
+- Istio key features: 
+  
+  | **Feature**                         | **Description**                                                                                                                                                   |
+  | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | **Traffic Management**              | Istio enables sophisticated traffic control capabilities, such as routing, load balancing, retries, timeouts, and circuit breakers for microservices.             |
+  | **Service Discovery**               | Automatically discovers services in the mesh, enabling dynamic routing and management of microservices without the need for manual configuration.                 |
+  | **Load Balancing**                  | Istio provides various load balancing algorithms (round-robin, weighted, etc.) to distribute traffic between microservices, ensuring optimal performance.         |
+  | **Traffic Shaping**                 | Allows fine-grained control of traffic between services, such as A/B testing, canary releases, or blue/green deployments by defining routing rules.               |
+  | **Fault Injection**                 | Supports fault injection to simulate network failures, latency, or errors in microservices to test resilience and robustness of the application.                  |
+  | **Mutual TLS (mTLS)**               | Istio can automatically encrypt traffic between services using mutual TLS (mTLS) to ensure secure communication and provide strong identity-based access control. |
+  | **Authentication & Authorization**  | Provides identity and access management through role-based access control (RBAC) and integration with external identity providers (e.g., OAuth, JWT).             |
+  | **Telemetry & Observability**       | Istio collects metrics, logs, and traces for monitoring service performance and behavior. Integrates with tools like Prometheus, Grafana, and Jaeger.             |
+  | **Distributed Tracing**             | Integrates with tracing systems like **Jaeger** and **Zipkin** to provide end-to-end tracing for debugging and monitoring service interactions.                   |
+  | **Policy Enforcement**              | Istio provides fine-grained control over traffic policies, such as rate limiting, quotas, and security policies, using its Policy and Telemetry components.       |
+  | **Resilience & Retries**            | Istio can retry failed requests, set timeouts, and apply circuit breakers to prevent cascading failures and enhance the reliability of services.                  |
+  | **Sidecar Proxy (Envoy)**           | Istio uses **Envoy** as a sidecar proxy to intercept and manage network traffic, providing a transparent proxy between microservices.                             |
+  | **Automatic Sidecar Injection**     | Istio automatically injects the **Envoy proxy** into application pods via Kubernetes annotations, simplifying the management of service communication.            |
+  | **Service Mesh Topology**           | Visualizes and manages the network of microservices, allowing users to monitor how services interact with each other and troubleshoot issues.                     |
+  | **Canary Deployments**              | Supports **canary releases** and traffic splitting, which allows gradual rollout of new versions of services for safe deployments and testing.                    |
+  | **Multi-cluster Support**           | Istio supports a multi-cluster environment, allowing you to deploy services across different Kubernetes clusters while maintaining a unified service mesh.        |
+  | **Integration with Existing Tools** | Istio integrates seamlessly with other tools such as **Prometheus**, **Grafana**, **Jaeger**, and **Kiali** for observability, monitoring, and tracing.           |
+  | **Service-Level Agreements (SLAs)** | Provides mechanisms to define service-level objectives (SLOs) and monitor them, ensuring services meet expected performance and reliability standards.            |
+
+
+- Istio core components: 
+  | **Components**  | **Description**                                                          |
+  | --------------- | ------------------------------------------------------------------------ |
+  | **Envoy Proxy** | A sidecar proxy that intercepts traffic to and from microservices.       |
+  | **Pilot**       | Manages configuration and distributes traffic management rules.          |
+  | **Mixer**       | Provides policy enforcement and telemetry data collection.               |
+  | **Citadel**     | Handles security-related tasks like identity and certificate management. |
+
+
+### `Kiali` 
+
+- **Kiali**  is a graphical user interface (GUI) for `Istio`. 
+- It helps you visualize the service mesh and provides insights into how microservices are interacting with each other. 
+- `Kiali` integrates deeply with Istio, allowing you to view:
+  - The **service mesh topology**  showing services, traffic flow, and dependencies.
+  - Metrics like request rates, latencies, and error rates.
+  - **Distributed tracing**  (if enabled) for better debugging and troubleshooting.
+  - **Istio configuration**  to visualize resources like VirtualServices, DestinationRules, and more.
+
+- `Kiali` simplifies the operation of Istio by offering an intuitive way to manage and visualize your service mesh.
+
+
+---
+
+## Part 01 - Installing Istio and Kiali 
+
+### Step 01: Install Istio Using Istioctl
+
+- Istio supply an installer
+- Go to the [Istio releases page](https://github.com/istio/istio/releases) and download the latest version of Istio. 
+- Alternatively, use `istioctl` to install Istio.
+
+  ```bash
+  # Install Istio using istioctl
+  echo  "Installing Istio..."
+  curl  -L https://istio.io/downloadIstio | sh -
+  cd    istio-*
+  
+  # Add bin directory to your $PATH
+  export PATH=$PWD/bin:$PATH
+
+  # Install istio will all features enabled (demo profile)
+  istioctl install --set profile=demo -y
+  
+  ```
+ 
+ 
+### Step 02: Verify Istio installation
+
+- Check the Istio system components in the `istio-system` namespace:
+  ```bash
+  # Verify Istio installation
+  kubectl get pods -n istio-system
+  ```
+- You should see several pods, including the Istio control plane components like 
+  - `istiod`
+  - `istio-ingressgateway`
+  - `istio-egressgateway`
+  
+  <br/>
+
+  **`kubectl get pods -n istio-system`**
+    ```plaintext
+    NAME                                    READY   STATUS    RESTARTS   AGE
+    istio-egressgateway-684f5dc857-bzww6    1/1     Running   0          21m
+    istio-ingressgateway-6b5bd79c5c-9n8tg   1/1     Running   0          21m
+    istiod-68885d595-vv2ft                  1/1     Running   0          22m
+    ```
+
+### Step 03: Install Kiali
+
+- We will install kiali with Helm
+
+  ```bash
+  # Add the Kiali Helm chart repository
+  helm repo add kiali https://kiali.org/helm-charts
+  helm repo update
+  ```
+ 
+- **Install Kiali:** 
+
+  ```bash
+  # Install Kiali into the `istio-system` namespace 
+  # this is the default namespace for Istio components
+  #
+  # Install Kiali with anonymous authentication
+  #
+  helm install  kiali-server              \
+                kiali/kiali-server        \
+                --namespace istio-system  \
+                --set auth.strategy="anonymous"
+  ```
+
+### Step 04: Verify Kiali installation
+
+- Once installed, check the status of Kiali:
+  ```bash
+  kubectl get pods -n istio-system
+  ```
+
+- You should see the Kiali pod running, along with the Istio components from previous step.
+  ```plaintext
+  NAME                                    READY   STATUS    RESTARTS   AGE
+  istio-egressgateway-684f5dc857-bzww6    1/1     Running   0          28m
+  istio-ingressgateway-6b5bd79c5c-9n8tg   1/1     Running   0          28m
+  istiod-68885d595-vv2ft                  1/1     Running   0          28m
+  kiali-68ccc848b6-j4q28                  1/1     Running   0          27m
+  ```
+
+---
+
+## Part 02 - Viewing the Network with Istio 
+
+- Istio uses a sidecar proxy model, where an Envoy proxy is deployed alongside each microservice pod. 
+- This proxy intercepts and manages traffic between the services.
+
+### Step 01: Enable Istio Injection
+
+- You need to enable **Istio sidecar injection** for your Kubernetes namespace. 
+- This will ensure that new pods in the `default` namespace will automatically have the Envoy proxy sidecar injected.
+- For example, to enable injection in the `default` namespace:
+
+  ```bash
+  kubectl label namespace default istio-injection=enabled
+  ```
+
+### Step 2: Deploy Sample Application
+
+- To see Istio in action, deploy a sample application, such as **Bookinfo** , which is available in Istio's demo repository.
+  
+  ```bash
+  # Deploy the sample application supplied by istio
+  kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+  ```
+
+### Step 03: Verify the Sample Application
+
+- To check that the application pods are running, execute the following command:
+
+  ```bash
+  kubectl get pods
+  ```
+  
+### Step 04: Expose the Application
+
+- To expose the application via Istio's ingress gateway, create an Istio **Gateway**  and **VirtualService** .
+
+  ```bash
+  # This will expose the 'Bookinfo' application to the external world via Istio ingress gateway.
+  kubectl   apply -f \
+            samples/bookinfo/networking/bookinfo-gateway.yaml
+  ```
+
+---
+
+
+## Part 03 - Visualizing the Network with Kiali 
+
+### Step 01: Access Kiali Dashboard 
+
+- Once Kiali is installed, you can access its dashboard. 
+- First, define a port-forward the Kiali service:
+
+  ```bash
+  kubectl   port-forward        \
+            -n istio-system     \
+            svc/kiali 20001:20001
+  ```
+
+- Now, open your browser and go to [http://localhost:20001](http://localhost:20001)
+  - **Username** : `admin`
+  - **Password** : (Leave blank if anonymous access is enabled)
+
+### Step 02: Explore the Service Mesh Topology 
+
+- Once inside the Kiali dashboard, Open the `Mesh` View
+- You will see a **graph**  of your services in the mesh.
+- The graph shows the interactions between microservices, along with traffic flows, success/error rates, and latency.
+- You can use the Kiali interface to:
+  - **Zoom in/out**  of the topology.
+  - View detailed metrics for each service.
+  - Understand the traffic flow, including retries, timeouts, and error rates.
+
+
+---
+
+## Part 04: Creating a Demo Istio VirtualService 
+
+- In Istio, **VirtualServices**  are used to define the routing rules for your services.
+
+### Step 1: Define a VirtualService
+- Create a `VirtualService` resource to route traffic to the `ratings` service in the **Bookinfo** demo app.
+
+  ```yaml
+  apiVersion: networking.istio.io/v1alpha3
+  kind: VirtualService
+  metadata:
+    name: ratings-vs
+    namespace: default
+  spec:
+    hosts:
+      - ratings
+    http:
+      - route:
+          - destination:
+              host: ratings
+              subset: v2
+  ```
+
+### Step 02: Apply the VirtualService
+- Apply the `VirtualService`
+- This will route all traffic for the `ratings` service to version `v2`.
+
+  ```bash
+  kubectl apply -f ratings-virtualservice.yaml
+  ```
+
+### Step 03: Verify the Routing
+
+- You can use Kiali to visualize the traffic flow and verify that the routing is happening as expected. 
+- The Kiali dashboard should reflect the new route configuration for `ratings`.
+
+---
+
+
+## Conclusion 
+
+- You have now successfully installed Istio and Kiali, set up a service mesh, and visualized your network's behavior. 
+- The combination of Istio's powerful traffic management features and Kiali's intuitive visualization interface makes it easier to manage and monitor microservices in a Kubernetes cluster.

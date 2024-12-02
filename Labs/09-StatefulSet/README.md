@@ -68,17 +68,29 @@
 
 ---
 ## Lab Highlights:
- - [01. Create namespace and clear previous data if there is any](#01-Create-namespace-and-clear-previous-data-if-there-is-any)
- - [02. Create and test the Stateful application](#02-Create-and-test-the-Stateful-application)
- - [03. Test the Stateful application](#03-Test-the-Stateful-application)
- - [04. Scale down the StatefulSet and check that its down](#04-Scale-down-the-StatefulSet-and-check-that-its-down)
-   - [04.01. Scale down the `Statefulset` to 0](#0401-Scale-down-the-Statefulset-to-0)
-   - [04.02. Verify that the pods Terminated](#0402-Verify-that-the-pods-Terminated)
-   - [04.03. Verify that the DB is not reachable](#0403-Verify-that-the-DB-is-not-reachable)
- - [05. Scale up again and verify that we still have the prevoius data](#05-Scale-up-again-and-verify-that-we-still-have-the-prevoius-data)
-   - [05.01. scale up the `Statefulset` to 1 or more](#0501-scale-up-the-Statefulset-to-1-or-more)
-   - [05.02. Verify that the pods is in Running status](#0502-Verify-that-the-pods-is-in-Running-status)
-   - [05.03. Verify that the pods is using the previous data](#0503-Verify-that-the-pods-is-using-the-previous-data)
+- [K8S Hands-on](#k8s-hands-on)
+- [StatefulSets](#statefulsets)
+  - [The Difference Between a `Statefulset` And a `Deployment`](#the-difference-between-a-statefulset-and-a-deployment)
+      - [`Stateless` application](#stateless-application)
+      - [`Stateful` application](#stateful-application)
+  - [`Stateful` Notes](#stateful-notes)
+    - [Stable Network Identity](#stable-network-identity)
+    - [Start and Termination Order](#start-and-termination-order)
+    - [StatefulSet Volumes](#statefulset-volumes)
+    - [To address all those requirements, Kubernetes offers the StatefulSet primitive.](#to-address-all-those-requirements-kubernetes-offers-the-statefulset-primitive)
+    - [Pre-Requirements](#pre-requirements)
+  - [Lab Highlights:](#lab-highlights)
+    - [01. Create namespace and clear previous data if there is any](#01-create-namespace-and-clear-previous-data-if-there-is-any)
+    - [02. Create and test the Stateful application](#02-create-and-test-the-stateful-application)
+    - [03. Test the Stateful application](#03-test-the-stateful-application)
+    - [04. Scale down the StatefulSet and check that its down](#04-scale-down-the-statefulset-and-check-that-its-down)
+      - [04.01. Scale down the `Statefulset` to 0](#0401-scale-down-the-statefulset-to-0)
+      - [04.02. Verify that the pods Terminated](#0402-verify-that-the-pods-terminated)
+    - [04.03. Verify that the DB is not reachable](#0403-verify-that-the-db-is-not-reachable)
+    - [05. Scale up again and verify that we still have the prevoius data](#05-scale-up-again-and-verify-that-we-still-have-the-prevoius-data)
+      - [05.01. scale up the `Statefulset` to 1 or more](#0501-scale-up-the-statefulset-to-1-or-more)
+      - [05.02. Verify that the pods is in Running status](#0502-verify-that-the-pods-is-in-running-status)
+      - [05.03. Verify that the pods is using the previous data](#0503-verify-that-the-pods-is-using-the-previous-data)
 
 ---
 
@@ -222,7 +234,7 @@ namespace/codewizard created
 
 ```sh
 # Generate and apply the required resources using kustomization
-kubectl kustomize PostgreSQL/ . | kubectl apply -f -
+kubectl kustomize PostgreSQL/ | kubectl apply -f -
 ```
 
 ---
