@@ -25,12 +25,17 @@
 
 ---
 ## Lab Highlights:
- - [01. Create namespace](#01-Create-namespace)
- - [02. Deploy multitool image](#02-Deploy-multitool-image)
- - [03. Test the deployment](#03-Test-the-deployment)
-   - [03.01. Create a Service using `kubectl expose`](#0301-Create-a-Service-using-kubectl-expose)
-   - [03.02. Find the port &amp; the IP which was assigned to our pod by the cluster.](#0302-Find-the-port--the-IP-which-was-assigned-to-our-pod-by-the-cluster)
-   - [03.03. Test the deployment](#0303-Test-the-deployment)
+- [K8S Hands-on](#k8s-hands-on)
+- [Deployment - Imperative](#deployment---imperative)
+    - [Pre-Requirements](#pre-requirements)
+  - [Creating deployments using `kubectl create`](#creating-deployments-using-kubectl-create)
+  - [Lab Highlights:](#lab-highlights)
+    - [01. Create namespace](#01-create-namespace)
+    - [02. Deploy multitool image](#02-deploy-multitool-image)
+  - [03. Test the deployment](#03-test-the-deployment)
+    - [03.01. Create a Service using `kubectl expose`](#0301-create-a-service-using-kubectl-expose)
+    - [03.02. Find the port \& the IP which was assigned to our pod by the cluster.](#0302-find-the-port--the-ip-which-was-assigned-to-our-pod-by-the-cluster)
+    - [03.03. Test the deployment](#0303-test-the-deployment)
 
 ---
 
@@ -110,7 +115,7 @@ KubeDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/se
 
 # Programmatically get the port and the IP
 CLUSTER_IP=$(kubectl get nodes \
-            --selector=node-role.kubernetes.io/master \
+            --selector=node-role.kubernetes.io/control-plane \
             -o jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 
 NODE_PORT=$(kubectl get -o \

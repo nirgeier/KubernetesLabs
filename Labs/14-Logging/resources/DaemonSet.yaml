@@ -20,7 +20,7 @@ spec:
       serviceAccount: fluentd
       serviceAccountName: fluentd
       tolerations:
-        - key: node-role.kubernetes.io/master
+        - key: node-role.kubernetes.io/control-plane
           effect: NoSchedule
       containers:
         - name: fluentd-azureblob

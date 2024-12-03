@@ -2,7 +2,7 @@
 
 # Programaticlly get the port and the IP
 export CLUSTER_IP=$(kubectl get nodes \
-            --selector=node-role.kubernetes.io/master \
+            --selector=node-role.kubernetes.io/control-plane \
             -o jsonpath='{$.items[*].status.addresses[?(@.type=="InternalIP")].address}')
 
 export NODE_PORT=$(kubectl get \
