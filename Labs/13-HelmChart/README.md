@@ -1,30 +1,23 @@
 ![](../../resources/k8s-logos.png)
 
-
 <!-- omit in toc -->
-# K8S Hands-on 
+# Kubernetes Hands-on Lab: Helm Chart
 
 ![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
 
 ---
 
-<!-- omit in toc -->
-# Helm Chart
+## Overview
 
-- In This tutorial you will learn the basics of Helm Charts (version 3).
-- This demo will cover the following:
-  - build
-  - package
-  - install
-  - list packages
+- Welcome to the Helm Chart hands-on lab! In this tutorial, you'll learn the essentials of Helm (version 3), the package manager for Kubernetes. 
+- You'll build, package, install, and manage applications using Helm charts, gaining practical experience with real Kubernetes resources.
 
 ---
 
-<!-- omit in toc -->
-## PreRequirements
+## Prerequisites
 
-- [Helm](https://helm.sh/docs/intro/install/)
-- K8S cluster
+- [Helm](https://helm.sh/docs/intro/install/) installed
+- Access to a Kubernetes cluster (local or remote)
 
 ---
 
@@ -35,8 +28,21 @@
 
 ---
 
-## Table of Contents 
+## What You'll Learn
 
+- What Helm is and why it's useful
+- Helm chart structure and key files
+- Common Helm commands for managing releases
+- How to create, package, install, upgrade, and rollback a Helm chart
+- Troubleshooting and best practices
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [What You'll Learn](#what-youll-learn)
 - [Table of Contents](#table-of-contents)
 - [Introduction](#introduction)
   - [Terminology](#terminology)
@@ -63,7 +69,9 @@
     - [`helm history`](#helm-history)
   - [Step 11 - Rollback](#step-11---rollback)
     - [`helm rollback`](#helm-rollback)
-  - [Finalize:](#finalize)
+- [Finalize \& Cleanup](#finalize--cleanup)
+- [Troubleshooting](#troubleshooting)
+- [Next Steps](#next-steps)
 
 ---
 
@@ -332,21 +340,68 @@ Here are some of the most common Helm commands you’ll use when working with He
     ```
   - Check again to verify that you get the original message
 
-### Finalize:
+## Finalize & Cleanup
 
-  - Uninstall the `codewizard-helm-demo` release
+To remove all resources created by this lab, uninstall the `codewizard-helm-demo` release:
 
-    ```
-    helm uninstall codewizard-helm-demo
-    ```
+```sh
+helm uninstall codewizard-helm-demo
+```
 
-<!-- navigation start -->
+(Optional) If you created a dedicated namespace for this lab, you can delete it:
+
+```sh
+kubectl delete namespace codewizard
+```
 
 ---
 
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../12-Wordpress-MySQL-PVC">12-Wordpress-MySQL-PVC</a>
+## Troubleshooting
+
+- **Helm not found:**
+
+  Make sure Helm is installed and available in your `PATH`. Run `helm version` to verify.
+
+- **Pods not starting:**
+
+  Check pod status and logs:
+
+  ```sh
+  kubectl get pods -n codewizard
+  kubectl describe pod <pod-name> -n codewizard
+  kubectl logs <pod-name> -n codewizard
+  ```
+
+- **Service not reachable:**
+
+  Ensure the service and pods are running:
+
+  ```sh
+  kubectl get svc -n codewizard
+  kubectl get pods -n codewizard
+  ```
+
+- **Values not updated after upgrade:**
+
+  Double-check your `--set` or `--values` flags and confirm the upgrade with:
+
+  ```sh
+  helm get values codewizard-helm-demo
+  ```
+
+---
+
+## Next Steps
+
+- Try creating your own Helm chart for a different application.
+- Explore Helm chart repositories like [Artifact Hub](https://artifacthub.io/).
+- Learn about advanced Helm features: dependencies, hooks, and chart testing.
+- Integrate Helm with CI/CD pipelines for automated deployments.
+- Read more in the [official Helm documentation](https://helm.sh/docs/).
+
+---
+
+<a href="../12-Wordpress-MySQL-PVC">12-Wordpress-MySQL-PVC</a>
 &nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../14-Logging">14-Logging</a>
   &nbsp; :arrow_right: </div>
 
