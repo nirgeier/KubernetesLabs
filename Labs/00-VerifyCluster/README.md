@@ -134,14 +134,7 @@ NAME       STATUS   ROLES                  AGE    VERSION
 minikube   Ready    control-plane,master   3m9s   v1.20.0
 ```
 
-### 05.01. Verify that you can "talk" to your cluster
 
-```sh
-# In this sample we have minikube pod running
-$ kubectl get nodes
-NAME       STATUS   ROLES                  AGE    VERSION
-minikube   Ready    control-plane,master   3m9s   v1.20.0
-```
 
 <!-- navigation start -->
 
