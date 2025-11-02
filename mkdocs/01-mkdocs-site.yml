@@ -1,0 +1,12 @@
+###
+### mkdocs-site.yml
+###
+docs_dir: Labs
+edit_uri: ""
+repo_name: nirgeier/AnsibleLabs
+repo_url: https://github.com/nirgeier/AnsibleLabs
+site_author: Nir Geier - nirgeier@gmail.com
+site_description: A collection of GitHub Labs for learning and practicing GitHub skills.
+site_dir: ./mkdocs-site
+site_name: AnsibleLabs
+site_url: https://nirgeier.github.io/AnsibleLabs/

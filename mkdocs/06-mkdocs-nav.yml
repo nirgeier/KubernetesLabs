@@ -1,0 +1,20 @@
+###
+### mkdocs-nav.yml
+###
+
+nav:
+  - Start Here: welcome.md
+  - Labs:
+      - index.md
+      - 000 Setup: 000-setup/README.md
+      - 001 Verify Ansible: 001-verify-ansible/README.md
+      - 002 No Inventory: 002-no-inventory/README.md
+      - 003 Modules: 003-modules/README.md
+      - 004 Playbooks: 004-playbooks/README.md
+      - 005 Facts: 005-facts/README.md
+      - 006 Git: 006-git/README.md
+      - 007 Create User: 007-create-user/README.md
+      - 008 Challenges: 008-challenges/README.md
+      - 009 Roles: 009-roles/README.md
+      - 010 Loops And Conditionals: 010-loops-and-conditionals/README.md
+      - 011 Jinja Templating: 011-jinja-templating/README.md

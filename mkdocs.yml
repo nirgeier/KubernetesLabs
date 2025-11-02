@@ -1,0 +1,239 @@
+###
+### mkdocs-theme.yml
+###
+copyright:
+  '©2021-2025 Nir Geier<br/><a href="https://visitor-badge.laobi.icu/badge?page_id=nirgeier" target="_blank" rel="noopener"><img
+  src="https://visitor-badge.laobi.icu/badge?page_id=nirgeier" alt="Visitor Badge"></a>'
+theme:
+  name: material
+  custom_dir: mkdocs/overrides
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.footnote.tooltips
+    - content.tabs.link
+    - content.tooltips
+    - content.footer.last-updated
+    - content.footer.contributors
+    - navigation.expand: false
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.prune
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top: true
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+    - toc.sticky
+    
+    #- header.autohide  # Disabled to keep top nav always visible
+    
+  # 👈 enables avatar display
+  palette:
+    # Dark mode only
+    - scheme: slate
+      primary: indigo # You can choose any color here
+
+  font:
+    text: Mulish
+    code: JetBrains Mono
+  favicon: assets/favicon.png
+  icon:
+    logo: logo
+    repo: fontawesome/brands/github
+    admonition:
+      note: material/lightbulb
+###
+### mkdocs-nav.yml
+###
+
+nav:
+  - Start Here: welcome.md
+  - Labs:
+      - index.md
+      - 00 Verify Cluster: 00-VerifyCluster/README.md
+      - 01 Namespace: 01-Namespace/README.md
+      - 02 Deployments Imperative: 02-Deployments-Imperative/README.md
+      - 03 Deployments Declarative: 03-Deployments-Declarative/README.md
+      - 04 Rollout: 04-Rollout/README.md
+      - 05 Services: 05-Services/README.md
+      - 06 DataStore: 06-DataStore/README.md
+      - 07 Nginx Ingress: 07-nginx-Ingress/README.md
+      - 08 Kustomization: 08-Kustomization/README.md
+      - 09 StatefulSet: 09-StatefulSet/README.md
+      - 10 Istio: 10-Istio/README.md
+      - 11 CRD Custom Resource Definition: 11-CRD-Custom-Resource-Definition/README.md
+      - 12 Wordpress MySQL PVC: 12-Wordpress-MySQL-PVC/README.md
+      - 13 Helm Chart: 13-HelmChart/README.md
+      - 14 Logging: 14-Logging/README.md
+      - 15 Prometheus Grafana: 15-Prometheus-Grafana/README.md
+      - 16 Affinity Taint Toleration: 16-Affinity-Taint-Tolleration/README.md
+      - 17 Pod Disruption Budgets: 17-PodDisruptionBudgets-PDB/README.md
+      - 18 ArgoCD: 18-ArgoCD/README.md
+      - 19 Custom Scheduler: 19-CustomScheduler/README.md
+      - 20 CronJob: 20-CronJob/README.md
+      - 21 Auditing: 21-Auditing/README.md
+      - 21 KubeAPI: 21-KubeAPI/README.md
+      - 22 Rancher: 22-Rancher/README.md
+      - 23 Metric Server: 23-MetricServer/README.md
+      - 24 Helm Operator: 24-HelmOperator/README.md
+      - 25 Kubebuilder: 25-kubebuilder/README.md
+      - 26 k9s: 26-k9s/README.md
+      - 27 Krew: 27-krew/README.md
+      - 28 Kubeapps: 28-kubeapps/README.md
+      - 29 Kubeadm: 29-kubeadm/README.md
+      - 30 k9s: 30-k9s/README.md
+###
+### mkdocs-site.yml
+###
+docs_dir: Labs
+edit_uri: ""
+repo_name: Linuman/KubernetesLabs
+repo_url: https://github.com/Linuman/KubernetesLabs
+site_author: Nir Geier - nirgeier@gmail.com
+site_description: A collection of Kubernetes Labs for learning and practicing Kubernetes skills.
+site_dir: ./mkdocs-site
+site_name: KubernetesLabs
+site_url: https://Linuman.github.io/KubernetesLabs/
+###
+### mkdocs-extra.yml
+###
+
+extra:
+  assets:
+    - ./assets/images/
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Linuman/KubernetesLabs
+      name: View on GitHub
+      class: social-class__github
+    
+    - icon: octicons/repo-forked-16
+      link: https://github.com/Linuman/KubernetesLabs/network/members
+      name: Fork this repo
+      class: social-class__fork
+    
+    - icon: octicons/star-16
+      link: https://github.com/Linuman/KubernetesLabs/stargazers
+      name: Star this repo
+      class: social-class__star
+
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/nirgeier/
+      name: Connect on LinkedIn
+      class: social-class__linkedin
+
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/U6xW23Ss
+      name: Follow me on Discord
+      class: social-class__discord
+    
+    - icon: fontawesome/brands/stack-overflow
+      link: https://stackoverflow.com/users/1755598/codewizard
+      name: Follow me on Stack Overflow
+      class: social-class__stackoverflow
+    
+    - icon: fontawesome/brands/whatsapp
+      link: https://wa.me/972548122310
+      name: Follow me on WhatsApp
+      class: social-class__whatsapp
+    
+    - icon: fontawesome/solid/envelope
+      link: mailto:nirg@codewizard.co.il
+      name: Email me
+      class: social-class__email
+
+extra_css:
+  - ./assets/stylesheets/theme.css
+extra_javascript:
+  - https://buttons.github.io/buttons.js
+###
+### mkdocs-extensions.yml
+###
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      baselevel: 1
+      toc_depth: 3
+  - abbr
+  - tables
+  - admonition # For callouts/notes
+  - footnotes # Footnotes support
+  - attr_list # Attribute lists for elements
+  - def_list # Definition lists
+  - md_in_html # Markdown inside HTML blocks
+  - smarty # Smart punctuation
+  - meta
+  - codehilite:
+      guess_lang: true # Fallback code highlighting
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details # Collapsible details
+  - pymdownx.inlinehilite # Inline code highlighting
+  - pymdownx.keys # Keyboard key formatting
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.tilde # Subscript/superscript
+  - pymdownx.snippets # Snippet includes
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: "!!python/name:pymdownx.superfences.fence_code_format"
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+###
+### mkdocs-plugins.yml
+###
+
+plugins:
+  - awesome-pages
+  - meta
+  # - pdf-export:
+  #     combined: true # all pages in one PDF
+  #     combined_output_path: docs/Full-Documentation.pdf
+  #     media_type: print
+  #     verbose: true
+  # Git
+  #- git-authors
+  - git-committers:
+      branch: master
+      docs_path: Labs # set if your docs folder is not root
+      enabled: true
+      repository: Linuman/KubernetesLabs
+  - git-revision-date-localized:
+      enable_creation_date: true
+      enable_git_follow: false
+      fallback_to_build_date: true
+      locale: en
+      timezone: UTC
+      type: date
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
+
+  # Leave this one as the last one in the list
+  - print-site
+  - include-markdown
