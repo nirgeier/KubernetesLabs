@@ -1,0 +1,6 @@
+---
+app_user: "root"
+http_host: "localhost"
+http_conf: "localhost.conf"
+http_port: "8888"
+disable_default: true

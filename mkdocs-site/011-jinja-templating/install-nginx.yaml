@@ -1,0 +1,53 @@
+##################################################
+# Playbook for installing Apache on Ubuntu
+##################################################
+---
+- hosts: linux-server-2
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Install prerequisites
+      apt: 
+        name: "{{ item }}" 
+        update_cache: yes 
+        state: latest 
+        force_apt_get: yes
+      loop: [ 'aptitude', 'apache2' ]
+
+    - name: Create document root
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Copy index test page
+      template:
+        src: "templates/index.html.j2"
+        dest: "/var/www/{{ http_host }}/index.html"
+
+    - name: Set up Apache virtualhost
+      template:
+        src: "templates/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+
+    - name: Enable new site
+      shell: /usr/sbin/a2ensite {{ http_conf }}
+      
+    - name: Disable default Apache site
+      shell: /usr/sbin/a2dissite 000-default.conf
+      when: disable_default
+      
+    - name: Start apache2 server
+      shell: service apache2 restart
+    
+    - name: Check Apache
+      service_facts:
+      register: services_state
+      
+    - name: Debug
+      debug:
+        var: services_state
+  
+  

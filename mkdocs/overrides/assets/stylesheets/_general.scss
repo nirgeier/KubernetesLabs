@@ -1,0 +1,172 @@
+@use "mixins" as *;
+
+:root {
+  // Colors
+  --color-yellow: #f8b22f;
+  --color-yellow-light: #f9d91d;
+  --color-yellow-dark: #c68600;
+
+  --color-gray-light: #3d444d; // #242424;
+
+  --color-red-light: #a72b5a;
+
+  --color-green-neon: #03dac5;
+
+  --color-borders: #202020;
+
+  // Background colors
+  --color-main-bg: #0f0f0f;
+
+  // Menu items
+  --color-nav-item: #1c6c8d;
+  --color-nav-item: #5c626a;
+  --color-nav-item-hover: var(--color-yellow);
+
+  --color-code: var(--color-green-neon); //#c95f54; // #2c865d;
+
+  // Links
+  --color-link: #3e84e0;
+
+  --color-red: #993232;
+  --color-red-dark: #ee0000;
+
+  --color-headers: #00ccc0;
+  --color-dark-bg: #333;
+  --color-text: #3a3a3a;
+  --color-dark-text: #303030;
+  --color-background: #fafafa;
+  --color-table-header-background: #ededed;
+  --color-code-background: #fff;
+  --color-code-border-color: #dfdfdf;
+  --color-invert-filter: none;
+  --color-link-hover: #f2a71b;
+  --color-link-menu-item: #8ab4f8;
+
+  // Social media colors
+  --color-social-email: #d14836;
+  --color-social-whatsapp: #25d366;
+  --color-social-stackoverflow: #f48024;
+  --color-social-discord: #5865f2;
+  --color-social-linkedin: #0072b1;
+  --color-social-github: #f0f6fc;
+  --color-social-star: #e3b341;
+}
+
+body {
+  font-family: "Mulish", sans-serif;
+  background-color: var(--color-main-bg);
+}
+
+[data-md-type="navigation"] {
+  font-family: "Roboto Condensed", sans-serif;
+}
+
+.logo1,
+.logo2 {
+  display: none;
+}
+
+@media screen and (min-width: 800px) {
+  .logo1 {
+    @include logo1;
+  }
+  .logo2 {
+    @include logo2;
+  }
+}
+
+/* Remove focus-within styles globally */
+*:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.md-typeset ol li,
+.md-typeset ul li {
+  margin: 0;
+}
+
+/* Change border color, width, and style for all notes */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border: 1px solid #0074d9; /* Change color and style as needed */
+  border-radius: 8px; /* Optional: rounded corners */
+  box-shadow: none; /* Optional: remove shadow */
+}
+
+.md-theme-light .md-typeset img,
+.md-theme-light .md-typeset svg,
+.md-theme-light .md-typeset video {
+  border-radius: 10px;
+}
+
+.md-typeset h1 {
+  font-size: 2em;
+  line-height: 1.5;
+  margin: 0px 0px 0em;
+}
+
+.md-typeset h2 {
+  font-size: 1.5em;
+  line-height: 1.5;
+  margin: 0px 0px 0em;
+}
+
+.md-nav,
+.md-typeset {
+  font-size: 16px;
+}
+
+.md-typeset table {
+  line-height: 0.25rem;
+}
+
+/* Force sidebar to be visible alongside tabs */
+.md-sidebar {
+  display: block !important;
+  width: 15rem;
+}
+
+/* Make sure content area doesn't overlap */
+.md-main__inner {
+  display: grid;
+  grid-template-columns: minmax(250px, 300px) 1fr;
+}
+
+.md-typeset a {
+  color: var(--color-link);
+}
+
+.md-header {
+  background-color: black;
+}
+
+img.height-64px {
+  height: 64px;
+  border-radius: 10px;
+}
+
+img.width-24px {
+  width: 24px;
+  vertical-align: middle;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.lab-logo {
+  @extend .center;
+  width: 150px;
+}
+
+// Utility classes for rounded corners
+// Generate classes for border-radius values from 5px to 25px
+@for $i from 5 through 25 {
+  .border-radius-#{$i} {
+    border-radius: #{$i}px;
+  }
+}

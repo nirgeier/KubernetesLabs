@@ -1,0 +1,27 @@
+---
+- name: Install Git on Server
+  hosts: all
+  gather_facts: false
+  vars:
+  - packages:
+      - git
+  tasks:
+    - name: Installing Package(s)
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ packages }}"
+    
+    - name: Add a setting to ~/.gitconfig
+      community.general.git_config:
+        name: user.name
+        scope: global
+        value: "Nir Geier"
+    
+    - name: Verify Git Installation
+      ansible.builtin.command: "git --version"
+      register: verify_git
+      
+    - name: Print Git Installation
+      ansible.builtin.debug:
+        msg: "{{ verify_git.stdout_lines }}"

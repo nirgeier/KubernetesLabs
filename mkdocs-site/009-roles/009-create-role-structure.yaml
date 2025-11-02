@@ -1,0 +1,37 @@
+---
+- name: Ansible workshop - Build Ansible roles Structure
+  hosts: 127.0.0.1
+  vars:
+    # The playbook for this reples demo lab
+    playbook_name: ansible_codewizard_roles_skeleton
+    # The folder in which the roles will be created
+    location: "./tmp/{{ playbook_name }}"
+
+    # Folders for each role
+    folders:
+      - "../../group_vars"
+      - "defaults"
+      - "files"
+      - "handlers"
+      - "meta"
+      - "tasks"
+      - "templates"
+      - "vars"
+
+    # The roles which we will be creating
+    roles: ["web", "database", "common"]
+
+  tasks:
+    - name: Create skeleton
+      ansible.builtin.shell: |
+        mkdir -p $(dirname {{ location }}/roles/{{ item.0 }}/{{ item.1 }}/main.yaml) 
+        touch {{ location }}/roles/{{ item.0 }}/{{ item.1 }}/main.yaml
+      loop: "{{ roles | product(folders) | list}}"
+
+    - name: Create root files and folders
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+      with_items:
+        - "{{ location }}/group_vars/all.yaml"
+        - "{{ location }}/{{ playbook_name }}.yml"

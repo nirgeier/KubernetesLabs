@@ -1,0 +1,19 @@
+---
+- name: Basic playbook samples
+  hosts: all
+  gather_facts: yes # Required to collect network facts
+  tasks:
+    # Collect the facts about with the build in debug module
+    - name: Show facts available on the system
+      ansible.builtin.debug:
+        var: ansible_facts
+
+    # Collect the facts and save them in json files
+    - name: Gather facts
+      ansible.builtin.setup:
+
+    - name: Save facts to a file
+      delegate_to: localhost
+      copy:
+        content: "{{ ansible_facts }}"
+        dest: "/labs-scripts/facts/{{ inventory_hostname }}_playbook_facts.json"

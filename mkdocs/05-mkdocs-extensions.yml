@@ -1,0 +1,43 @@
+###
+### mkdocs-extensions.yml
+###
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      baselevel: 1
+      toc_depth: 3
+  - abbr
+  - tables
+  - admonition # For callouts/notes
+  - footnotes # Footnotes support
+  - attr_list # Attribute lists for elements
+  - def_list # Definition lists
+  - md_in_html # Markdown inside HTML blocks
+  - smarty # Smart punctuation
+  - meta
+  - codehilite:
+      guess_lang: true # Fallback code highlighting
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details # Collapsible details
+  - pymdownx.inlinehilite # Inline code highlighting
+  - pymdownx.keys # Keyboard key formatting
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.tilde # Subscript/superscript
+  - pymdownx.snippets # Snippet includes
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: "!!python/name:pymdownx.superfences.fence_code_format"
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg

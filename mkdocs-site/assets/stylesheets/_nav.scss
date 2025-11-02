@@ -1,0 +1,54 @@
+.md-nav__item {
+    color: var(--color-menu-item);
+}
+
+.md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav__link {
+    background: transparent;
+    box-shadow: none;
+}
+
+.md-nav__link {
+    padding: 0;
+    margin-top: 0.35em;
+    font-size: 0.7rem;
+    color: var(--color-nav-item);
+}
+
+.md-nav__link[for]:focus,
+.md-nav__link[href]:focus,
+.md-nav--secondary .md-nav__link--active {
+    color: var(--color-nav-item-hover);
+}
+
+.md-nav__link[for]:hover,
+.md-nav__link[href]:hover {
+    //background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: var(--color-nav-item-hover);
+    //margin-left: -5px;
+    //outline-offset: -1px;
+    outline: solid 0.0625rem rgba(0, 0, 0, 0) !important;
+}
+
+/* Hide sidebar items that are not in the active tab */
+.md-nav__list > .md-nav__item--nested:not(.md-nav__item--active) {
+    display: none;
+}
+
+.m-social__top {
+    white-space: nowrap;
+    padding: 0 25px;
+    text-align: center;
+    line-height: 2.75em;
+    vertical-align: middle;
+    color: var(--color-code);
+}
+
+.md-header__source {
+    color: var(--color-yellow);
+}
+
+.md-search__inner {
+    border: 1px solid var(--color-gray-light);
+    border-radius: 5px;
+}

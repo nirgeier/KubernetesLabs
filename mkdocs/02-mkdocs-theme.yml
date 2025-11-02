@@ -1,0 +1,57 @@
+###
+### mkdocs-theme.yml
+###
+copyright:
+  '©2021-2025 Nir Geier<br/><a href="https://visitor-badge.laobi.icu/badge?page_id=nirgeier" target="_blank" rel="noopener"><img
+  src="https://visitor-badge.laobi.icu/badge?page_id=nirgeier" alt="Visitor Badge"></a>'
+theme:
+  name: material
+  custom_dir: mkdocs/overrides
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.footnote.tooltips
+    - content.tabs.link
+    - content.tooltips
+    - content.footer.last-updated
+    - content.footer.contributors
+    - navigation.expand: false
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.prune
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top: true
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+    - toc.sticky
+    
+    #- header.autohide  # Disabled to keep top nav always visible
+    
+  # 👈 enables avatar display
+  palette:
+    # Dark mode only
+    - scheme: slate
+      primary: indigo # You can choose any color here
+
+  font:
+    text: Mulish
+    code: JetBrains Mono
+  favicon: assets/favicon.png
+  icon:
+    logo: logo
+    repo: fontawesome/brands/github
+    admonition:
+      note: material/lightbulb
