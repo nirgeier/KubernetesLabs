@@ -16,7 +16,7 @@ plugins:
       branch: main
       docs_path: Labs # set if your docs folder is not root
       enabled: true
-      repository: Linuman/AnsibleLabs
+      repository: Linuman/KubernetesLabs
   - git-revision-date-localized:
       enable_creation_date: true
       enable_git_follow: false

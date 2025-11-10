@@ -8,52 +8,56 @@
 
 # StatefulSets
 
+<img src="../../resources/statefulSet.png" width=500>
+
+
 ## The Difference Between a `Statefulset` And a `Deployment`
 
 #### `Stateless` application
 
-- A stateless application is one that does not care which network it is using, and it does not need permanent storage and can be scaled up and down without the need to re-use the same Network or persistance.
-- Deployment is the suitable Kind for Stateless applications
-- The most trivial example of stateless app is a Web Server
+- A stateless application is one that does not care which network it is using, and it does not need permanent storage and can be scaled up and down without the need to re-use the same network or persistence.
+- Deployment is the suitable kind for Stateless applications.
+- The most trivial example of stateless app is a `Web Server`.
 
 #### `Stateful` application
 
-- Stateful application are apps which in order to work properly need to use the same resources like Network, Storage etc).
-- Usually with Stateful applications you’ll need to ensure that pods can reach each other through a **unique identity that does not change** (examples: hostnames, IP).
-- The most trivial example of Stateful app is a Database of any kind
+- Stateful applications are apps which in order to work properly need to use the same resources, such as network, storage etc.
+- Usually with `Stateful` applications you will need to ensure that pods can reach each other through a **unique identity that does not change** (e.g., hostnames, IP).
+- The most trivial example of Stateful app is a database of any kind.
 
 ---
 
-## `Stateful` Notes
+!!! warning "Stateful Notes"
+    - Like a Deployment, a `StatefulSet` manages Pods that are based on an **identical container spec**.
+    - Unlike a Deployment, **a `StatefulSet` maintains a sticky identity for each of their Pods**.
+    - These pods are created from the same spec, but are not interchangeable: each has a persistent identifier that it maintains across any rescheduling.
+    - Deleting and/or scaling down a `StatefulSet` will not delete the volumes associated with the `StatefulSet`. This is done to ensure data safety.
+    - `StatefulSet` keeps a unique identity for each Pod and assign the same identity to those pods when they are rescheduled (update, restart etc).
+    - The storage for a given Pod must either be provisioned by a `PersistentVolume` provisioner, based on the requested storage class, or pre-provisioned by an admin.
+    - `StatefulSet` manages the deployment and scaling of a set of Pods, and **provides guarantees about the ordering and uniqueness of these Pods**.
+    - A `stateful` app needs to use a dedicated storage.
 
-- Like a Deployment, a StatefulSet manages Pods that are based on an **identical container spec**.
-- Unlike a Deployment, **a StatefulSet maintains a sticky identity for each of their Pods**.
-- These pods are created from the same spec, but are not interchangeable: each has a persistent identifier that it maintains across any rescheduling.
-- Deleting and/or scaling a `StatefulSet` down will not delete the volumes associated with the `StatefulSet`. This is done to ensure data safety.
-- `StatefulSet` keeps a unique identity for each Pod and assign the same identity to those pods when they rescheduled (update, restart etc).
-- The storage for a given Pod must either be provisioned by a `PersistentVolume` Provisioner based on the requested storage class, or pre-provisioned by an admin.
-- `StatefulSet` Manages the deployment and scaling of a set of Pods, and **provides guarantees about the ordering and uniqueness of these Pods**.
-- A stateful app needs use dedicated storage
+---
 
 ### Stable Network Identity
 
-- A Stateful application node **must** have a unique hostname and IP address so that other nodes in the same application knows how to reach it.
-- A `ReplicaSet` assign **a random hostname and IP address** to each Pod and we use a Service which expose those Pods for us.
+- A `Stateful` application node **must** have a unique hostname and IP address so that other nodes in the same application know how to reach it.
+- A `ReplicaSet` assign **a random hostname and IP address** to each Pod. In such a case, we must use a service which exposes those Pods for us.
 
 ### Start and Termination Order
 
-- Each `StatefulSet` follow this naming pattern: `$(statefulSet name)-$(ordinal)`
-- Stateful applications restarted or re-created following the creation order.
+- Each `StatefulSet` follows this naming pattern: `$(statefulSet name)-$(ordinal)`
+- `Stateful` applications restarted or re-created, following the creation order.
 - A `ReplicaSet` does not follow a specific order when starting or killing its pods.
 
 ### StatefulSet Volumes
 
-- StatefulSet **does not create a volume for you**.
-- When a StatefulSet is deleted, the respective volumes **are not deleted with it**.
+- `StatefulSet` **does not create a volume for you**.
+- When a `StatefulSet` is deleted, the respective volumes **are not deleted with it**.
 
 ---
 
-### To address all those requirements, Kubernetes offers the StatefulSet primitive.
+### To address all these requirements, Kubernetes offers the `StatefulSet primitive`.
 
 ---
 
@@ -64,39 +68,6 @@
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)  
 **<kbd>CTRL</kbd> + <kbd>click</kbd> to open in new window**
 
-<!-- inPage TOC start -->
-
----
-## Lab Highlights:
-- [K8S Hands-on](#k8s-hands-on)
-- [StatefulSets](#statefulsets)
-  - [The Difference Between a `Statefulset` And a `Deployment`](#the-difference-between-a-statefulset-and-a-deployment)
-      - [`Stateless` application](#stateless-application)
-      - [`Stateful` application](#stateful-application)
-  - [`Stateful` Notes](#stateful-notes)
-    - [Stable Network Identity](#stable-network-identity)
-    - [Start and Termination Order](#start-and-termination-order)
-    - [StatefulSet Volumes](#statefulset-volumes)
-    - [To address all those requirements, Kubernetes offers the StatefulSet primitive.](#to-address-all-those-requirements-kubernetes-offers-the-statefulset-primitive)
-    - [Pre-Requirements](#pre-requirements)
-  - [Lab Highlights:](#lab-highlights)
-    - [01. Create namespace and clear previous data if there is any](#01-create-namespace-and-clear-previous-data-if-there-is-any)
-    - [02. Create and test the Stateful application](#02-create-and-test-the-stateful-application)
-    - [03. Test the Stateful application](#03-test-the-stateful-application)
-    - [04. Scale down the StatefulSet and check that its down](#04-scale-down-the-statefulset-and-check-that-its-down)
-      - [04.01. Scale down the `Statefulset` to 0](#0401-scale-down-the-statefulset-to-0)
-      - [04.02. Verify that the pods Terminated](#0402-verify-that-the-pods-terminated)
-    - [04.03. Verify that the DB is not reachable](#0403-verify-that-the-db-is-not-reachable)
-    - [05. Scale up again and verify that we still have the prevoius data](#05-scale-up-again-and-verify-that-we-still-have-the-prevoius-data)
-      - [05.01. scale up the `Statefulset` to 1 or more](#0501-scale-up-the-statefulset-to-1-or-more)
-      - [05.02. Verify that the pods is in Running status](#0502-verify-that-the-pods-is-in-running-status)
-      - [05.03. Verify that the pods is using the previous data](#0503-verify-that-the-pods-is-using-the-previous-data)
-
----
-
-<!-- inPage TOC end -->
-
-<img src="../../resources/statefulSet.png" width=500>
 
 ---
 
@@ -360,22 +331,3 @@ psql \
 (1 row)
 ```
 
-<!-- navigation start -->
-
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../08-Kustomization">08-Kustomization</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../10-Istio">10-Istio</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->

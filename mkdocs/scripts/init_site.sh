@@ -239,14 +239,17 @@ update_yaml_field_if_empty() {
     
     # Check if field doesn't exist at all
     if ! grep -q "^${field_name}:" "$config_file"; then
-        print_info "Adding $field_name to: $field_value"
+        print_info "Adding ${field_name}: ${field_value} to ${config_file}"
         echo "${field_name}: ${field_value}" >> "$config_file"
-    # Check if field exists but is empty or contains only whitespace/empty quotes
-    elif grep -q "^${field_name}:\s*$\|^${field_name}:\s*[\"']\s*[\"']\s*$\|^${field_name}:\s\+$" "$config_file"; then
-        print_info "Setting $field_name to: $field_value"
-        sed -i.bak "s|^${field_name}:.*$|${field_name}: ${field_value}|g" "$config_file"
     else
-        print_warning "$field_name already has a value, skipping"
+        # Check if field exists but is empty or contains only whitespace/empty quotes
+        # Use POSIX character classes for portability (macOS BSD grep/sed compatibility)
+        if grep -Eq "^${field_name}:[[:space:]]*$|^${field_name}:[[:space:]]*['\"]?[[:space:]]*['\"]?[[:space:]]*$" "$config_file"; then
+            print_info "Setting ${field_name} to: ${field_value} in ${config_file}"
+            sed -i.bak "s|^${field_name}:.*$|${field_name}: ${field_value}|g" "$config_file"
+        else
+            print_warning "${field_name} already has a value, skipping"
+        fi
     fi
 }
 

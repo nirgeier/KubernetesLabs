@@ -2,7 +2,7 @@
 
 ## 📋 Lab Overview
 
-Welcome to the hands-on Kubernetes labs! This comprehensive series will guide you through essential Kubernetes concepts and advanced topics.
+Welcome to the hands-on Kubernetes labs! This comprehensive series of labs will guide you through essential Kubernetes concepts and advanced topics.
 
 ## 🗂️ Available Labs
 
@@ -81,28 +81,28 @@ Welcome to the hands-on Kubernetes labs! This comprehensive series will guide yo
 ## 🎯 Learning Path
 
 ### Beginner Track
-Start here if you're new to Kubernetes:
-1. Lab 00: Verify Cluster
-2. Lab 01: Namespace
-3. Lab 02: Deployments (Imperative)
-4. Lab 03: Deployments (Declarative)
-5. Lab 05: Services
+Start here if you're new to Kubernetes:<br>
+1. Lab 00: Verify Cluster <br>
+2. Lab 01: Namespace <br>
+3. Lab 02: Deployments (Imperative) <br>
+4. Lab 03: Deployments (Declarative) <br>
+5. Lab 05: Services <br>
 
 ### Intermediate Track
-For those with basic Kubernetes knowledge:
-1. Lab 04: Rollout
-2. Lab 06: DataStore
-3. Lab 07: Nginx Ingress
-4. Lab 08: Kustomization
-5. Lab 13: Helm Chart
+For those with basic Kubernetes knowledge:<br>
+1. Lab 04: Rollout <br>
+2. Lab 06: DataStore <br>
+3. Lab 07: Nginx Ingress <br>
+4. Lab 08: Kustomization <br>
+5. Lab 13: Helm Chart <br>
 
 ### Advanced Track
-For experienced Kubernetes users:
-1. Lab 10: Istio
-2. Lab 11: Custom Resource Definition
-3. Lab 18: ArgoCD
-4. Lab 19: Custom Scheduler
-5. Lab 25: Kubebuilder
+For experienced Kubernetes users:<br>
+1. Lab 10: Istio<br>
+2. Lab 11: Custom Resource Definition<br>
+3. Lab 18: ArgoCD<br>
+4. Lab 19: Custom Scheduler<br>
+5. Lab 25: Kubebuilder<br>
 
 ## 💡 Tips for Success
 
@@ -114,4 +114,7 @@ For experienced Kubernetes users:
 
 ## 🚀 Get Started
 
-Ready to begin? Click on any lab above or start with [Lab 00: Verify Cluster](00-VerifyCluster/README.md)!
+Ready to begin? Click on any lab on the left menu, or start with [Lab 00: Verify Cluster](00-VerifyCluster/README.md)!
+
+
+

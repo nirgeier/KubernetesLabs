@@ -3,10 +3,10 @@
 ###
 docs_dir: Labs
 edit_uri: ""
-repo_name: nirgeier/AnsibleLabs
-repo_url: https://github.com/nirgeier/AnsibleLabs
+repo_name: Linuman/KubernetesLabs
+repo_url: https://github.com/Linuman/KubernetesLabs
 site_author: Nir Geier - nirgeier@gmail.com
-site_description: A collection of GitHub Labs for learning and practicing GitHub skills.
+site_description: A collection of Kubernetes Labs for learning and practicing Kubernetes skills.
 site_dir: ./mkdocs-site
-site_name: AnsibleLabs
-site_url: https://nirgeier.github.io/AnsibleLabs/
+site_name: KubernetesLabs
+site_url: https://Linuman.github.io/KubernetesLabs/
