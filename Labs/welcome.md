@@ -1,23 +1,22 @@
 # Welcome to Kubernetes Labs
 
-![Kubernetes Logo](https://kubernetes.io/images/kubernetes-horizontal-color.png)
+![Kubernetes Logo](/Users/orni/MKdocs/KubernetesLabs/KubernetesLabs/resources/Kubernetes-Logo.wine.png)
+![Kubernetes Logo](mkdocs/overrides/assets/images/k8s-logos.png)
 
-## 🚀 Introduction
-
-Welcome to the **Kubernetes Labs** repository! This is a comprehensive collection of hands-on labs designed to help you learn and master Kubernetes concepts, from basic deployments to advanced topics like Istio, ArgoCD, and custom schedulers.
+Welcome to the **Kubernetes Labs** repository! This is a comprehensive collection of hands-on labs designed to help you learn and master Kubernetes concepts, from basic deployments to advanced topics like Istio, ArgoCD and custom schedulers.
 
 ## 📚 What You'll Learn
 
-This lab series covers a wide range of Kubernetes topics:
+This lab series covers a wide range of `Kubernetes` topics:
 
-- **Basics**: Namespaces, Deployments, Services, and Rollouts
-- **Storage**: DataStores, Persistent Volume Claims, StatefulSets
-- **Networking**: Ingress Controllers, Service Mesh (Istio)
-- **Configuration Management**: Kustomization, Helm Charts
+- **Basics**: Namespaces, Deployments, Services and Rollouts
+- **Storage**: DataStores, Persistent Volume Claims and StatefulSets
+- **Networking**: Ingress Controllers and Service Mesh (Istio)
+- **Configuration Management**: Kustomization and Helm Charts
 - **GitOps**: ArgoCD for continuous deployment
-- **Observability**: Logging, Prometheus, Grafana
-- **Advanced Topics**: Custom Resource Definitions (CRDs), Custom Schedulers, Pod Disruption Budgets
-- **Tools**: k9s, Krew, Kubeapps, Kubeadm, Rancher
+- **Observability**: Logging, Prometheus and Grafana
+- **Advanced Topics**: Custom Resource Definitions (CRDs), Custom Schedulers and Pod Disruption Budgets
+- **Tools**: k9s, Krew, Kubeapps, Kubeadm and Rancher
 
 ## 🎯 Who Is This For?
 
@@ -33,7 +32,7 @@ These labs are designed for:
 Before starting these labs, you should have:
 
 - Basic understanding of containerization (Docker)
-- Command-line familiarity
+- Command-line (CLI) familiarity
 - A Kubernetes cluster (Minikube, Kind, or cloud-based cluster)
 - kubectl installed and configured
 
@@ -68,7 +67,7 @@ Contributions are welcome! If you find issues or have suggestions for improvemen
 
 ## 📬 Contact
 
-For questions or feedback, please reach out through the social links at the bottom of this page.
+For questions or feedback, please reach out through the social links located above the header of this page.
 
 ---
 

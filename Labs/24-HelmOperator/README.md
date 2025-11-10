@@ -1,17 +1,35 @@
-## Helm Operator Tutorial
+## ![](../../resources/k8s-logos.png)
+
+# K8S Hands-on
+
+![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
+
+---
+
+
+
+## Helm Operator 
 
 - An in-depth Helm-based operator tutorial.
+- The `Helm Operator` is a Kubernetes operator, allowing one to declaratively manage Helm chart releases.
 
-  > The Helm Operator is a Kubernetes operator, allowing one to declaratively manage Helm chart releases.
+---
 
-### Prerequisites
+
+### Pre-Requirements
+- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
+- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
+
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)  
+**<kbd>CTRL</kbd> + <kbd>click</kbd> to open in new window**
 
 - Docker
 - kubectl
-- operator-sdk [brew install operator-sdk]
-- `cluster-admin` permissions.
+- operator-sdk installed and configured
+- `cluster-admin` permissions
 
-### Prerequisites - Install `operator-sdk`
+
+### Install `operator-sdk`
 
 ```sh
 # Grab the ARCH and OS
@@ -28,7 +46,9 @@ curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH}
 chmod +x operator-sdk_${OS}_${ARCH} && sudo mv operator-sdk_${OS}_${ARCH} /usr/local/bin/operator-sdk
 ```
 
-### Step 01: Create a new project
+---
+
+### Step 01 - Create a new project
 
 - Use the CLI to create a new Helm-based nginx-operator project:
 
@@ -124,14 +144,17 @@ operator-sdk                \
 ### Step 02 - Customize the operator logic
 
 - For this example the nginx-operator will execute the following reconciliation logic for each Nginx Custom Resource (CR):
-  - Create an nginx Deployment if it doesn’t exist
-  - Create an nginx Service if it doesn’t exist
-  - Create an nginx Ingress if it is enabled and doesn’t exist
-  - Ensure that the Deployment, Service, and optional Ingress match the desired configuration (e.g. replica count, image, service type, etc) as specified by the Nginx CR
+  - Create an nginx Deployment, if it doesn’t exist.
+  - Create an nginx Service, if it doesn’t exist.
+  - Create an nginx Ingress, if it is enabled and doesn’t exist.
+  - Update the Deployment, Service, and Ingress, if they already exist but don’t match the desired configuration as specified by the Nginx CR.
+  - Ensure that the Deployment, Service, and optional Ingress all match the desired configuration (e.g. replica count, image, service type, etc) as specified by the Nginx CR.
+
+<br> 
 
 #### Watch the Nginx CR
 
-- By default, the nginx-operator watches Nginx resource events as shown in `watches.yaml` and executes Helm releases using the specified chart:
+- By default, the Nginx-operator watches Nginx resource events as shown in `watches.yaml` and executes Helm releases using the specified chart:
 
 ```yaml
 # Use the 'create api' subcommand to add watches to this file.
@@ -141,22 +164,26 @@ operator-sdk                \
   chart: helm-charts/nginx
 ```
 
+<br>
+
 ### Reviewing the Nginx Helm Chart
 
 - When a Helm operator project is created, the SDK creates an example Helm chart that contains a set of templates for a simple Nginx release.
 
-- For this example, we have templates for deployment, service, and ingress resources, along with a NOTES.txt template, which Helm chart developers use to convey helpful information about a release.
+- For this example, we have templates for deployment, service, and ingress resources, along with a `NOTES.txt` template, which Helm chart developers use to convey helpful information about a release.
+
+<br>
 
 ### Understanding the Nginx CR spec
 
-- Helm uses a concept called values to provide customizations to a Helm chart’s defaults, which are defined in the Helm chart’s values.yaml file.
+- Helm uses a concept called `values` to provide customizations to a Helm chart’s defaults, which are defined in the Helm chart’s `values.yaml` file.
 
 - Overriding these defaults is as simple as setting the desired values in the CR spec.
-- Let’s use the number of replicas as an example.
+- Let’s use the number of replicas value as an example.
 
-- First, inspecting `helm-charts/nginx/values.yaml`, we see that the chart has a value called `replicaCount` and it is set to `1` by default.
+- First, inspecting `helm-charts/nginx/values.yaml`, we can see that the chart has a value called `replicaCount` and it is set to `1` by default.
 
-- Lets update the value to 3 `replicaCount: 3`.
+- Let’s update the value to 3 - `replicaCount: 3`.
 
   ```yaml
   # Update `config/samples/demo_v1alpha1_nginx.yaml` to look like the following:
@@ -169,19 +196,20 @@ operator-sdk                \
     replicaCount: 3 # <------- Adding our replicas count
   ```
 
-- Similarly, we see that the default service port is set to `80`, but we would like to use `8888`, so we’ll again update config/samples/demo_v1alpha1_nginx.yaml by adding the service port override.
+- Similarly, we see that the default service port is set to `80`, but we would like to use `8888`, so we will again update config/samples/demo_v1alpha1_nginx.yaml by adding the service port override.
 
-  ```yaml
-  # Update `config/samples/demo_v1alpha1_nginx.yaml` to look like the following:
-  apiVersion: demo.codewizard.co.il/v1alpha1
-  kind: Nginx
-  metadata:
-    name: nginx-sample
-  spec:
-    #... (Around line 36)
-    service:
-      port: 8888 # <------- Updating our service port
-  ```
+
+```yaml
+# Update `config/samples/demo_v1alpha1_nginx.yaml` to look like the following:
+apiVersion: demo.codewizard.co.il/v1alpha1
+kind: Nginx
+metadata:
+  name: nginx-sample
+spec:
+  #... (Around line 36)
+  service:
+    port: 8888 # <------- Updating our service port
+```
 
 ### Step 03 - Build the operator’s image
 
@@ -198,10 +226,11 @@ IMG ?= controller:latest
 IMG ?= nirgeier/helm_operator:latest
 ```
 
-- Now lets build and push the image
-  ```sh
-  make docker-build docker-push
-  ```
+- Now let's build and push the image:
+
+```sh
+make docker-build docker-push
+```
 
 ### Step 04 - Deploy the operator to the cluster
 
@@ -212,7 +241,6 @@ make deploy
 kubectl get deployment -n nginx-operator-system
 ```
 
----
 
 ### Step 05 - Create the custom Nginx
 
@@ -247,14 +275,14 @@ replicaCount: 5
 38   #  type: ClusterIP
 ```
 
-- Apply the changes
+- Apply the changes:
 
 ```sh
 # Apply the changes
 kubectl apply -f config/samples/demo_v1alpha1_nginx.yaml
 ```
 
-- Check to see that the operator is working as expected
+- Check to see that the operator is working as expected:
 
 ```sh
 # Ensure that the nginx-operator still running
@@ -272,14 +300,14 @@ kubectl get svc | grep nginx-sample
 
 ### Step07 - Logging / Debugging
 
-- We can view the operator logs using the following command:
+- We can view the operator's logs using the following command:
 
 ```sh
 # View the operator logs
 kubectl logs deployment.apps/nginx-operator-controller-manager  -n nginx-operator-system -c manager
 ```
 
-- Review the CR status and events
+- Review the CR status and events:
 
 ```sh
 kubectl describe nginxes.demo.codewizard.co.il

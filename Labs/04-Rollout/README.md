@@ -5,10 +5,10 @@
 
 ---
 
-# Rollout (RollingUpdate)
+# Rollout (Rolling Update)
 
-- In this step we will deploy the same application with several different versions and we will "switch" between them
-- For learning purposes we will play a little bit with the cli
+- In this step we will deploy the same application with several different versions and we will "switch" between them.
+- For learning purposes we will play a little with the `CLI`.
 
 ---
 ### Pre-Requirements
@@ -17,36 +17,20 @@
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)  
 **<kbd>CTRL</kbd> + <kbd>click</kbd> to open in new window**
 
-<!-- inPage TOC start -->
-
 ---
-## Lab Highlights:
- - [01. Create namespace](#01-Create-namespace)
- - [02. Create the desired deployment](#02-Create-the-desired-deployment)
- - [03. Expose nginx as service](#03-Expose-nginx-as-service)
- - [04. Verify that the pods and the service are running](#04-Verify-that-the-pods-and-the-service-are-running)
- - [05. Change the number of replicas to 3](#05-Change-the-number-of-replicas-to-3)
- - [06. Verify that now we have 3 replicas](#06-Verify-that-now-we-have-3-replicas)
- - [07. Test the deployment](#07-Test-the-deployment)
- - [08. Deploy another version of nginx](#08-Deploy-another-version-of-nginx)
- - [09. Investigate rollout history:](#09-Investigate-rollout-history)
- - [10. Lets see what was changed during the previous updates:](#10-Lets-see-what-was-changed-during-the-previous-updates)
- - [11. Undo the version upgrade by rolling back and restoring previous version](#11-Undo-the-version-upgrade-by-rolling-back-and-restoring-previous-version)
- - [12. Rolling Restart](#12-Rolling-Restart)
-
----
-
-<!-- inPage TOC end -->
 
 ### 01. Create namespace
 
+- As completed in the previous lab, create the desired namespace [codewizard]:
+
 ```sh
-# Create the desired namespace [codewizard]
 $ kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
-- In order to set this is as your default namespace refer to: <a href="../01-Namespace#2-setting-the-default-namespace-for-kubectl">set default namespace</a>
+- In order to set this is as the default namespace, please refer to <a href="../01-Namespace#2-setting-the-default-namespace-for-kubectl">set default namespace</a>.
+
+---
 
 ### 02. Create the desired deployment
 
@@ -54,20 +38,27 @@ namespace/codewizard created
   > `save-config`  
   > If true, the configuration of current object will be saved in its annotation.  
   > Otherwise, the annotation will be unchanged.  
-  > This flag is useful when you want to perform kubectl apply on this object in the future.
+  > This flag is useful when you want to perform `kubectl apply` on this object in the future.
 
+- Let's run the following:
 ```sh
-# In case we already have this delployed we will get an error message
+
 $ kubectl create deployment -n codewizard nginx --image=nginx:1.17 --save-config
 ```
+Note that in case we already have this deployed, we will get an error message.
 
-### 03. Expose nginx as service
+---
+
+### 03. Expose nginx as a service
 
 ```sh
-# Again: In case we already have this service we will get an error message as well
+
 $ kubectl expose deployment -n codewizard nginx --port 80 --type NodePort
 service/nginx exposed
 ```
+Again, note that in case we already have this service we will get an error message as well.
+
+---
 
 ### 04. Verify that the pods and the service are running
 
@@ -88,12 +79,16 @@ NAME                              DESIRED   CURRENT   READY   AGE
 replicaset.apps/nginx-db749865c   1         1         1       66s
 ```
 
+---
+
 ### 05. Change the number of replicas to 3
 
 ```sh
 $ kubectl scale deployment -n codewizard nginx --replicas=3
 deployment.apps/nginx scaled
 ```
+
+---
 
 ### 06. Verify that now we have 3 replicas
 
@@ -105,15 +100,20 @@ nginx-db749865c-jgcvb   1/1     Running   0          86s
 nginx-db749865c-lmgtv   1/1     Running   0          4m44s
 ```
 
+---
+
 ### 07. Test the deployment
 
 ```sh
 # !!! Get the Ip & port for this service
-$ kubectl get services -n codewizard -o wide # Write down the port number
+$ kubectl get services -n codewizard -o wide 
+
+# Write down the port number
 NAME    TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE    SELECTOR
 nginx   NodePort   10.102.79.9   <none>        80:31204/TCP   7m7s   app=nginx
 
-$ kubectl cluster-info  # Get the cluster IP
+# Get the cluster IP and port
+$ kubectl cluster-info  
 Kubernetes control plane is running at https://192.168.49.2:8443
 
 # Using the above <host>:<port> test the nginx
@@ -134,6 +134,8 @@ ETag: "5e95c66e-264"
 Accept-Ranges: bytes
 ...
 ```
+
+---
 
 ### 08. Deploy another version of nginx
 
@@ -157,9 +159,11 @@ ETag: "5d528b4c-264"
 Accept-Ranges: bytes
 ```
 
+---
+
 ### 09. Investigate rollout history:
 
-- The rollout history command print out all the saved records
+- The rollout history command print out all the saved records:
 
 ```sh
 $ kubectl rollout history deployment nginx -n codewizard
@@ -170,13 +174,15 @@ REVISION  CHANGE-CAUSE
 3         kubectl set image deployment nginx nginx=nginx:1.15 --record=true
 ```
 
-### 10. Lets see what was changed during the previous updates:
+---
 
-- Print out the rollout changes
+### 10. Let's see what was changed during the previous updates:
+
+- Print out the rollout changes:
 
 ```sh
 # replace the X with 1 or 2 or any number revision id
-$ kubectl rollout history deployment nginx -n codewizard --revision=1
+$ kubectl rollout history deployment nginx -n codewizard --revision=<X>  # replace here
 deployment.apps/nginx with revision #1
 Pod Template:
   Labels:       app=nginx
@@ -190,6 +196,8 @@ Pod Template:
     Mounts:     <none>
   Volumes:      <none>
 ```
+
+---
 
 ### 11. Undo the version upgrade by rolling back and restoring previous version
 
@@ -205,34 +213,14 @@ deployment.apps/nginx rolled back
 $ curl -sI <host>:<port>
 ```
 
+---
+
 ### 12. Rolling Restart
 
-**Note:**
-
-- If we deploy out deplymnet with `imagePullPolicy: always` we can use `rollout restart` to force K8S to grab the latest image
-- **This is the fastest restart method those days**
+- If we deploy using `imagePullPolicy: always` set in the `YAML` file, we can use `rollout restart` to force `K8S` to grab the latest image.
+- **This is the fastest restart method these days**
 
 ```
 # Force pods restart
 kubectl rollout restart deployment [deployment_name]
 ```
-
-<!-- navigation start -->
-
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../03-Deployments-Declarative">03-Deployments-Declarative</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../05-Services">05-Services</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->

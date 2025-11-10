@@ -6,6 +6,16 @@
 ---
 # Data Store
 
+## Secrets and ConfigMaps
+
+- Secrets & ConfigMap are ways to store and inject configurations into your deployments.
+- Secrets usually store passwords, certificates, API keys and more.
+- ConfigMap usually store configuration (data).
+
+
+---
+
+
 ### Pre-Requirements
 - K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
 
@@ -14,39 +24,10 @@
 
 ---
 
-## Secrets and ConfigMaps
 
-- Secrets/ConfigMap are ways to store and inject configurations into your deployments.
-- Secrets usually store passwords,certificates, API keys and more.
-- ConfigMap usually store configuration (data).
+# First, Let's play a bit with Secrets
 
-<!-- inPage TOC start -->
-
----
-## Lab Highlights:
- - [01. Create namespace and clear previous data if there is any](#01-Create-namespace-and-clear-previous-data-if-there-is-any)
- - [02. Build the docker container](#02-Build-the-docker-container)
-   - [02.01. write the server code](#0201-write-the-server-code)
-   - [02.02. Write the DockerFile](#0202-Write-the-DockerFile)
-   - [02.03. Build the docker container](#0203-Build-the-docker-container)
-   - [02.04. Test the container](#0204-Test-the-container)
- - [03. Using K8S deployment &amp; Secrets/ConfigMap](#03-Using-K8S-deployment--SecretsConfigMap)
-   - [03.01. Writing the deployment &amp; Service file](#0301-Writing-the-deployment--Service-file)
-   - [03.02. Deploy to cluster](#0302-Deploy-to-cluster)
-   - [03.03. Test the app](#0303-Test-the-app)
- - [04. Using Secrets &amp; config maps](#04-Using-Secrets--config-maps)
-   - [04.01. Create the desired secret and config map for this lab](#0401-Create-the-desired-secret-and-config-map-for-this-lab)
-   - [04.02. Updating the Deployment to read the values from Secrets &amp; ConfigMap](#0402-Updating-the-Deployment-to-read-the-values-from-Secrets--ConfigMap)
-   - [04.03. Update the deployment to read values from K8S resources](#0403-Update-the-deployment-to-read-values-from-K8S-resources)
-   - [04.04. Test the changes](#0404-Test-the-changes)
-
----
-
-<!-- inPage TOC end -->
-
-## Lets play with Secrets first
-
-### 01. Create namespace and clear previous data if there is any
+### 01. Create namespace and clear previous data (if there is any)
 
 ```sh
 # If the namespace already exist and contains data from previous steps, lets clean it
@@ -57,13 +38,16 @@ $ kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
-### You can skip section #2 if you don't wish to build and push your docker container
+!!! warning "Note"
+    **You can skip section number 02. if you don't wish to build and push your docker container**
+
+---
 
 ### 02. Build the docker container
 
-#### 02.01. write the server code
+##### 1. write the server code
 - For this demo we will use a tiny NodeJS server which will consume the desired configuration values from the secret
-- This is the code of our server [server.js](server.js)
+- This is the code of our server [server.js](server.js):
 
 ```js
 //
@@ -85,11 +69,14 @@ require("http")
   .listen(process.env.PORT || 5000 );
 ```
 
-#### 02.02. Write the DockerFile
+<br>
 
-- First lets wrap it up as docker container
-- If you wish you can skip this and use the existing docker image: `nirgeier/k8s-secrets-sample`
-- In the docker file we will set the `ENV` for or variables
+
+##### 2. Write the DockerFile
+
+- First, let's wrap it up as `docker container`
+- If you wish, you can skip this and use the existing docker image: `nirgeier/k8s-secrets-sample`
+- In the `Dockerfile` we will set the `ENV` for or variables
 
 ```Dockerfile
 # Base Image
@@ -110,11 +97,13 @@ COPY        server.js .
 ENTRYPOINT  node server.js
 ```
 
-#### 02.03. Build the docker container
+<br>
+
+##### 3. Build the docker container
 ```sh
-# The container name is prefixed withthe Dockerhub account
+# The container name is prefixed with the Dockerhub account
 # !!! You should replace the prefix to your dockerhub account
-# In the sample the username wis `nirgeier`
+# In the sample the username is `nirgeier`
 $ docker build . -t nirgeier/k8s-secrets-sample
 
 # The output should be similar to this
@@ -154,13 +143,16 @@ Removing intermediate container 223629e16589
 Successfully built f5cbb1895d66
 Successfully tagged nirgeier/k8s-secrets-sample:latest
 ```
-#### 02.04. Test the container
+
+<br>
+
+##### 4. Test the container
 
 ```sh
 # Run the docker container which you build earlier,
 # replace the name if you used your own name
-# and check the response from the serrver 
-# It should print out the variables which were defined in side the DockerFile 
+# and check the response from the server.
+# It should print out the variables which were defined inside the DockerFile 
 $ docker run -d -p5000:5000 nirgeier/k8s-secrets-sample --name server
 
 # Get the response from the container 
@@ -172,20 +164,28 @@ Language: Hebrew
 Token   : Hard-To-Guess
 ```
 
+<br>
+
 - Stop the container
+
 ```sh
-# Stop the running contatiner
-# We are using the name which we passed in the `docker run` command --name <containr name>
+# Stop the running container
+# We are using the name which we passed in the `docker run` command --name <container name>
 docker stop server
 ```
+
 - Push the container to your docker hub account if you wish
+
+---
+
 
 ### 03. Using K8S deployment & Secrets/ConfigMap
 
-### 03.01. Writing the deployment & Service file
+##### 1. Writing the deployment & service file
 
-- Deploy the docker container you prepared in the previous step with the following `Deployment` file.
-- In this sample we will define the values in the yaml file,later on we will use Secrets/ConfigMap [variables-from-yaml.yaml](./variables-from-yaml.yaml)
+- Deploy the docker container that you have prepared in the previous step with the following `Deployment` file.
+- In this sample we will define the values in the `YAML` file, later on we will use Secrets/ConfigMap [variables-from-yaml.yaml](./variables-from-yaml.yaml)
+
 ```yaml
 apiVersion: v1
 kind: Namespace
@@ -236,17 +236,21 @@ spec:
       port: 5000
       targetPort: 5000
 ```
+<br>
 
-### 03.02. Deploy to cluster
-```
+##### 2. Deploy to cluster
+```sh
 $ kubectl apply -n codewizard -f variables-from-yaml.yaml
 deployment.apps/codewizard-secrets configured
 service/codewizard-secrets created
 ```
-### 03.03. Test the app
+<br>
+
+##### 3. Test the app
 
 - We will need a second container for executing the curl request.
-- We will us a busyBox image for this purpose
+- We will use a `busyBox image` for this purpose.
+
 ```sh
 # grab the name of the pod
 $ kubectl get pods -n codewizard
@@ -269,9 +273,11 @@ Token   : Hard-To-Guess2
 
 ```
 
+---
+
 ### 04. Using Secrets & config maps
 
-### 04.01. Create the desired secret and config map for this lab
+##### 1. Create the desired secret and config map for this lab
 
 ```sh
 # Create the secret 
@@ -322,9 +328,12 @@ English
 Events:  <none>
 ```
 
-### 04.02. Updating the Deployment to read the values from Secrets & ConfigMap
+<br>
+
+##### 2. Update the deployment to read the values from Secrets & ConfigMap
 
 - Change the `env` section to the following:
+
 ```yaml
           env:
             - name: LANGUAGE
@@ -339,57 +348,50 @@ Events:  <none>
                       key:    TOKEN     # The key in the secret
 ```
 
-### 04.03. Update the deployment to read values from K8S resources
+<br>
+
+##### 3. Update the deployment to read values from K8S resources
 
 ```sh
 $ kubectl apply -n codewizard -f variables-from-secrets.yaml
 deployment.apps/codewizard-secrets configured
 service/codewizard-secrets unchanged
 ```
-### 04.04. Test the changes
-- Refer to step 3.3 for testing your server
-```sh
-# Login to the server
-# In this sample this is the pod name: codewizard-secrets-76d99bdc54-s66vl
-kubectl exec -it codewizard-secrets-76d99bdc54-s66vl -n codewizard -- sh
+<br>
 
-# Test the changes to verify that they are set from the Secret/ConfigMap
-curl localhost:5000
+##### 4. Test the changes
 
-# Out put should be
-Language: English
-Token   : Hard-To-Guess3
-```
+
+- Refer to [step 3.3](#3-test-the-app) for testing your server
+
+  ```sh
+  # Login to the server
+  # In this sample, the pod name is: codewizard-secrets-76d99bdc54-s66vl
+  kubectl exec -it codewizard-secrets-76d99bdc54-s66vl -n codewizard -- sh
+
+  # Test the changes to verify that they are set from the Secret/ConfigMap
+  curl localhost:5000
+
+  # Out put should be
+  Language: English
+  Token   : Hard-To-Guess3
+  ```
+
 ---
 
-### !!! Note
-> Pods are not recreated or updated automatically when secrets or ConfigMaps change so you will have to restart your pods
+<br>
+
+!!! warning "Note"
+    Pods are not recreated or updated automatically when `Secrets` or `ConfigMaps` change, so you will have to restart your pods manually
 
 - To update existing secrets or ConfigMap:
+
 ```
 $ kubectl create secret generic token -n codewizard --from-literal=Token=Token3 -o yaml --dry-run=client | kubectl replace -f -
 secret/token replaced
 ```
-- Test your server to and verify that you see the old values
-- Delete the old pods so they can come back to life with the new values
-- Test your server again, now you should see view the changes
 
-<!-- navigation start -->
+- Test your server and verify that you see the old values.
+- Delete the old pods so they can come back to life with the new values.
+- Test your server again, now you should be able to see the changes.
 
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../05-Services">05-Services</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../07-nginx-Ingress">07-nginx-Ingress</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->

@@ -76,25 +76,16 @@ nav:
       - 10 Istio: 10-Istio/README.md
       - 11 CRD Custom Resource Definition: 11-CRD-Custom-Resource-Definition/README.md
       - 12 Wordpress MySQL PVC: 12-Wordpress-MySQL-PVC/README.md
-      - 13 Helm Chart: 13-HelmChart/README.md
+      - 13 HelmChart: 13-HelmChart/README.md
       - 14 Logging: 14-Logging/README.md
       - 15 Prometheus Grafana: 15-Prometheus-Grafana/README.md
-      - 16 Affinity Taint Toleration: 16-Affinity-Taint-Tolleration/README.md
-      - 17 Pod Disruption Budgets: 17-PodDisruptionBudgets-PDB/README.md
+      - 16 Affinity Taint Tolleration: 16-Affinity-Taint-Tolleration/README.md
+      - 17 PodDisruptionBudgets PDB: 17-PodDisruptionBudgets-PDB/README.md
       - 18 ArgoCD: 18-ArgoCD/README.md
-      - 19 Custom Scheduler: 19-CustomScheduler/README.md
+      - 19 CustomScheduler: 19-CustomScheduler/README.md
       - 20 CronJob: 20-CronJob/README.md
-      - 21 Auditing: 21-Auditing/README.md
       - 21 KubeAPI: 21-KubeAPI/README.md
-      - 22 Rancher: 22-Rancher/README.md
-      - 23 Metric Server: 23-MetricServer/README.md
-      - 24 Helm Operator: 24-HelmOperator/README.md
-      - 25 Kubebuilder: 25-kubebuilder/README.md
-      - 26 k9s: 26-k9s/README.md
-      - 27 Krew: 27-krew/README.md
-      - 28 Kubeapps: 28-kubeapps/README.md
-      - 29 Kubeadm: 29-kubeadm/README.md
-      - 30 k9s: 30-k9s/README.md
+      - 22 HelmOperator: 24-HelmOperator/README.md
 ###
 ### mkdocs-site.yml
 ###
@@ -218,7 +209,7 @@ plugins:
   # Git
   #- git-authors
   - git-committers:
-      branch: master
+      branch: main
       docs_path: Labs # set if your docs folder is not root
       enabled: true
       repository: Linuman/KubernetesLabs

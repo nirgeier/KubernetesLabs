@@ -8,17 +8,17 @@ extra:
   generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/Linuman/AnsibleLabs
+      link: https://github.com/Linuman/KubernetesLabs
       name: View on GitHub
       class: social-class__github
     
     - icon: octicons/repo-forked-16
-      link: https://github.com/Linuman/AnsibleLabs/network/members
+      link: https://github.com/Linuman/KubernetesLabs/network/members
       name: Fork this repo
       class: social-class__fork
     
     - icon: octicons/star-16
-      link: https://github.com/Linuman/AnsibleLabs/stargazers
+      link: https://github.com/Linuman/KubernetesLabs/stargazers
       name: Star this repo
       class: social-class__star
 

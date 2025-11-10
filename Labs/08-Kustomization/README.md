@@ -10,16 +10,15 @@
 ## Declarative Configuration in Kubernetes
 
 - `Kustomize` is a very powerful too for customizing and building Kubernetes resources.
-- `Kustomize` started at 2017. Added to `kubectl` since version 1.14.
+- `Kustomize` started at 2017, and added to `kubectl` since version 1.14.
 - `Kustomize` has many useful features for managing and deploying resource.
-- When you execute a Kustomization beside using the build-in features it will also re-order the resources in a logical way for the K8S to be deployed.
+- When you execute a Kustomization beside using the builtin features, it will also re-order the resources in a logical way for the K8S to be deployed.
 
-### Re-order the resources for
+### 01. Re-order the resources
 
-- `Kustomization` re-order the `Kind` for optimization, for example we will need an existing `namespace` before using it.
+- `Kustomization` re-orders the `Kind` for optimization. For this demo, we will need an existing `namespace` before using it.
 
-- The order of the resources is defined in the source code:
-  Source: https://github.com/kubernetes-sigs/kustomize/blob/master/api/resid/gvk.go
+- The order of the resources is defined in the [source code](https://github.com/kubernetes-sigs/kustomize/blob/master/api/resid/gvk.go)
 
 ```go
 // An attempt to order things to help k8s, e.g.
@@ -59,8 +58,8 @@ var orderLast = []string{
 
 ---
 
-### Base resource for our demo
-- In the following samples we will refer to the following `base.yaml` file
+### 02. Base resource for our demo
+- In the following samples we will refer to the following `base.yaml` file:
 
 ```yaml
 # base.yaml
@@ -84,24 +83,24 @@ spec:
 ```
 
 ---
-## Common Features
+### 03. Common Features
 
-- [commonAnnotation](#commonannotation)
-- [commonLabels](#commonlabels)
+- [common Annotation](#commonannotation)
+- [common Labels](#commonlabels)
 - [Generators](#Generators)
-  - [ConfigMapGenerator](#configMapGenerator)
-    - [FromEnv](#fromenv)
-    - [FromFile](#fromfile)
-    - [FromLiteral](#fromliteral)
-  - [SecretGenerator](#secret-generator)
+  - [Config Map Generator](#configMapGenerator)
+    - [From Env](#fromenv)
+    - [From File](#fromfile)
+    - [From Literal](#fromliteral)
+  - [Secret Generator](#secret-generator)
 - [images](#images)
 - [Namespaces](#Namespaces)
 - [Prefix / Suffix](#prefix-suffix)
 - [Replicas](#replicas)
-- [Patches](#Patches)
-  - [Patch Add/Update](#patch-addupdate)
-  - [Patch Delete](#Patch-Delete)
-  - [Patch Replace](#Patch-Replace)
+  - [Patches](#Patches)
+    - [Patch Add/Update](#patch-addupdate)
+    - [Patch Delete](#Patch-Delete)
+    - [Patch Replace](#Patch-Replace)
 
 ---
 
@@ -150,6 +149,8 @@ commonAnnotations:
             name: myapp
   ```
 
+---
+
 ## `commonLabels`
 
 ```sh
@@ -171,59 +172,67 @@ bases:
 ```
 
 - Output:
-  ```yaml
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    # Labels added ....
+    labels:
+    author: nirgeier@gmail.com
+    env: codeWizard-cluster
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
       # Labels added ....
-      labels:
       author: nirgeier@gmail.com
       env: codeWizard-cluster
-    name: myapp
-  spec:
-    selector:
-      matchLabels:
+  template:
+    metadata:
+      labels:
         app: myapp
         # Labels added ....
         author: nirgeier@gmail.com
         env: codeWizard-cluster
-    template:
-      metadata:
-        labels:
-          app: myapp
-          # Labels added ....
-          author: nirgeier@gmail.com
-          env: codeWizard-cluster
-      spec:
-        containers:
-        - image: __image__
-          name: myapp
-  ```
+    spec:
+      containers:
+      - image: __image__
+        name: myapp
+```
+
+---
 
 ## Generators
 - Kustomization also support generate `ConfigMap` / `Secret` in several ways.
-- The default behavior is adding the output hash value as suffix to the name, 
-  ex: `secretMapFromFile-495dtcb64g`
-    ```yaml
-    apiVersion: v1
-    data:
-      APP_ENV: ZGV2ZWxvcG1lbnQ=
-      LOG_DEBUG: dHJ1ZQ==
-      NODE_ENV: ZGV2
-      REGION: d2V1
-    kind: Secret
-    metadata:
-      name: secretMapFromFile-495dtcb64g # <--------------------------
-    type: Opaque
-    ```
-- We can disable the suffix with the following addition to the `kustomization.yaml`
+- The default behavior is adding the output hash value as suffix to the name, e.g.: `secretMapFromFile-495dtcb64g`
+
   ```yaml
-  generatorOptions:
-    disableNameSuffixHash: true
+  apiVersion: v1
+  data:
+    APP_ENV: ZGV2ZWxvcG1lbnQ=
+    LOG_DEBUG: dHJ1ZQ==
+    NODE_ENV: ZGV2
+    REGION: d2V1
+  kind: Secret
+  metadata:
+    name: secretMapFromFile-495dtcb64g # <--------------------------
+  type: Opaque
   ```
+
+- We can disable the suffix with the following addition to the `kustomization.yaml`
+
+```yaml
+generatorOptions:
+  disableNameSuffixHash: true
+```
+
+---
+
 ### `configMapGenerator`
 
-  - #### FromEnv
+  - #### From Env
     - `.env`
       ```sh
       key1=value1
@@ -247,7 +256,8 @@ bases:
       metadata:
         name: configMapFromEnv-c9655hf97k
       ```
-  - #### FromFile
+
+  - #### From File
     - `.env`
       ```sh
       key1=value1
@@ -271,7 +281,8 @@ bases:
       metadata:
         name: configFromFile-dfhmctd84d
       ```
-  - #### FromLiteral
+
+  - #### From Literal
     - `.env`
       ```sh
       key1=value1
@@ -296,11 +307,13 @@ bases:
       metadata:
         name: configFromLiterals-h777b4gdf5
       ```
+
 ---
 
 ## `Secret` Generator
+
 ```yaml
-# Similar to configMap but wit additional type field
+# Similar to configMap but with an additional type field
 secretGenerator:
   # Generate secret from env file
   - name: secretMapFromFile
@@ -309,6 +322,9 @@ secretGenerator:
 generatorOptions:
   disableNameSuffixHash: true
 ```
+
+---
+
 ## `images`
 
 - Modify the name, tags and/or digest for images.
@@ -335,25 +351,26 @@ images:
 ```
 
 - Output:
-  ```yaml
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: myapp
-  spec:
-    selector:
-      matchLabels:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
         app: myapp
-    template:
-      metadata:
-        labels:
-          app: myapp
-      spec:
-        containers:
-          # --- This image was updated
-          - image: my-registry/my-image:v1
-            name: myapp
-  ```
+    spec:
+      containers:
+        # --- This image was updated
+        - image: my-registry/my-image:v1
+          name: myapp
+```
 
 ---
 
@@ -376,14 +393,15 @@ bases:
 ```
 
 - Output:
-  ```yaml
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: myapp
-    # Namespace added here
-    namespace: kustomize-namespace
-  ```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  # Namespace added here
+  namespace: kustomize-namespace
+```
 
 ---
 
@@ -407,16 +425,19 @@ bases:
 ```
 
 - Output:
-  ```yaml
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: prefix-codeWizard-myapp-suffix-codeWizard
-  ```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prefix-codeWizard-myapp-suffix-codeWizard
+```
 
 ---
 
 ## `Replicas`
+
+- deployment
 
 ```yaml
 # deployment.yaml
@@ -434,6 +455,8 @@ spec:
         image: registry/conatiner:latest
 ```
 
+- kustomization
+
 ```yaml
 # kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -449,7 +472,8 @@ resources:
 
 - Output:
 
-**Note**: There is a bug with the `replicas` entries which return error for some reason.
+!!! warning "**Note**"
+    There is a bug with the `replicas` entries which return error for some reason.
 
 ```sh
 $ kubectl kustomize .
@@ -535,6 +559,7 @@ patchesStrategicMerge:
 ```
 
 - Output:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -560,6 +585,8 @@ spec:
       - image: __image__
         name: myapp
 ```
+
+---
 
 ### Patch-Delete
 ```sh
@@ -596,6 +623,7 @@ spec:
 ```
 
 - Output:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -614,6 +642,8 @@ spec:
       - image: nginx
         name: nginx
 ```
+
+---
 
 ### Patch Replace
 ```sh
@@ -653,6 +683,7 @@ spec:
 ```
 
 - Output:
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -674,22 +705,4 @@ spec:
         image: nginx:latest
         name: myapp
 ```
-<!-- navigation start -->
 
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../07-nginx-Ingress">07-nginx-Ingress</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../09-StatefulSet">09-StatefulSet</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->

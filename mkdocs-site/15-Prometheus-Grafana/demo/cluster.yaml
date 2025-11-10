@@ -1,0 +1,34 @@
+###
+### Auto Generated file from the script.
+### Do not edit !!!
+###
+###
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        #
+        # node-labels:
+        #               only allow the ingress controller to run on a 
+        #               specific node(s) matching the label selector
+        #
+        node-labels: "ingress-ready=true"
+  #
+  # extraPortMappings:
+  #                     allow the local host to make requests to the 
+  #                     Ingress controller over ports 80/443
+  #      
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 8080
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 6443
+    protocol: TCP
+- role: worker
+- role: worker

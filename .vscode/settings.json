@@ -1,11 +1,10 @@
 {
-    "cSpell.words": [
-        "istio",
-        "kubectl",
-        "kustomization",
-        "kustomize"
-    ],
-    "cSpell.ignoreWords": [
-        "istio"
-    ]
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/.hg/store/**": true,
+        "**/mkdocs-site/**": true
+    },
+    "files.useExperimentalFileWatcher": true
 }
