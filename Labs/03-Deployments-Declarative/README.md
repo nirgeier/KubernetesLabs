@@ -13,36 +13,26 @@
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)  
 **<kbd>CTRL</kbd> + <kbd>click</kbd> to open in new window**
 
-<!-- inPage TOC start -->
-
----
-## Lab Highlights:
- - [01. Create namespace](#01-Create-namespace)
- - [02. Deploy nginx using yaml file (declarative)](#02-Deploy-nginx-using-yaml-file-declarative)
- - [03. Verify that the deployment is created:](#03-Verify-that-the-deployment-is-created)
- - [04. Check if the pods are running:](#04-Check-if-the-pods-are-running)
- - [05. Update the yaml file with replica&#39;s value of 5](#05-Update-the-yaml-file-with-replicas-value-of-5)
- - [06. Update the deployment using `kubectl apply`](#06-Update-the-deployment-using-kubectl-apply)
- - [07. Scaling down with `kubectl scale`](#07-Scaling-down-with-kubectl-scale)
-
 ---
 
-<!-- inPage TOC end -->
 
-### 01. Create namespace
+### 01. Create Namespace
+
+- As completed in the previous lab, create the desired namespace [codewizard]:
 
 ```sh
-# Create the desired namespace [codewizard]
 $ kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
-- In order to set this is as your default namespace refer to: <a href="../01-Namespace#2-setting-the-default-namespace-for-kubectl">set default namespace</a>
+- In order to set this is as the default namespace, please refer to <a href="../01-Namespace#2-setting-the-default-namespace-for-kubectl">set default namespace</a>.
+
+---
 
 ### 02. Deploy nginx using yaml file (declarative)
 
-- Lets create the yaml file for the deployment.
-- If this is your first k8s yaml file its recommended that you will type it to get the feeling of the structure
+- Let's create the `YAML` file for the deployment.
+- If this is your first `k8s` `YAML` file, its advisable that you type it in order to get the feeling of the structure.
 - Save the file with the following name: `nginx.yaml`
 
 ```yaml
@@ -78,7 +68,9 @@ spec:
   deployment.extensions/nginx created
   ```
 
-### 03. Verify that the deployment is created:
+---
+
+### 03. Verify that the deployment has been created:
 
 ```
 $ kubectl get deployments -n codewizard
@@ -86,6 +78,8 @@ NAME        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
 multitool   1         1         1            1
 nginx       1         1         1            1
 ```
+
+---
 
 ### 04. Check if the pods are running:
 
@@ -96,21 +90,25 @@ multitool-7885b5f94f-9s7xh   1/1     Running   0
 nginx-647fb5956d-v8d2w       1/1     Running   0
 ```
 
-### 0Playing with K8S replicas
+### 05. Playing with K8S replicas
 
-- Lets play with the replica and see K8S in action
+- Let's play with the replica and see K8S in action.
 - Open a second terminal and execute:
 
 ```sh
 $ kubectl get pods -n codewizard --watch
 ```
 
-### 05. Update the yaml file with replica's value of 5
+---
+
+### 05. Update the `nginx.yaml` file with replica's value of 5:
 
 ```yaml
 spec:
   replicas: 5
 ```
+
+---
 
 ### 06. Update the deployment using `kubectl apply`
 
@@ -118,8 +116,9 @@ spec:
 $ kubectl apply -n codewizard -f nginx.yaml --record=true
 deployment.apps/nginx configured
 ```
+<br>
 
-- Switch to the second terminal and you should see something like
+- Switch to the second terminal and you should see something like the following:
 
 ```sh
 $ kubectl get pods --watch -n codewizard
@@ -144,18 +143,23 @@ nginx-dc8bb9b45-x7j4g        1/1     Running             0          3s
 nginx-dc8bb9b45-wkc68        1/1     Running             0          3s
 ```
 
-> Can you explain what do you see?
+<br>
+- Can you explain what do you see?
 
-    Whey there are more containers that requested?
+  `Why are there more containers than requested?`
+
+---
 
 ### 07. Scaling down with `kubectl scale`
 
+
+- Scaling down using `kubectl`, and not by editing the `YAML` file:
+
 ```sh
-# Scaling using kubectl and not by editing the yaml file
 kubectl scale -n codewizard --replicas=1 deployment/nginx
 ```
 
-- Switch to the second terminal and now you should see something like:
+- Switch to the second terminal. The current output should show something like this:
 
 ```
 NAME                         READY   STATUS    RESTARTS   AGE
@@ -182,23 +186,3 @@ nginx-dc8bb9b45-wkc68        0/1     Terminating   0          6m27s
 nginx-dc8bb9b45-x7j4g        0/1     Terminating   0          6m27s
 nginx-dc8bb9b45-x7j4g        0/1     Terminating   0          6m27s
 ```
-
-<!-- navigation start -->
-
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../02-Deployments-Imperative">02-Deployments-Imperative</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../04-Rollout">04-Rollout</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->

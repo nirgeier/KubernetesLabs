@@ -7,37 +7,55 @@
 
 # Writing custom Scheduler
 
-### Pre-Requirements
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
+- `Scheduling` is the process of selecting a node for a pod to run on.
+- In this lab we will write our own pods `scheduler`.
+- It is probably not something that you will ever need to do, but still it's a good practice to understand how scheduling works in K8S and how you can extend it.
 
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)  
-**<kbd>CTRL</kbd> + <kbd>click</kbd> to open in new window**
 
 ---
 
-# Custom Scheduler
-- Official docs: [Scheduler Configuration](https://kubernetes.io/docs/reference/scheduling/config)
-- In this lab we will write our own pods scheduler.
-- It not something that you will even need to do, but still its a good practice
+<!-- omit in toc -->
+## Pre Requirements
+
+- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
+- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
+- A `Git repository` (GitHub, GitLab, or Bitbucket) for storing application manifests
+- Basic understanding of Kubernetes resources (Deployments, Services, etc.)
+
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
+
+### **<kbd>CTRL</kbd> + click to open in new window**
+<!-- omit in toc -->
+
+---
+
+## Custom Scheduler
+
+- See further information in the official documentation: [Scheduler Configuration](https://kubernetes.io/docs/reference/scheduling/config)
 - To schedule a given pod using a specific scheduler, specify the name of the scheduler in that specification `.spec.schedulerName`.
+
 ## A bit about scheduler
-- Scheduling happens in a series of **stages* that are exposed through extension points.
+
+- Scheduling happens in a series of **stages** that are exposed through extension points.
 - We can define several scheduling Profile. A scheduling Profile allows you to configure the different stages of scheduling in the `kube-scheduler`
 
+---
+
 ## Sample `KubeSchedulerConfiguration`
+
 ```yaml
 ###
 # Sample KubeSchedulerConfiguration
 ###
 #
-# You can configure `kube-scheduler` to run more than one profile. 
-# Each profile has an associated scheduler name and can have a different 
-#    set of plugins configured in its extension points.
+# You can configure `kube-scheduler` to run more than one profile.
+# Each profile has an associated scheduler name and can have a different
+# set of plugins configured in its extension points.
 
 # With the following sample configuration, 
 # the scheduler will run with two profiles: 
 # - default plugins 
-# - all scoring plugins disabled.
+# - all scoring plugins disabled
 
 apiVersion: kubescheduler.config.k8s.io/v1beta1
 kind: KubeSchedulerConfiguration
@@ -52,7 +70,9 @@ profiles:
         disabled:
         - name: '*'
 ```
-- Once you have your scheduler code you can use it in your pod scheduler 
+
+- Once you have your scheduler code, you can use it in your pod scheduler: 
+
 ```yaml
 # In this sample we use deployment but it will apply to any pod
 ...
@@ -69,8 +89,10 @@ spec:
 
 ```
 
-### Sample bash scheduler.
+### Sample bash scheduler
+
 - The "trick" is loop over all the waiting pods and search for the custom scheduler match in `spec.schedulerName` 
+
 ```sh
 
 ...
@@ -95,23 +117,3 @@ spec:
     fi
     ...
 ```
-
-<!-- navigation start -->
-
----
-
-<div align="center">
-:arrow_left:&nbsp;
-  <a href="../18-ArgoCD">18-ArgoCD</a>
-&nbsp;&nbsp;||&nbsp;&nbsp;  <a href="../20-CronJob">20-CronJob</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->

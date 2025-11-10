@@ -9,20 +9,7 @@
 - **`kubectl`** - short for Kubernetes Controller - is the CLI for Kubernetes cluster and is required in order to be able to run the labs.
 - In order to install `kubectl` and if required creating a local cluster, please refer to [Kubernetes - Install Tools](https://kubernetes.io/docs/tasks/tools/)
 
-<!-- inPage TOC start -->
-
 ---
-## Lab Highlights:
- - [01. Installing minikube](#01-Installing-minikube)
- - [02. Start minikube](#02-Start-minikube)
- - [03. Check the minikube status](#03-Check-the-minikube-status)
- - [04. Verify that the cluster is up and running](#04-Verify-that-the-cluster-is-up-and-running)
- - [05. Verify that you can &#34;talk&#34; to your cluster](#05-Verify-that-you-can-talk-to-your-cluster)
-   - [05.01. Verify that you can &#34;talk&#34; to your cluster](#0501-Verify-that-you-can-talk-to-your-cluster)
-
----
-
-<!-- inPage TOC end -->
 
 ### 01. Installing minikube
 
@@ -96,12 +83,13 @@ Kubernetes control plane is running at https://192.168.49.2:8443
 KubeDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 ```
 
-- Verify that `kubectl` is installed and configured (You should get something like the following)
+- Verify that `kubectl` is installed and configured
 
 ```sh
 kubectl config view
 ```
 
+- You should get something like the following
 ```yaml
 apiVersion: v1
 clusters:
@@ -133,30 +121,3 @@ $ kubectl get nodes
 NAME       STATUS   ROLES                  AGE    VERSION
 minikube   Ready    control-plane,master   3m9s   v1.20.0
 ```
-
-### 05.01. Verify that you can "talk" to your cluster
-
-```sh
-# In this sample we have minikube pod running
-$ kubectl get nodes
-NAME       STATUS   ROLES                  AGE    VERSION
-minikube   Ready    control-plane,master   3m9s   v1.20.0
-```
-
-<!-- navigation start -->
-
----
-
-<div align="center">
-  <a href="../01-Namespace">01-Namespace</a>
-  &nbsp; :arrow_right:</div>
-
----
-
-<div align="center">
-  <small>&copy;CodeWizard LTD</small>
-</div>
-
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
-
-<!-- navigation end -->
