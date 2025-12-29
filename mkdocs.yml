@@ -91,13 +91,13 @@ nav:
 ###
 docs_dir: Labs
 edit_uri: ""
-repo_name: Linuman/KubernetesLabs
-repo_url: https://github.com/Linuman/KubernetesLabs
+repo_name: nirgeier/KubernetesLabs
+repo_url: https://github.com/nirgeier/KubernetesLabs
 site_author: Nir Geier - nirgeier@gmail.com
 site_description: A collection of Kubernetes Labs for learning and practicing Kubernetes skills.
 site_dir: ./mkdocs-site
 site_name: KubernetesLabs
-site_url: https://Linuman.github.io/KubernetesLabs/
+site_url: https://nirgeier.github.io/KubernetesLabs/
 ###
 ### mkdocs-extra.yml
 ###
@@ -108,17 +108,17 @@ extra:
   generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/Linuman/KubernetesLabs
+      link: https://github.com/nirgeier/KubernetesLabs
       name: View on GitHub
       class: social-class__github
-    
+
     - icon: octicons/repo-forked-16
-      link: https://github.com/Linuman/KubernetesLabs/network/members
+      link: https://github.com/nirgeier/KubernetesLabs/network/members
       name: Fork this repo
       class: social-class__fork
-    
+
     - icon: octicons/star-16
-      link: https://github.com/Linuman/KubernetesLabs/stargazers
+      link: https://github.com/nirgeier/KubernetesLabs/stargazers
       name: Star this repo
       class: social-class__star
 
@@ -131,26 +131,26 @@ extra:
       link: https://discord.gg/U6xW23Ss
       name: Follow me on Discord
       class: social-class__discord
-    
+
     - icon: fontawesome/brands/stack-overflow
       link: https://stackoverflow.com/users/1755598/codewizard
       name: Follow me on Stack Overflow
       class: social-class__stackoverflow
-    
+
     - icon: fontawesome/brands/whatsapp
       link: https://wa.me/972548122310
       name: Follow me on WhatsApp
       class: social-class__whatsapp
-    
+
     - icon: fontawesome/solid/envelope
       link: mailto:nirg@codewizard.co.il
       name: Email me
       class: social-class__email
 
 extra_css:
-  - ./assets/stylesheets/theme.css
+  - ./assets/stylesheets/codewizard.css?v=1765676292
 extra_javascript:
-  - https://buttons.github.io/buttons.js
+  - https://buttons.github.io/buttons.js?v=1765676292
 ###
 ### mkdocs-extensions.yml
 ###
@@ -199,32 +199,32 @@ markdown_extensions:
 ###
 
 plugins:
-  - awesome-pages
-  - meta
-  # - pdf-export:
-  #     combined: true # all pages in one PDF
-  #     combined_output_path: docs/Full-Documentation.pdf
-  #     media_type: print
-  #     verbose: true
-  # Git
-  #- git-authors
-  - git-committers:
-      branch: main
-      docs_path: Labs # set if your docs folder is not root
-      enabled: true
-      repository: Linuman/KubernetesLabs
-  - git-revision-date-localized:
-      enable_creation_date: true
-      enable_git_follow: false
-      fallback_to_build_date: true
-      locale: en
-      timezone: UTC
-      type: date
-  - search:
-      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - minify:
-      minify_html: true
+    - awesome-pages
+    - meta
+    # - pdf-export:
+    #     combined: true # all pages in one PDF
+    #     combined_output_path: docs/Full-Documentation.pdf
+    #     media_type: print
+    #     verbose: true
+    # Git
+    #- git-authors
+    - git-committers:
+          branch: main
+          docs_path: Labs # set if your docs folder is not root
+          enabled: true
+          repository: nirgeier/KubernetesLabs
+    - git-revision-date-localized:
+          enable_creation_date: true
+          enable_git_follow: false
+          fallback_to_build_date: true
+          locale: en
+          timezone: UTC
+          type: date
+    - search:
+          separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+    - minify:
+          minify_html: true
 
-  # Leave this one as the last one in the list
-  - print-site
-  - include-markdown
+    # Leave this one as the last one in the list
+    - print-site
+    - include-markdown

@@ -1,7 +1,6 @@
-![](../../resources/k8s-logos.png)
 
 # K8S Hands-on
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
+
 
 ---
 
@@ -116,7 +115,8 @@ spec:
 $ kubectl apply -n codewizard -f nginx.yaml --record=true
 deployment.apps/nginx configured
 ```
-<br>
+
+---
 
 - Switch to the second terminal and you should see something like the following:
 

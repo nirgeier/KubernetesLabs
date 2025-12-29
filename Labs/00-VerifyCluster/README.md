@@ -1,8 +1,6 @@
-## ![](../../resources/k8s-logos.png)
-
 # K8S Hands-on
 
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
+
 
 ### Verify pre-requirements
 
@@ -11,76 +9,97 @@
 
 ---
 
-### 01. Installing minikube
+### 01. Installing Kind
 
 - If you don't have an existing cluster you can use google cloud for the labs hands-on
 - Click on the button below to be able to run the labs on Google Shell <br/>
-  **[Use: <kbd>CTRL + click to open in new window]**  
-  [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
+  **[Use: <kbd>CTRL + click to open in new window]** 
 
-- Run the following script in the opened terminal
+    [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
+
+- Run the following commands based on your operating system:
+
+=== " macOS"
+
+    ```bash
+    # Install Kind using Homebrew
+    brew install kind
+    
+    # Verify installation
+    kind version
+    ```
+
+=== "🐧 Linux (Ubuntu/Debian)"
+
+    ```bash
+    # Download Kind binary
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+    chmod +x ./kind
+    sudo mv ./kind /usr/local/bin/kind
+    
+    # Verify installation
+    kind version
+    ```
+
+=== "🐧 Linux (CentOS)"
+
+    ```bash
+    # Download Kind binary
+    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+    chmod +x ./kind
+    sudo mv ./kind /usr/local/bin/kind
+    
+    # Verify installation
+    kind version
+    ```
+
+=== "⊞ Windows"
+
+    Download Kind from: [https://kind.sigs.k8s.io/dl/v0.20.0/kind-windows-amd64](https://kind.sigs.k8s.io/dl/v0.20.0/kind-windows-amd64)
+
+### 02. Create Kind cluster
 
 ```sh
-# Download minikube
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-
-# Install minikube
-sudo install minikube-linux-amd64 /usr/local/bin/minikube
-```
-
-### 02. Start minikube
-
-```sh
-minikube start
+kind create cluster
 ```
 
 - You should see an output like this:
 
 ```sh
-* minikube v1.16.0 on Debian 10.7
-  - MINIKUBE_FORCE_SYSTEMD=true
-  - MINIKUBE_HOME=/google/minikube
-  - MINIKUBE_WANTUPDATENOTIFICATION=false
-* Automatically selected the docker driver
-* Starting control plane node minikube in cluster minikube
-* Pulling base image ...
-* Downloading Kubernetes v1.20.0 preload ...
-    > preloaded-images-k8s-v8-v1....: 491.00 MiB / 491.00 MiB  100.00% 86.82 Mi
-* Creating docker container (CPUs=2, Memory=4000MB) ...
-* Preparing Kubernetes v1.20.0 on Docker 20.10.0 ...
-  - Generating certificates and keys ...
-  - Booting up control plane ...
-  - Configuring RBAC rules ...
-* Verifying Kubernetes components...
-* Enabled addons: default-storageclass, storage-provisioner
-* Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+Creating cluster "kind" ...
+ • Ensuring node image (kindest/node:v1.27.3) 🖼
+ • Preparing nodes 📦
+ • Writing configuration 📜
+ • Starting control-plane 🕹️
+ • Installing CNI 🔌
+ • Installing StorageClass 💾
+Set kubectl context to "kind-kind"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-kind
+
+Thanks for using kind! 😊
 ```
 
-### 03. Check the minikube status
+### 03. Check the Kind cluster status
 
-```
-minikube status
+```sh
+kubectl cluster-info
 ```
 
 - You should see output similar to this one:
 
-```
-minikube
-type: Control Plane
-host: Running
-kubelet: Running
-apiserver: Running
-kubeconfig: Configured
-timeToStop: Nonexistent
+```sh
+Kubernetes control plane is running at https://127.0.0.1:6443
+CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
 
 ### 04. Verify that the cluster is up and running
 
 ```sh
-$ kubectl cluster-info
-
-Kubernetes control plane is running at https://192.168.49.2:8443
-KubeDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+kubectl cluster-info
 ```
 
 - Verify that `kubectl` is installed and configured
@@ -93,31 +112,35 @@ kubectl config view
 ```yaml
 apiVersion: v1
 clusters:
-  - cluster:
-      certificate-authority: /google/minikube/.minikube/ca.crt
-      server: https://192.168.49.2:8443
-    name: minikube
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://127.0.0.1:6443
+  name: kind-kind
 contexts:
-  - context:
-      cluster: minikube
-      namespace: default
-      user: minikube
-    name: minikube
-current-context: minikube
+- context:
+    cluster: kind-kind
+    user: kind-kind
+  name: kind-kind
+current-context: kind-kind
 kind: Config
 preferences: {}
 users:
-  - name: minikube
-    user:
-      client-certificate: /google/minikube/.minikube/profiles/minikube/client.crt
-      client-key: /google/minikube/.minikube/profiles/minikube/client.key
+- name: kind-kind
+  user:
+    client-certificate-data: REDACTED
+    client-key-data: REDACTED
 ```
 
 ### 05. Verify that you can "talk" to your cluster
 
 ```sh
-# In this sample we have minikube pod running
-$ kubectl get nodes
-NAME       STATUS   ROLES                  AGE    VERSION
-minikube   Ready    control-plane,master   3m9s   v1.20.0
+# Check the nodes in the Kind cluster
+kubectl get nodes
+```
+
+- You should see output similar to this:
+
+```sh
+NAME                 STATUS   ROLES           AGE    VERSION
+kind-control-plane   Ready    control-plane   2m     v1.27.3
 ```

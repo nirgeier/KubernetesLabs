@@ -122,15 +122,23 @@ body {
 }
 
 /* Force sidebar to be visible alongside tabs */
-.md-sidebar {
-  display: block !important;
-  width: 15rem;
+@media screen and (min-width: 76.25em) {
+  .md-sidebar {
+    display: block !important;
+    width: 15rem;
+  }
+
+  /* Make sure content area doesn't overlap */
+  /* .md-main__inner {
+    display: grid;
+    grid-template-columns: minmax(250px, 300px) 1fr;
+  } */
 }
 
-/* Make sure content area doesn't overlap */
-.md-main__inner {
-  display: grid;
-  grid-template-columns: minmax(250px, 300px) 1fr;
+@media screen and (max-width: 76.25em) {
+  /* .md-sidebar {
+    display: none !important;
+  } */
 }
 
 .md-typeset a {
@@ -169,4 +177,8 @@ img.width-24px {
   .border-radius-#{$i} {
     border-radius: #{$i}px;
   }
+}
+
+.md-footer {
+  padding: 0 0 0 25px;
 }

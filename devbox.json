@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "packages": {
+    "helm": {
+      "version": "latest",
+      "excluded_platforms": [
+        "aarch64-darwin"
+      ]
+    },
+    "kubectl": "latest",
+    "k3d": "latest",
+    "docker": "latest",
+    "git": "latest",
+    "python": "latest",
+    "nodejs": "latest",
+    "k9s": "latest",
+    "vscode": "latest"
+  },
+  "shell": {
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}

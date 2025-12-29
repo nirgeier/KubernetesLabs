@@ -3,32 +3,32 @@
 ###
 
 plugins:
-  - awesome-pages
-  - meta
-  # - pdf-export:
-  #     combined: true # all pages in one PDF
-  #     combined_output_path: docs/Full-Documentation.pdf
-  #     media_type: print
-  #     verbose: true
-  # Git
-  #- git-authors
-  - git-committers:
-      branch: main
-      docs_path: Labs # set if your docs folder is not root
-      enabled: true
-      repository: Linuman/KubernetesLabs
-  - git-revision-date-localized:
-      enable_creation_date: true
-      enable_git_follow: false
-      fallback_to_build_date: true
-      locale: en
-      timezone: UTC
-      type: date
-  - search:
-      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - minify:
-      minify_html: true
+    - awesome-pages
+    - meta
+    # - pdf-export:
+    #     combined: true # all pages in one PDF
+    #     combined_output_path: docs/Full-Documentation.pdf
+    #     media_type: print
+    #     verbose: true
+    # Git
+    #- git-authors
+    - git-committers:
+          branch: main
+          docs_path: Labs # set if your docs folder is not root
+          enabled: true
+          repository: nirgeier/KubernetesLabs
+    - git-revision-date-localized:
+          enable_creation_date: true
+          enable_git_follow: false
+          fallback_to_build_date: true
+          locale: en
+          timezone: UTC
+          type: date
+    - search:
+          separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+    - minify:
+          minify_html: true
 
-  # Leave this one as the last one in the list
-  - print-site
-  - include-markdown
+    # Leave this one as the last one in the list
+    - print-site
+    - include-markdown

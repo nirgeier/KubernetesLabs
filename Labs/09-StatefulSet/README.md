@@ -1,14 +1,13 @@
-![](../../resources/k8s-logos.png)
 
 # K8S Hands-on
 
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
+
 
 ---
 
 # StatefulSets
 
-<img src="../../resources/statefulSet.png" width=500>
+<img src="../assets/images/statefulSet.png" width=500>
 
 
 ## The Difference Between a `Statefulset` And a `Deployment`

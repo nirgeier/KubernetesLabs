@@ -1,7 +1,6 @@
-![](../../resources/k8s-logos.png)
 
 # K8S Hands-on
-![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=nirgeier)
+
 
 ---
 
@@ -69,8 +68,8 @@ NAME                                   DESIRED   CURRENT   READY   AGE
 replicaset.apps/multitool-74477484b8   1         1         1       30s
 replicaset.apps/nginx-6799fc88d8       1         1         1       8s
 ```
-<br>
-<br>
+
+---
 
 # Service types
 
@@ -200,7 +199,7 @@ bash-5.0# curl -s nginx
 # bash-5.0# curl -s <service name>.<namespace>.svc.cluster.local
 bash-5.0# curl -s nginx.codewizard.svc.cluster.local
 ```
-<br>
+
 ---
 
 # Service type: NodePort

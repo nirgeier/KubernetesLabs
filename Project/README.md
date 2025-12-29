@@ -1,4 +1,4 @@
-![](../../../resources/k8s-logos.png)
+![](../../assets/images/k8s-logos.png)
 
 ---
 

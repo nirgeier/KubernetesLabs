@@ -1,0 +1,65 @@
+# -----------------------------------------------------------------------------
+# GitHub Actions Workflow: Deploy MkDocs to GitHub Pages
+#
+# This workflow automates the process of building and deploying an MkDocs site
+# to GitHub Pages using the traditional mkdocs gh-deploy command.
+#
+# Main Steps:
+#   1. Checkout the repository with full history.
+#   2. Set up Python environment.
+#   3. Install dependencies from requirements.txt.
+#   4. Build and deploy the MkDocs documentation site to gh-pages branch.
+#
+# This approach uses the mkdocs gh-deploy command which handles the GitHub Pages
+# deployment automatically without requiring special permissions.
+# -----------------------------------------------------------------------------
+
+name: Deploy GitHub Pages
+
+# Event triggers for the workflow
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+# Workflow permissions
+permissions:
+  contents: write
+
+# Concurrency settings
+concurrency:
+  cancel-in-progress: false
+  group: "pages"
+
+# The deployment job
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          cache: "pip"
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r mkdocs/requirements.txt
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Deploy to GitHub Pages
+        run: |
+          mkdocs gh-deploy --force --clean --config-file mkdocs.yml --no-history
