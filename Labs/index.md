@@ -78,6 +78,12 @@ Welcome to the hands-on Kubernetes labs! This comprehensive series of labs will 
 | [29](29-kubeadm/README.md) | Kubeadm | Bootstrap Kubernetes clusters |
 | [30](30-k9s/README.md) | k9s (Advanced) | Advanced k9s usage |
 
+### 🧠 Practice Tasks
+
+| Task Category | Description |
+|---------------|-------------|
+| [Kubernetes CLI Tasks](Tasks/Kubernetes-CLI-Tasks/README.md) | Hands-on exercises for CLI, debugging, and orchestration |
+
 ## 🎯 Learning Path
 
 ### Beginner Track

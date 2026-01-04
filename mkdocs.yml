@@ -37,9 +37,9 @@ theme:
     - toc.follow
     - toc.integrate
     - toc.sticky
-    
+
     #- header.autohide  # Disabled to keep top nav always visible
-    
+
   # 👈 enables avatar display
   palette:
     # Dark mode only
@@ -86,6 +86,11 @@ nav:
       - 20 CronJob: 20-CronJob/README.md
       - 21 KubeAPI: 21-KubeAPI/README.md
       - 22 HelmOperator: 24-HelmOperator/README.md
+      - Overview: Tasks/index.md
+  - Tasks:
+      - Overview: Tasks/index.md
+      - Kubernetes CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
+      - Kubernetes Service Tasks: Tasks/Kubernetes-Service-Tasks/README.md
 ###
 ### mkdocs-site.yml
 ###
@@ -194,37 +199,38 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
-###
-### mkdocs-plugins.yml
-###
+        ###
+        ### mkdocs-plugins.yml
+        ###
+
 
 plugins:
-    - awesome-pages
-    - meta
-    # - pdf-export:
-    #     combined: true # all pages in one PDF
-    #     combined_output_path: docs/Full-Documentation.pdf
-    #     media_type: print
-    #     verbose: true
-    # Git
-    #- git-authors
-    - git-committers:
-          branch: main
-          docs_path: Labs # set if your docs folder is not root
-          enabled: true
-          repository: nirgeier/KubernetesLabs
-    - git-revision-date-localized:
-          enable_creation_date: true
-          enable_git_follow: false
-          fallback_to_build_date: true
-          locale: en
-          timezone: UTC
-          type: date
-    - search:
-          separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-    - minify:
-          minify_html: true
+  - awesome-pages
+  - meta
+  # - pdf-export:
+  #     combined: true # all pages in one PDF
+  #     combined_output_path: docs/Full-Documentation.pdf
+  #     media_type: print
+  #     verbose: true
+  # Git
+  #- git-authors
+  - git-committers:
+      branch: main
+      docs_path: Labs # set if your docs folder is not root
+      enabled: true
+      repository: nirgeier/KubernetesLabs
+  - git-revision-date-localized:
+      enable_creation_date: true
+      enable_git_follow: false
+      fallback_to_build_date: true
+      locale: en
+      timezone: UTC
+      type: date
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
 
-    # Leave this one as the last one in the list
-    - print-site
-    - include-markdown
+  # Leave this one as the last one in the list
+  - print-site
+  - include-markdown

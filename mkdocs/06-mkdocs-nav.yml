@@ -29,3 +29,7 @@ nav:
       - 20 CronJob: 20-CronJob/README.md
       - 21 KubeAPI: 21-KubeAPI/README.md
       - 22 HelmOperator: 24-HelmOperator/README.md
+      - Overview: Tasks/index.md
+  - Tasks:
+      - Overview: Tasks/index.md
+      - Kubernetes CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
