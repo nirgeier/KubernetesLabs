@@ -1,7 +1,3 @@
-
-# K8S Hands-on
-
-
 ---
 
 # Pod Disruption Budgets (PDB)
@@ -9,19 +5,6 @@
 - We will explore how to define and implement PDBs to ensure application availability during voluntary disruptions, such as node maintenance or cluster upgrades.
 - By the end of this lab, you will understand how to create and manage Pod Disruption Budgets to maintain the desired level of service availability in your Kubernetes cluster.
 
----
-
-<!-- omit in toc -->
-## Pre requirements
-
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
-- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
-
-### **<kbd>CTRL</kbd> + click to open in new window**
-
-<!-- omit in toc -->
 ---
 
 ## `PodDisruptionBudgets`: Budgeting the Number of Faults to Tolerate

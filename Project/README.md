@@ -15,11 +15,6 @@
 
 ---
 
-## Pre Requirements
-
-- Kubernetes cluster
-  - For this project you can choose any cluoud provider you wish
-
 ## The project should have the following features:
 
 - Git porject with Pipeline as code inside

@@ -1,14 +1,3 @@
-# K8S Hands-on
-
-
-
-### Verify pre-requirements
-
-- **`kubectl`** - short for Kubernetes Controller - is the CLI for Kubernetes cluster and is required in order to be able to run the labs.
-- In order to install `kubectl` and if required creating a local cluster, please refer to [Kubernetes - Install Tools](https://kubernetes.io/docs/tasks/tools/)
-
----
-
 ### 01. Installing Kind
 
 - If you don't have an existing cluster you can use google cloud for the labs hands-on

@@ -1,7 +1,3 @@
-
-# K8S Hands-on
-
-
 ---
 
 # Writing custom Scheduler
@@ -10,21 +6,6 @@
 - In this lab we will write our own pods `scheduler`.
 - It is probably not something that you will ever need to do, but still it's a good practice to understand how scheduling works in K8S and how you can extend it.
 
-
----
-
-<!-- omit in toc -->
-## Pre Requirements
-
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
-- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
-- A `Git repository` (GitHub, GitLab, or Bitbucket) for storing application manifests
-- Basic understanding of Kubernetes resources (Deployments, Services, etc.)
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
-
-### **<kbd>CTRL</kbd> + click to open in new window**
-<!-- omit in toc -->
 
 ---
 

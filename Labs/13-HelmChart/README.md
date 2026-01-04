@@ -1,5 +1,4 @@
-
-# K8S Hands-on 
+ 
 
 
 
@@ -10,19 +9,6 @@
 - Welcome to the `Helm` Chart hands-on lab! In this tutorial, you'll learn the essentials of `Helm` (version 3), the package manager for Kubernetes. 
 - You'll build, package, install, and manage applications using `Helm` charts, gaining practical experience with real Kubernetes resources.
 
----
-<!-- omit in toc -->
-## Pre requirements
-
-- [`Helm`](https://helm.sh/docs/intro/install/) installed
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
-- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
-
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
-
-### **<kbd>CTRL</kbd> + click to open in new window**
-<!-- omit in toc -->
 ---
 
 ## What will you learn

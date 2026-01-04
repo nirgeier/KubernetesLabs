@@ -1,6 +1,5 @@
-
 <!-- omit in toc -->
-# K8S Hands-on
+
 
 
 
@@ -12,19 +11,6 @@
 - We will learn how to use `Node Affinity`, `Taints`, and `Tolerations` to schedule Pods on specific Nodes based on labels, constraints, and preferences.
 - By the end of this lab, you will understand how to control where Pods run in your cluster and how to reserve Nodes for specific workloads.
 
----
-
-<!-- omit in toc -->
-## Pre requirements
-
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
-- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
-
-### **<kbd>CTRL</kbd> + click to open in new window**
-
-<!-- omit in toc -->
 ---
 
 ## Introduction to Pod Scheduling

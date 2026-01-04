@@ -1,7 +1,3 @@
-
-# K8S Hands-on
-
-
 ---
 # WordPress, MySQL, PVC
 

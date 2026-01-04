@@ -1,7 +1,3 @@
-
-# K8S Hands-on
-
-
 ---
 # Custom resources definition (CRD)
 

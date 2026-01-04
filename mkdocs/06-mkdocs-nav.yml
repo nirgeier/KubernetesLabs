@@ -3,33 +3,34 @@
 ###
 
 nav:
-  - Start Here: welcome.md
-  - Labs:
-      - index.md
-      - 00 Verify Cluster: 00-VerifyCluster/README.md
-      - 01 Namespace: 01-Namespace/README.md
-      - 02 Deployments Imperative: 02-Deployments-Imperative/README.md
-      - 03 Deployments Declarative: 03-Deployments-Declarative/README.md
-      - 04 Rollout: 04-Rollout/README.md
-      - 05 Services: 05-Services/README.md
-      - 06 DataStore: 06-DataStore/README.md
-      - 07 Nginx Ingress: 07-nginx-Ingress/README.md
-      - 08 Kustomization: 08-Kustomization/README.md
-      - 09 StatefulSet: 09-StatefulSet/README.md
-      - 10 Istio: 10-Istio/README.md
-      - 11 CRD Custom Resource Definition: 11-CRD-Custom-Resource-Definition/README.md
-      - 12 Wordpress MySQL PVC: 12-Wordpress-MySQL-PVC/README.md
-      - 13 HelmChart: 13-HelmChart/README.md
-      - 14 Logging: 14-Logging/README.md
-      - 15 Prometheus Grafana: 15-Prometheus-Grafana/README.md
-      - 16 Affinity Taint Tolleration: 16-Affinity-Taint-Tolleration/README.md
-      - 17 PodDisruptionBudgets PDB: 17-PodDisruptionBudgets-PDB/README.md
-      - 18 ArgoCD: 18-ArgoCD/README.md
-      - 19 CustomScheduler: 19-CustomScheduler/README.md
-      - 20 CronJob: 20-CronJob/README.md
-      - 21 KubeAPI: 21-KubeAPI/README.md
-      - 22 HelmOperator: 24-HelmOperator/README.md
-      - Overview: Tasks/index.md
-  - Tasks:
-      - Overview: Tasks/index.md
-      - Kubernetes CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
+    - Start Here: welcome.md
+    - Labs:
+          - index.md
+          - 00 Verify Cluster: 00-VerifyCluster/README.md
+          - 01 Namespace: 01-Namespace/README.md
+          - 02 Deployments Imperative: 02-Deployments-Imperative/README.md
+          - 03 Deployments Declarative: 03-Deployments-Declarative/README.md
+          - 04 Rollout: 04-Rollout/README.md
+          - 05 Services: 05-Services/README.md
+          - 06 DataStore: 06-DataStore/README.md
+          - 07 Nginx Ingress: 07-nginx-Ingress/README.md
+          - 08 Kustomization: 08-Kustomization/README.md
+          - 09 StatefulSet: 09-StatefulSet/README.md
+          - 10 Istio: 10-Istio/README.md
+          - 11 CRD Custom Resource Definition: 11-CRD-Custom-Resource-Definition/README.md
+          - 12 Wordpress MySQL PVC: 12-Wordpress-MySQL-PVC/README.md
+          - 13 HelmChart: 13-HelmChart/README.md
+          - 14 Logging: 14-Logging/README.md
+          - 15 Prometheus Grafana: 15-Prometheus-Grafana/README.md
+          - 16 Affinity Taint Tolleration: 16-Affinity-Taint-Tolleration/README.md
+          - 17 PodDisruptionBudgets PDB: 17-PodDisruptionBudgets-PDB/README.md
+          - 18 ArgoCD: 18-ArgoCD/README.md
+          - 19 CustomScheduler: 19-CustomScheduler/README.md
+          - 20 CronJob: 20-CronJob/README.md
+          - 21 KubeAPI: 21-KubeAPI/README.md
+          - 22 HelmOperator: 24-HelmOperator/README.md
+          - Overview: Tasks/index.md
+    - Tasks:
+          - Overview: Tasks/index.md
+          - CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
+          - Service Tasks: Tasks/Kubernetes-Service-Tasks/README.md

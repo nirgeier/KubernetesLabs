@@ -1,8 +1,3 @@
-
-# K8S Hands-on
-
-
-
 ---
 
 # ArgoCD
@@ -10,19 +5,6 @@
 - In this tutorial, we will learn the essentials of `ArgoCD`, a declarative GitOps continuous delivery tool for Kubernetes.
 - We will install `ArgoCD`, deploy applications, sync resources from Git repositories, and gain practical experience with GitOps workflows.
 
----
-<!-- omit in toc -->
-## Pre Requirements
-
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
-- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
-- A `Git repository` (GitHub, GitLab, or Bitbucket) for storing application manifests
-- Basic understanding of Kubernetes resources (Deployments, Services, etc.)
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
-
-### **<kbd>CTRL</kbd> + click to open in new window**
-<!-- omit in toc -->
 ---
 
 ## What will we learn?

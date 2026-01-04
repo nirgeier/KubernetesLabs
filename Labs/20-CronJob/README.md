@@ -1,7 +1,3 @@
-
-# K8S Hands-on
-
-
 ---
 
 
@@ -9,15 +5,6 @@
 
 - In this lab, we will learn how to create and manage `CronJobs` in Kubernetes.
 - A `CronJob` creates `Jobs` on a time-based schedule. It is useful for running periodic and recurring tasks, such as backups or report generation.
-
----
-
-### Pre-Requirements
-- K8S cluster - <a href="../00-VerifyCluster">Setting up minikube cluster instruction</a>
-- [**kubectl**](https://kubernetes.io/docs/tasks/tools/) configured to interact with your cluster
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)  
-**<kbd>CTRL</kbd> + <kbd>click</kbd> to open in new window**
 
 ---
 
