@@ -1,0 +1,47 @@
+@mixin logo1 {
+  width: 182px;
+  height: 50px;
+  margin: 20px auto;
+  display: block;
+  position: fixed;
+  right: 10px;
+  bottom: 0px;
+  //background-image: url("https://raw.githubusercontent.com/nirgeier/labs-assets/main/assets/images/Wizard.jpeg");
+  background-image: url("https://raw.githubusercontent.com/nirgeier/labs-assets/main/assets/images/codeWizard.png");
+  background-size: cover;
+  background-position: center;
+  // border-radius: 10px;
+  // box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  // z-index: 1000;
+}
+
+@mixin logo2 {
+  width: 200px;
+  height: 50px;
+  margin: auto 20px;
+  display: block;
+  position: fixed;
+  left: 30px;
+  bottom: 25px;
+  //background-image: url("../images/commit.png");
+  background-size: cover;
+  background-position: center;
+  border-radius: 15px;
+}
+
+@mixin common-font-style {
+  font-size: 12px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #777;
+}
+
+@mixin image-size($height, $width: auto, $align: false, $radius: null) {
+  width: $width;
+  height: $height;
+  @if $align {
+    vertical-align: middle;
+  }
+  @if $radius {
+    border-radius: $radius;
+  }
+}
