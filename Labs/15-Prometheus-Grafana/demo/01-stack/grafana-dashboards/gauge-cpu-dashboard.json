@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "gauge-cpu-demo",
+    "title": "CPU Gauge - Demo",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "5s",
+    "panels": [
+      {
+        "type": "gauge",
+        "title": "Max CPU Usage (pods)",
+        "targets": [
+          {
+            "expr": "max(sum(rate(demo_container_cpu_usage_seconds_total[1m])) by (pod))",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

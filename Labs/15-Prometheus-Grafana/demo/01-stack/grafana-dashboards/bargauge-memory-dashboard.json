@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "bargauge-memory-demo",
+    "title": "Memory Bar Gauge - Demo",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "10s",
+    "panels": [
+      {
+        "type": "bargauge",
+        "title": "Memory Usage per Pod",
+        "targets": [
+          {
+            "expr": "sum(demo_container_memory_bytes) by (pod)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

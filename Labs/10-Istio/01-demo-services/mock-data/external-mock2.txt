@@ -1,1 +1,0 @@
-This is the content of external-mock2.txt

@@ -1,6 +1,44 @@
 ---
 # Data Store
 
+## All Labs Menu
+
+- [00 Verify Cluster](../00-VerifyCluster/README.md)
+- [01 Namespace](../01-Namespace/README.md)
+- [02 Deployments Imperative](../02-Deployments-Imperative/README.md)
+- [03 Deployments Declarative](../03-Deployments-Declarative/README.md)
+- [04 Rollout](../04-Rollout/README.md)
+- [05 Services](../05-Services/README.md)
+- [06 DataStore](../06-DataStore/README.md)
+- [07 Nginx Ingress](../07-nginx-Ingress/README.md)
+- [08 Kustomization](../08-Kustomization/README.md)
+- [09 StatefulSet](../09-StatefulSet/README.md)
+- [10 Istio](../10-Istio/README.md)
+- [11 CRD Custom Resource Definition](../11-CRD-Custom-Resource-Definition/README.md)
+- [12 Wordpress MySQL PVC](../12-Wordpress-MySQL-PVC/README.md)
+- [13 HelmChart](../13-HelmChart/README.md)
+- [14 Logging](../14-Logging/README.md)
+- [15 Prometheus Grafana](../15-Prometheus-Grafana/README.md)
+- [16 Affinity Taint Tolleration](../16-Affinity-Taint-Tolleration/README.md)
+- [17 PodDisruptionBudgets PDB](../17-PodDisruptionBudgets-PDB/README.md)
+- [18 ArgoCD](../18-ArgoCD/README.md)
+- [19 CustomScheduler](../19-CustomScheduler/README.md)
+- [20 CronJob](../20-CronJob/README.md)
+- [21 Auditing](../21-Auditing/demo.sh)
+- [21 KubeAPI](../21-KubeAPI/README.md)
+- [22 Rancher](../22-Rancher/01-pre-requirements.sh)
+- [23 MetricServer](../23-MetricServer/runMe.sh)
+- [24 HelmOperator](../24-HelmOperator/README.md)
+- [25 kubebuilder](../25-kubebuilder/runMe.sh)
+- [26 k9s](../26-k9s/runMe.sh)
+- [27 krew](../27-krew/runMe.sh)
+- [28 kubeapps](../28-kubeapps/runMe.sh)
+- [29 kubeadm](../29-kubeadm/runMe.sh)
+- [30 k9s](../30-k9s/runMe.sh)
+- [31 Telepresence](../31-Telepresence/README.md)
+
+---
+
 ## Secrets and ConfigMaps
 
 - Secrets & ConfigMap are ways to store and inject configurations into your deployments.
