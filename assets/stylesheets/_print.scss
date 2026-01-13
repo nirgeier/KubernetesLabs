@@ -1,0 +1,151 @@
+@use "mixins" as *;
+
+@media print {
+  /*
+   * --------------------------------------------------
+   * Core Print Styles
+   * --------------------------------------------------
+   */
+
+  /* Resetting theme colors for print to ensure black text on a white background */
+  :root > * {
+    //--md-default-fg-color: #000;
+    //--md-default-bg-color: #fff;
+  }
+
+  /* Define the page properties, such as size and margins */
+  @page {
+    size: A4 portrait;
+    margin: 2.5cm;
+
+    //@top-left {
+    //   /* Add an image to the print header */
+    //   content: url("https://raw.githubusercontent.com/nirgeier/labs-assets/main/assets/images/Wizard.jpeg");
+    //   width: 50px;
+    //   height: 50px;
+    // }
+
+    @top-center {
+      /* Define a custom string for the document title */
+      content: "GitHub Workshop Aug 2025 [Atera by Nir Geier]"; /* Simple string for the header */
+      @include common-font-style;
+    }
+    @bottom-center {
+      /* Display "Page X of Y" in the footer */
+      content: "@CodeWizard / CommitAI - Page " counter(page) " of " counter(pages);
+      @include common-font-style;
+    }
+  }
+
+  /* Remove all empty pages */
+  @page:blank {
+    display: none;
+  }
+
+  /*
+   * --------------------------------------------------
+   * Enhancing Legibility
+   * --------------------------------------------------
+   */
+
+  /* Set a readable font size and line height for the body text */
+  body {
+    font-size: 12pt;
+    line-height: 1em;
+    color: #000 !important;
+  }
+
+  /* Remove the display of URLs in parentheses after links */
+  a:after {
+    content: none;
+  }
+
+  /* Disable the color on links to keep them black for printing */
+  a {
+    color: #000 !important;
+  }
+
+  /* Ensure the main content takes up the full width of the page */
+  .md-main__inner {
+    max-width: none;
+  }
+
+  /* Make sure all content is visible and takes up the full width of the page. */
+  .md-main {
+    margin: 0;
+    padding: 0;
+  }
+
+  /*
+   * --------------------------------------------------
+   * Managing Page Breaks
+   * --------------------------------------------------
+   */
+
+  /* Prevent page breaks inside of code blocks, tables, and images to keep them together */
+  .highlight,
+  pre,
+  table,
+  img {
+    break-inside: avoid;
+  }
+
+  /* Remove page breaks before and after headers and sections */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  section {
+    break-before: auto;
+    break-after: auto;
+  }
+
+  emsp {
+    padding: 0 5px 0 0;
+  }
+
+  /*
+   * --------------------------------------------------
+   * Hiding Non-Essential Elements
+   * --------------------------------------------------
+   */
+
+  /* Hide the header, footer, navigation bars, and any interactive elements */
+  .md-footer,
+  .md-header,
+  .md-nav,
+  .md-search__form,
+  .md-sidebar,
+  .md-tabs,
+  .md-top,
+  header,
+  nav {
+    display: none !important;
+  }
+
+  .md-source-file nav {
+    display: block !important;
+  }
+
+  /* Ensure main content takes full width in PDF */
+  .md-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    font-size: 12px !important;
+  }
+
+  /* Optional: make links look like plain text */
+  a {
+    color: black;
+    text-decoration: none;
+  }
+
+  .md-main__inner {
+    display: block;
+  }
+}

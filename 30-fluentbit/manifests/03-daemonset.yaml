@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentbit
+  namespace: demo-fluentbit
+  labels:
+    app: fluentbit
+spec:
+  selector:
+    matchLabels:
+      app: fluentbit
+  template:
+    metadata:
+      labels:
+        app: fluentbit
+    spec:
+      serviceAccountName: fluentbit
+      tolerations:
+        - operator: "Exists"
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: fluentbit-output
+              mountPath: /tmp/fluentbit-logs
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc
+          env:
+            - name: FLUENT_BIT_CONF
+              value: "/fluent-bit/etc/fluent-bit.conf"
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+            type: Directory
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+            type: Directory
+        - name: fluentbit-output
+          hostPath:
+            path: /tmp/fluentbit-logs
+            type: DirectoryOrCreate
+        - name: fluent-bit-config
+          configMap:
+            name: fluentbit-config
