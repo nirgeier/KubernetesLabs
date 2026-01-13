@@ -1,0 +1,88 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: echo-dr
+  namespace: istio02
+spec:
+  host: echo.istio02.svc.cluster.local
+  subsets:
+    - labels:
+        version: v1
+      name: v1
+    - labels:
+        version: v2
+      name: v2
+    - labels:
+        version: v3
+      name: v3
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: echo-gw
+  namespace: istio02
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - "*"
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: echo-vs
+  namespace: istio02
+spec:
+  gateways:
+    - echo-gw
+  hosts:
+    - "*"
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: echo.istio02.svc.cluster.local
+            subset: v1
+          weight: 34
+        - destination:
+            host: echo.istio02.svc.cluster.local
+            subset: v2
+          weight: 33
+        - destination:
+            host: echo.istio02.svc.cluster.local
+            subset: v3
+          weight: 33
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: echo-vs-mesh
+  namespace: istio02
+spec:
+  hosts:
+    - echo
+    - echo.istio02.svc.cluster.local
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: echo.istio02.svc.cluster.local
+            subset: v1
+          weight: 34
+        - destination:
+            host: echo.istio02.svc.cluster.local
+            subset: v2
+          weight: 33
+        - destination:
+            host: echo.istio02.svc.cluster.local
+            subset: v3
+          weight: 33

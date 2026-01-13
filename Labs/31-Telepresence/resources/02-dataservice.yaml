@@ -1,0 +1,170 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dataservice
+  namespace: telepresence-demo
+  labels:
+    app: dataservice
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dataservice
+  template:
+    metadata:
+      labels:
+        app: dataservice
+        tier: backend
+    spec:
+      containers:
+        - name: dataservice
+          image: python:3.11-slim
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              pip install Flask==3.0.0 flask-cors==4.0.0 gunicorn==21.2.0 && \
+              cat > /app/app.py << 'EOF'
+              from flask import Flask, jsonify
+              from flask_cors import CORS
+              import os
+              from datetime import datetime
+              import random
+
+              app = Flask(__name__)
+              CORS(app)
+
+              SERVICE_NAME = os.getenv('SERVICE_NAME', 'dataservice')
+              ENVIRONMENT = os.getenv('ENVIRONMENT', 'cluster')
+
+              @app.route('/')
+              def home():
+                  return jsonify({
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'message': '📊 Data Service is running!',
+                      'timestamp': datetime.utcnow().isoformat(),
+                      'version': '1.0.0'
+                  })
+
+              @app.route('/health')
+              def health():
+                  return jsonify({
+                      'status': 'healthy',
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'timestamp': datetime.utcnow().isoformat()
+                  })
+
+              @app.route('/data')
+              def get_data():
+                  data_items = [
+                      {
+                          'id': random.randint(1000, 9999),
+                          'type': 'metric',
+                          'name': 'cpu_usage',
+                          'value': round(random.uniform(10, 95), 2),
+                          'unit': 'percent',
+                          'timestamp': datetime.utcnow().isoformat()
+                      },
+                      {
+                          'id': random.randint(1000, 9999),
+                          'type': 'metric',
+                          'name': 'memory_usage',
+                          'value': round(random.uniform(1024, 8192), 2),
+                          'unit': 'MB',
+                          'timestamp': datetime.utcnow().isoformat()
+                      },
+                      {
+                          'id': random.randint(1000, 9999),
+                          'type': 'metric',
+                          'name': 'request_count',
+                          'value': random.randint(100, 10000),
+                          'unit': 'count',
+                          'timestamp': datetime.utcnow().isoformat()
+                      },
+                      {
+                          'id': random.randint(1000, 9999),
+                          'type': 'metric',
+                          'name': 'response_time',
+                          'value': round(random.uniform(10, 500), 2),
+                          'unit': 'ms',
+                          'timestamp': datetime.utcnow().isoformat()
+                      }
+                  ]
+                  
+                  return jsonify({
+                      'status': 'success',
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'count': len(data_items),
+                      'data': data_items,
+                      'timestamp': datetime.utcnow().isoformat()
+                  })
+
+              @app.route('/stats')
+              def get_stats():
+                  return jsonify({
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'stats': {
+                          'total_requests': random.randint(10000, 100000),
+                          'avg_response_time': round(random.uniform(50, 200), 2),
+                          'error_rate': round(random.uniform(0.1, 5.0), 2),
+                          'uptime_hours': random.randint(1, 720)
+                      },
+                      'timestamp': datetime.utcnow().isoformat()
+                  })
+
+              if __name__ == '__main__':
+                  app.run(host='0.0.0.0', port=5001, debug=False)
+              EOF
+              cd /app && python app.py
+          ports:
+            - containerPort: 5001
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "dataservice"
+            - name: ENVIRONMENT
+              value: "cluster"
+            - name: PORT
+              value: "5001"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dataservice
+  namespace: telepresence-demo
+  labels:
+    app: dataservice
+spec:
+  selector:
+    app: dataservice
+  ports:
+    - port: 5001
+      targetPort: 5001
+      protocol: TCP
+      name: http
+  type: ClusterIP

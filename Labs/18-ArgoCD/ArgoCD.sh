@@ -19,7 +19,7 @@ kubectl config set-context --current --namespace=$NAMESPACE
 #kubectl patch svc argocd-server -n $NAMESPACE -p '{"spec": {"type": "NodePort"}}'
 
 # Set the new desired Deployment
-cat << EOF > kustomization.yaml
+cat <<EOF >kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: argocd
@@ -31,7 +31,7 @@ patchesStrategicMerge:
 EOF
 
 # Set the desired patch
-cat << EOF > patch-replace.yaml
+cat <<EOF >patch-replace.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -52,12 +52,18 @@ spec:
 EOF
 
 kubectl kustomize . | kubectl apply -f -
-sleep 30
+
+echo "Waiting for ArgoCD server to be ready..."
+kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
+
+echo "Waiting for initial admin password secret..."
+while ! kubectl -n argocd get secret argocd-initial-admin-secret >/dev/null 2>&1; do
+  sleep 2
+done
 
 echo '---------------------------------------------------------------'
 echo 'User    : admin'
 echo 'Password: ' $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 echo '---------------------------------------------------------------'
-
 
 kubectl port-forward svc/argocd-server -n argocd 8085:80

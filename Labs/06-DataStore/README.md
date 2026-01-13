@@ -47,7 +47,7 @@ const
 
 require("http")
   .createServer((request, response) => {
-    response.write(`Language: ${language}`);
+    response.write(`Language: ${language}\n`);
     response.write(`Token   : ${token}\n`);
     response.end(`\n`);
   })
@@ -139,7 +139,7 @@ Successfully tagged nirgeier/k8s-secrets-sample:latest
 # replace the name if you used your own name
 # and check the response from the server.
 # It should print out the variables which were defined inside the DockerFile 
-$ docker run -d -p5000:5000 nirgeier/k8s-secrets-sample --name server
+$ docker run -d -p5000:5000 --name server nirgeier/k8s-secrets-sample 
 
 # Get the response from the container 
 # The port is the one which we exposed inside the DockerFile
@@ -373,7 +373,7 @@ service/codewizard-secrets unchanged
 - To update existing secrets or ConfigMap:
 
 ```
-$ kubectl create secret generic token -n codewizard --from-literal=Token=Token3 -o yaml --dry-run=client | kubectl replace -f -
+$ kubectl create secret generic token -n codewizard --from-literal=TOKEN=Token3 -o yaml --dry-run=client | kubectl replace -f -
 secret/token replaced
 ```
 

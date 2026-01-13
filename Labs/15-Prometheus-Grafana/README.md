@@ -199,6 +199,29 @@ kubectl port-forward            \
   5. Enter the below queries to visualize metric(s): 
      Note: To add new query click on the `+ Add query`
   6. Save the dashboard.
+
+---
+
+## Demo: Automated stack and dashboard
+
+There is a convenience demo under `demo/01-stack` that:
+
+- Installs `kube-prometheus-stack` and a `Grafana` release into the `monitoring` namespace.
+- Provisions a Prometheus datasource in Grafana.
+- Uploads a ready-made dashboard that shows CPU, memory, pod counts and HTTP request metrics.
+
+Files:
+
+- demo/01-stack/demo.sh
+- demo/01-stack/grafana-dashboards/cluster-metrics-dashboard.json
+
+Quick usage:
+
+```bash
+chmod +x demo/01-stack/demo.sh
+./demo/01-stack/demo.sh
+```
+
   
 <br>
 

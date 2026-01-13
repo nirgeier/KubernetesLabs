@@ -167,6 +167,23 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
     - **Password**: (from Step 05)
 
 ---
+# Quick Start (Automated)
+
+For a fully automated setup and demo of the concepts in this lab, you can use the provided scripts:
+
+1.  **Install ArgoCD**:
+    ```bash
+    ./install-argocd.sh
+    ```
+    This script creates the namespace, installs ArgoCD, and patches the server for insecure access (easier for labs). It also prints the initial admin password.
+
+2.  **Run Full Demo**:
+    ```bash
+    ./run-demo.sh
+    ```
+    This script will run the installation if needed, deploy the Guestbook application, and wait for it to sync, demonstrating the complete GitOps workflow.
+
+---
 
 ## Part 02 - Installing ArgoCD CLI
 
