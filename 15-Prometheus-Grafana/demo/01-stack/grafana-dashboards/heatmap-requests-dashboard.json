@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "heatmap-requests-demo",
+    "title": "Requests Heatmap - Demo",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "10s",
+    "panels": [
+      {
+        "type": "heatmap",
+        "title": "HTTP Requests Heatmap",
+        "targets": [
+          {
+            "expr": "rate(demo_http_requests_total[1m])",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

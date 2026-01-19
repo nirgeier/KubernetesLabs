@@ -1,0 +1,34 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "table-pods-demo",
+    "title": "Per-Pod Metrics Table - Demo",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "15s",
+    "panels": [
+      {
+        "type": "table",
+        "title": "Pod Metrics",
+        "targets": [
+          {
+            "expr": "sum(rate(demo_http_requests_total[5m])) by (pod)",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(demo_container_memory_bytes) by (pod)",
+            "refId": "B"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

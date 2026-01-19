@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: codewizard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secrets-app
+  namespace: codewizard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: secrets-app
+  template:
+    metadata:
+      labels:
+        name: secrets-app
+    spec:
+      containers:
+        - name: secrets-app
+          image: nirgeier/k8s-secrets-sample
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: LANGUAGE
+              value: Hebrew
+            - name: TOKEN
+              value: Hard-To-Guess2
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codewizard-secrets
+  namespace: codewizard
+spec:
+  selector:
+    app: codewizard-secrets
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
