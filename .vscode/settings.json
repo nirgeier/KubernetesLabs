@@ -6,5 +6,12 @@
         "**/.hg/store/**": true,
         "**/mkdocs-site/**": true
     },
-    "files.useExperimentalFileWatcher": true
+    "gitlens.currentLine.enabled": false,
+    "gitlens.codeLens.enabled": false,
+    "gitlens.hovers.enabled": false,
+    "files.useExperimentalFileWatcher": true,
+    "[markdown]": {
+        "editor.formatOnSave": false,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

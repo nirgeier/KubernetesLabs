@@ -37,8 +37,9 @@ metadata:
   namespace: codewizard
 spec:
   selector:
-    app: codewizard-secrets
+    name: codewizard-secrets
   ports:
     - protocol: TCP
-      port: 5000 
+      port: 5000
+      targetPort: 5000
         

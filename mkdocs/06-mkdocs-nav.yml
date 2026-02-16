@@ -35,3 +35,4 @@ nav:
               - Overview: Tasks/index.md
               - CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
               - Service Tasks: Tasks/Kubernetes-Service-Tasks/README.md
+              - Helm Tasks: Tasks/Kubernetes-Helm-Tasks/README.md

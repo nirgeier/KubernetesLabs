@@ -83,32 +83,36 @@ Welcome to the hands-on Kubernetes labs! This comprehensive series of labs will 
 | Task Category | Description |
 |---------------|-------------|
 | [Kubernetes CLI Tasks](Tasks/Kubernetes-CLI-Tasks/README.md) | Hands-on exercises for CLI, debugging, and orchestration |
+| [Kubernetes Helm Tasks](Tasks/Kubernetes-Helm-Tasks/README.md) | Helm chart creation, templating, repositories, and deployment |
 
 ## 🎯 Learning Path
 
 ### Beginner Track
-Start here if you're new to Kubernetes:<br>
-1. Lab 00: Verify Cluster <br>
-2. Lab 01: Namespace <br>
-3. Lab 02: Deployments (Imperative) <br>
-4. Lab 03: Deployments (Declarative) <br>
-5. Lab 05: Services <br>
+Start here if you're new to Kubernetes:
+
+1. Lab 00: Verify Cluster
+2. Lab 01: Namespace
+3. Lab 02: Deployments (Imperative)
+4. Lab 03: Deployments (Declarative)
+5. Lab 05: Services
 
 ### Intermediate Track
-For those with basic Kubernetes knowledge:<br>
-1. Lab 04: Rollout <br>
-2. Lab 06: DataStore <br>
-3. Lab 07: Nginx Ingress <br>
-4. Lab 08: Kustomization <br>
-5. Lab 13: Helm Chart <br>
+For those with basic Kubernetes knowledge:
+
+1. Lab 04: Rollout
+2. Lab 06: DataStore
+3. Lab 07: Nginx Ingress
+4. Lab 08: Kustomization
+5. Lab 13: Helm Chart
 
 ### Advanced Track
-For experienced Kubernetes users:<br>
-1. Lab 10: Istio<br>
-2. Lab 11: Custom Resource Definition<br>
-3. Lab 18: ArgoCD<br>
-4. Lab 19: Custom Scheduler<br>
-5. Lab 25: Kubebuilder<br>
+For experienced Kubernetes users:
+
+1. Lab 10: Istio
+2. Lab 11: Custom Resource Definition
+3. Lab 18: ArgoCD
+4. Lab 19: Custom Scheduler
+5. Lab 25: Kubebuilder
 
 ## 💡 Tips for Success
 

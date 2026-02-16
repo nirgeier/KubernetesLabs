@@ -8,7 +8,7 @@
 ## 01. Some general notes on what is a `Service`
 
 
-- `Service` is a unit of application behavior bound to a unique name in a `service registry`. 
+- `Service` is a unit of application behavior bound to a unique name in a `service registry`.
 - `Service` consist of multiple `network endpoints` implemented by workload instances running on pods, containers, VMs etc.
 - `Service` allow us to gain access to any given pod or container (e.g., a web service).
 - A `service` is (normally) created on top of an existing deployment and exposing it to the "world", using IP(s) & port(s).
@@ -195,6 +195,7 @@ bash-5.0# curl -s nginx.codewizard.svc.cluster.local
 - `NodePort`: Exposes the Service on each Node's IP at a **static port** (the `NodePort`).
 - A `ClusterIP` Service, to which the `NodePort` Service routes, **is automatically created**.
 - `NodePort` service is reachable from outside the cluster, by requesting `<Node IP>:<Node Port>`.
+- The NodePort is allocated from a flag-configured range (default: 30000-32767).
 
 ### 05. Create NodePort
 
@@ -203,7 +204,7 @@ bash-5.0# curl -s nginx.codewizard.svc.cluster.local
 ```sh
 # Delete the existing service from previous steps
 $ kubectl delete svc nginx -n codewizard
-service "nginx" deleted from codewizard namespace
+service "nginx" deleted
 ```
 
 <br>
@@ -221,36 +222,71 @@ $ kubectl get svc -n codewizard
 NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)
 nginx        NodePort    100.65.29.172  <none>        80:32593/TCP
 ```
+
+**Note the PORT(S) column**: `80:32593/TCP`.
+- `80` is the port the service exposes internally (ClusterIP).
+- `32593` is the **NodePort** (the port exposed on every node).
+
 <br>
 
 ##### 3. Test the `NodePort` service
 
-- If we have the host IP and the node port number, we can connect directly to the pod.
+To test the service from outside the cluster (e.g., from your local machine), we need two pieces of information:
+1.  **The Node IP**: The IP address of one of the cluster nodes.
+2.  **The NodePort**: The port allocated to the service (which we saw above).
 
-- If you followed the previous labs, you should be able to do it yourself by now......
+**Step 3.1: Get the Node Port**
+
+We can retrieve the allocated NodePort manually from the `kubectl get svc` output, or programmatically:
 
 ```sh
-# Tiny clue....
-$ kubectl cluster-info
-$ kubectl get services
+# Get the NodePort allocated to the 'nginx' service
+$ kubectl get svc nginx -n codewizard -o jsonpath='{.spec.ports[0].nodePort}{"\n"}'
+32593
+```
 
-# Executing curl <cluster host ip>:<port> you should see the flowing Output
-Welcome to nginx!
+**Step 3.2: Get the Node IP**
+
+We need the IP address of a node. In a multi-node cluster, any node's IP will work.
+
+```sh
+# List nodes and their IP addresses
+$ kubectl get nodes -o wide
+NAME           STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE
+minikube       Ready    control-plane   1d    v1.26.1   192.168.49.2   <none>        Buildroot 2021.02.4
+```
+*Note: If you are using Minikube, you can also run `minikube ip` to get this IP directly.*
+
+**Step 3.3: Access the Service**
+
+Now construct the URL using the format `http://<NODE_IP>:<NODE_PORT>`.
+
+```sh
+# Example: curl http://192.168.49.2:32593
+# Replace with YOUR actual Node IP and Node Port
+$ curl -s http://<NODE_IP>:<NODE_PORT>
+```
+
+```html
+# Expected output:
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
 ...
-Thank you for using nginx.
+<h1>Welcome to nginx!</h1>
+...
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
 ```
 
 ---
 
-
 # Service type: LoadBalancer
-
-
 
 !!! warning "Note"
     **We cannot test a `LoadBalancer` service locally on a localhost, but only on a cluster which can provide an `external-IP`**
-
-
 
 ### 06. Create LoadBalancer (only if you are on real cloud)
 

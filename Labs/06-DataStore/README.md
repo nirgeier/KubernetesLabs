@@ -1,49 +1,64 @@
+# Lab 06 - Data Store: Secrets and ConfigMaps
+
+## Overview
+
+In this lab we will learn how to manage application configuration in Kubernetes using **Secrets** and **ConfigMaps**.
+
+| Resource       | Purpose                                                      |
+| -------------- | ------------------------------------------------------------ |
+| **Secret**     | Stores sensitive data (passwords, tokens, certificates, API keys) encoded in Base64 |
+| **ConfigMap**  | Stores non-sensitive configuration data (feature flags, connection strings, config files) |
+
+### What You Will Learn
+
+- How to create Secrets and ConfigMaps (imperative & declarative)
+- How to inject configuration into pods via **environment variables**
+- How to mount configuration as **files/volumes**
+- How to update and rotate Secrets/ConfigMaps
+- Key differences between Secrets and ConfigMaps
+- Best practices for managing configuration in Kubernetes
+
+### Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+- Docker installed (optional — only needed if you want to build the demo image yourself)
+
 ---
-# Data Store
 
-## Secrets and ConfigMaps
-
-- Secrets & ConfigMap are ways to store and inject configurations into your deployments.
-- Secrets usually store passwords, certificates, API keys and more.
-- ConfigMap usually store configuration (data).
-
-
----
-
-
-# First, Let's play a bit with Secrets
-
-### 01. Create namespace and clear previous data (if there is any)
+## 01. Create namespace
 
 ```sh
-# If the namespace already exist and contains data from previous steps, lets clean it
-kubectl delete namespace codewizard
+# If the namespace already exists and contains data from previous steps, let's clean it
+kubectl delete namespace codewizard --ignore-not-found
 
 # Create the desired namespace [codewizard]
-$ kubectl create namespace codewizard
-namespace/codewizard created
+kubectl create namespace codewizard
 ```
 
 !!! warning "Note"
-    **You can skip section number 02. if you don't wish to build and push your docker container**
+
+    - **You can skip section 02 if you don't wish to build and push your own Docker container.**
+    - **A pre-built image `nirgeier/k8s-secrets-sample` is available on Docker Hub.**
 
 ---
 
-### 02. Build the docker container
+## 02. Build the demo Docker container (Optional)
 
-##### 1. write the server code
-- For this demo we will use a tiny NodeJS server which will consume the desired configuration values from the secret
-- This is the code of our server [server.js](server.js):
+##### 1. Write the server code
+
+- For this demo we use a tiny Node.js HTTP server that reads configuration from environment variables and returns them in the response.
+- Source file: [resources/server.js](resources/server.js)
 
 ```js
 //
 // server.js
 //
-const 
+const
   // Get those values in runtime.
-  // The variables will be passed from the Docker file and later on from K8S ConfingMap/ecret
+  // The variables will be passed from the Dockerfile and later on from K8S ConfigMap/Secret
   language = process.env.LANGUAGE,
-  token = process.env.TOKEN;
+  token    = process.env.TOKEN;
 
 require("http")
   .createServer((request, response) => {
@@ -52,23 +67,21 @@ require("http")
     response.end(`\n`);
   })
   // Set the default port to 5000
-  .listen(process.env.PORT || 5000 );
+  .listen(process.env.PORT || 5000);
 ```
 
-<br>
+---
 
+##### 2. Write the Dockerfile
 
-##### 2. Write the DockerFile
-
-- First, let's wrap it up as `docker container`
-- If you wish, you can skip this and use the existing docker image: `nirgeier/k8s-secrets-sample`
-- In the `Dockerfile` we will set the `ENV` for or variables
+- If you wish, you can skip this and use the existing image: `nirgeier/k8s-secrets-sample`
+- Source file: [resources/Dockerfile](resources/Dockerfile)
 
 ```Dockerfile
 # Base Image
 FROM        node
 
-# exposed port - same port is defined in the server.js
+# Exposed port - same port is defined in server.js
 EXPOSE      5000
 
 # The "configuration" which we pass in runtime
@@ -79,122 +92,75 @@ ENV         TOKEN       Hard-To-Guess
 # Copy the server to the container
 COPY        server.js .
 
-# start the server
+# Start the server
 ENTRYPOINT  node server.js
 ```
 
-<br>
+---
 
-##### 3. Build the docker container
+##### 3. Build the Docker container
+
 ```sh
-# The container name is prefixed with the Dockerhub account
-# !!! You should replace the prefix to your dockerhub account
-# In the sample the username is `nirgeier`
-$ docker build . -t nirgeier/k8s-secrets-sample
-
-# The output should be similar to this
-Sending build context to Docker daemon   12.8kB
-Step 1/6 : FROM        node
-latest: Pulling from library/node
-2587235a7635: Pull complete
-953fe5c215cb: Pull complete
-d4d3f270c7de: Pull complete
-ed36dafe30e3: Pull complete
-00e912dd434d: Pull complete
-dd25ee3ea38e: Pull complete
-7e835b17ced9: Pull complete
-79ae84aa9e91: Pull complete
-629164f2c016: Pull complete
-Digest: sha256:3a9d0636755ebcc8e24148a148b395c1608a94bb1b4a219829c9a3f54378accb
-Status: Downloaded newer image for node:latest
- ---> d6740064592f
-Step 2/6 : EXPOSE      5000
- ---> Running in 060220eaa65b
-Removing intermediate container 060220eaa65b
- ---> 68262a3e6741
-Step 3/6 : ENV         LANGUAGE    Hebrew
- ---> Running in c404e7e6fa16
-Removing intermediate container c404e7e6fa16
- ---> 45fcf1fe03aa
-Step 4/6 : ENV         TOKEN       Hard-To-Guess
- ---> Running in d3c1491f9de5
-Removing intermediate container d3c1491f9de5
- ---> 71e8acdbdab2
-Step 5/6 : COPY        server.js .
- ---> 42233d2b66a8
-Step 6/6 : ENTRYPOINT  node server.js
- ---> Running in 223629e16589
-Removing intermediate container 223629e16589
- ---> f5cbb1895d66
-Successfully built f5cbb1895d66
-Successfully tagged nirgeier/k8s-secrets-sample:latest
+# Replace `nirgeier` with your own Docker Hub username
+docker build -t nirgeier/k8s-secrets-sample ./resources/
 ```
 
-<br>
+---
 
-##### 4. Test the container
+##### 4. Test the container locally
 
 ```sh
-# Run the docker container which you build earlier,
-# replace the name if you used your own name
-# and check the response from the server.
-# It should print out the variables which were defined inside the DockerFile 
-$ docker run -d -p5000:5000 --name server nirgeier/k8s-secrets-sample 
+# Run the container
+docker run -d -p 5000:5000 --name server nirgeier/k8s-secrets-sample
 
-# Get the response from the container 
-# The port is the one which we exposed inside the DockerFile
+# Get the response — values should come from the Dockerfile ENVs
 curl 127.0.0.1:5000
 
-# Response:
-Language: Hebrew
-Token   : Hard-To-Guess
+# Expected response:
+# Language: Hebrew
+# Token   : Hard-To-Guess
 ```
 
-<br>
-
-- Stop the container
+- Stop and remove the container when done:
 
 ```sh
-# Stop the running container
-# We are using the name which we passed in the `docker run` command --name <container name>
-docker stop server
+docker rm -f server
 ```
 
-- Push the container to your docker hub account if you wish
+- (Optional) Push the container to your Docker Hub account:
+
+```sh
+docker push nirgeier/k8s-secrets-sample
+```
 
 ---
 
+## 03. Deploy with hardcoded environment variables
 
-### 03. Using K8S deployment & Secrets/ConfigMap
+In this step we will deploy the container with environment variables defined **directly in the YAML** — no Secrets or ConfigMaps yet.
 
-##### 1. Writing the deployment & service file
+##### 1. Review the deployment & service file
 
-- Deploy the docker container that you have prepared in the previous step with the following `Deployment` file.
-- In this sample we will define the values in the `YAML` file, later on we will use Secrets/ConfigMap [variables-from-yaml.yaml](./variables-from-yaml.yaml)
+- Source file: [resources/variables-from-yaml.yaml](resources/variables-from-yaml.yaml)
 
 ```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: codewizard
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secrets-app
+  name: codewizard-secrets
   namespace: codewizard
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: secrets-app
+      name: codewizard-secrets
   template:
     metadata:
       labels:
-        name: secrets-app
+        name: codewizard-secrets
     spec:
       containers:
-        - name: secrets-app
+        - name: secrets
           image: nirgeier/k8s-secrets-sample
           imagePullPolicy: Always
           ports:
@@ -216,168 +182,414 @@ metadata:
   namespace: codewizard
 spec:
   selector:
-    app: codewizard-secrets
+    name: codewizard-secrets
   ports:
     - protocol: TCP
       port: 5000
       targetPort: 5000
 ```
-<br>
+
+---
 
 ##### 2. Deploy to cluster
+
 ```sh
-$ kubectl apply -n codewizard -f variables-from-yaml.yaml
-deployment.apps/codewizard-secrets configured
-service/codewizard-secrets created
+kubectl apply -f resources/variables-from-yaml.yaml
 ```
-<br>
+
+---
 
 ##### 3. Test the app
 
-- We will need a second container for executing the curl request.
-- We will use a `busyBox image` for this purpose.
+```sh
+# Get the pod name
+kubectl get pods -n codewizard
+
+# Test the response directly from the pod (no need for a separate container)
+kubectl exec -it -n codewizard \
+  $(kubectl get pod -n codewizard -l name=codewizard-secrets -o jsonpath='{.items[0].metadata.name}') \
+  -- sh -c "curl -s localhost:5000"
+
+# Expected response:
+# Language: Hebrew
+# Token   : Hard-To-Guess2
+```
+
+!!! info "Why not use the Service?"
+    The Service makes the app accessible to other pods in the cluster. For quick testing, we can `exec` into the pod directly.
+
+    In a real environment you would use the service DNS name: `codewizard-secrets.codewizard.svc.cluster.local:5000`
+
+---
+
+## 04. Using Secrets & ConfigMaps (Imperative)
+
+Now let's externalize the configuration into proper Kubernetes resources.
+
+##### 1. Create a Secret and a ConfigMap
 
 ```sh
-# grab the name of the pod
-$ kubectl get pods -n codewizard
+# Create the secret (imperative)
+#   Key   = TOKEN
+#   Value = Hard-To-Guess3
+kubectl create secret generic token \
+  -n codewizard \
+  --from-literal=TOKEN=Hard-To-Guess3
 
-# Output
-NAME                                  READY   STATUS    RESTARTS   AGE
-codewizard-secrets-56f556c758-2mknc   1/1     Running   0          6m27s
-
-# Login to the container and test the reponse
-# kubectl exec -it -n codewizard <pod name> -- sh
-# For the above output we will use
-kubectl exec -it -n codewizard codewizard-secrets-56f556c758-2mknc -- sh
-
-# Now get the server response (from inside the container)
-$ curl localhost:5000                    
-
-# Response
-Language: Hebrew
-Token   : Hard-To-Guess2
-
+# Create the config map (imperative)
+#   Key   = LANGUAGE
+#   Value = English
+kubectl create configmap language \
+  -n codewizard \
+  --from-literal=LANGUAGE=English
 ```
 
 ---
 
-### 04. Using Secrets & config maps
-
-##### 1. Create the desired secret and config map for this lab
+##### 2. Verify the resources were created
 
 ```sh
-# Create the secret 
-#   Key   = Token
-#   Value = Hard-To-Guess3
-$ kubectl create -n codewizard secret generic token --from-literal=TOKEN=Hard-To-Guess3
-secret/token created
+# List secrets and config maps
+kubectl get secrets,cm -n codewizard
 
-# Create the config map 
-#   Key   = LANGUAGE
-#   Value = English
-$ kubectl create -n codewizard configmap language --from-literal=LANGUAGE=English
-configmap/language created
+# View the secret details (note: data is Base64-encoded)
+kubectl describe secret token -n codewizard
 
-# Verify that the resources have been created:
-$ kubectl get secrets,cm -n codewizard
-NAME                         TYPE                                  DATA   AGE
-secret/default-token-8hzhn   kubernetes.io/service-account-token   3      14m
-secret/token                 Opaque                                1      80s
-NAME                         DATA   AGE
-configmap/kube-root-ca.crt   1      14m
-configmap/language           1      44s
-
-# Like other resources we can use describe to view the resource
-$ kubectl describe secret token -n codewizard
-Name:         token
-Namespace:    codewizard
-Labels:       <none>
-Annotations:  <none>
-
-Type:  Opaque <----- The content is stored as BASE64
-
-Data
-====
-TOKEN:  14 bytes
-
-# Same way for the ConfigMap
-$ kubectl describe cm language -n codewizard
-Name:         language
-Namespace:    codewizard
-Labels:       <none>
-Annotations:  <none>
-Data
-====
-LANGUAGE:
-----
-English
-Events:  <none>
+# View the config map details (note: data is plain text)
+kubectl describe cm language -n codewizard
 ```
 
-<br>
+---
 
-##### 2. Update the deployment to read the values from Secrets & ConfigMap
+##### 3. Decode a Secret value
 
-- Change the `env` section to the following:
+Secrets are stored as Base64-encoded strings. To view the actual value:
+
+```sh
+# Get the raw Base64 value
+kubectl get secret token -n codewizard -o jsonpath='{.data.TOKEN}'
+
+# Decode it
+kubectl get secret token -n codewizard -o jsonpath='{.data.TOKEN}' | base64 -d
+# Output: Hard-To-Guess3
+```
+
+!!! warning "Important"
+    Base64 is **encoding**, not **encryption**. Anyone with access to the Secret resource can decode it.
+    For real security, consider using:
+
+    - [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)
+    - [External Secrets Operator](https://external-secrets.io/)
+    - [HashiCorp Vault](https://www.vaultproject.io/)
+    - Enabling [encryption at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/) for etcd
+
+---
+
+## 05. Inject Secrets & ConfigMaps as environment variables
+
+##### 1. Update the deployment to reference Secret & ConfigMap
+
+- Source file: [resources/variables-from-secrets.yaml](resources/variables-from-secrets.yaml)
+- The key change is in the `env` section — instead of hardcoded values, we reference the ConfigMap and Secret:
 
 ```yaml
+  env:
+    - name: LANGUAGE
+      valueFrom:
+        configMapKeyRef:    # Read from the ConfigMap
+          name: language    # The ConfigMap name
+          key:  LANGUAGE    # The key inside the ConfigMap
+    - name: TOKEN
+      valueFrom:
+        secretKeyRef:       # Read from the Secret
+          name: token       # The Secret name
+          key:  TOKEN       # The key inside the Secret
+```
+
+---
+
+##### 2. Apply the updated deployment
+
+```sh
+kubectl apply -f resources/variables-from-secrets.yaml
+```
+
+---
+
+##### 3. Test the changes
+
+```sh
+# Wait for the new pod to be ready
+kubectl rollout status deployment/codewizard-secrets -n codewizard
+
+# Test the response
+kubectl exec -it -n codewizard \
+  $(kubectl get pod -n codewizard -l name=codewizard-secrets -o jsonpath='{.items[0].metadata.name}') \
+  -- sh -c "curl -s localhost:5000"
+
+# Expected response:
+# Language: English
+# Token   : Hard-To-Guess3
+```
+
+The values now come from the ConfigMap and Secret instead of being hardcoded!
+
+---
+
+## 06. Create Secrets & ConfigMaps declaratively (YAML)
+
+Instead of imperative `kubectl create` commands, you can define Secrets and ConfigMaps in YAML files.
+
+##### 1. Secret YAML
+
+- Source file: [resources/secret.yaml](resources/secret.yaml)
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: token
+data:
+  # Base64-encoded value of "Hard-To-Guess3"
+  # echo -n "Hard-To-Guess3" | base64
+  TOKEN: SGFyZC1Uby1HdWVzczM=
+type: Opaque
+```
+
+##### 2. Using `stringData` (plain text — recommended for readability)
+
+You can also use `stringData` to avoid manual Base64 encoding. Kubernetes will encode it for you:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: token
+stringData:
+  TOKEN: Hard-To-Guess3
+type: Opaque
+```
+
+##### 3. ConfigMap YAML
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: language
+data:
+  LANGUAGE: English
+```
+
+##### 4. Apply declarative resources
+
+```sh
+# Apply the secret (delete existing one first to avoid conflicts)
+kubectl delete secret token -n codewizard --ignore-not-found
+kubectl apply -n codewizard -f resources/secret.yaml
+
+# Verify
+kubectl get secret token -n codewizard -o jsonpath='{.data.TOKEN}' | base64 -d
+# Output: Hard-To-Guess3
+```
+
+---
+
+## 07. Mount Secrets & ConfigMaps as volumes
+
+Besides environment variables, you can mount Secrets and ConfigMaps as **files** inside the container.
+This is useful for configuration files, certificates, or any data that should appear as files.
+
+##### 1. Create a ConfigMap with a configuration file
+
+```sh
+# Create a ConfigMap from a literal that will be mounted as a file
+kubectl create configmap app-config \
+  -n codewizard \
+  --from-literal=app.properties="server.port=5000
+server.language=English
+feature.debug=true"
+```
+
+##### 2. Mount the ConfigMap as a volume
+
+Add this to your deployment spec (the full file is shown for clarity):
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codewizard-secrets
+  namespace: codewizard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: codewizard-secrets
+  template:
+    metadata:
+      labels:
+        name: codewizard-secrets
+    spec:
+      containers:
+        - name: secrets
+          image: nirgeier/k8s-secrets-sample
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
           env:
             - name: LANGUAGE
               valueFrom:
-                configMapKeyRef:    # This value will be read from the config map
-                  name:   language  # The name of the ConfigMap
-                  key:    LANGUAGE  # The key in the config map
+                configMapKeyRef:
+                  name: language
+                  key:  LANGUAGE
             - name: TOKEN
               valueFrom:
-                  secretKeyRef:         # This value will be read from the secret
-                      name:   token     # The name of the secret
-                      key:    TOKEN     # The key in the secret
+                secretKeyRef:
+                  name: token
+                  key:  TOKEN
+          # Mount the ConfigMap as a file
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+              readOnly: true
+            - name: secret-volume
+              mountPath: /etc/secrets
+              readOnly: true
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+        - name: secret-volume
+          secret:
+            secretName: token
 ```
 
-<br>
-
-##### 3. Update the deployment to read values from K8S resources
+##### 3. Verify the mounted files
 
 ```sh
-$ kubectl apply -n codewizard -f variables-from-secrets.yaml
-deployment.apps/codewizard-secrets configured
-service/codewizard-secrets unchanged
+# Exec into the pod and check the mounted files
+POD=$(kubectl get pod -n codewizard -l name=codewizard-secrets -o jsonpath='{.items[0].metadata.name}')
+
+# View secret and config files
+kubectl exec -it -n codewizard "$POD" -- sh -c  \
+  "echo '--- ConfigMap file ---';               \
+   cat /etc/config/app.properties;              \
+   echo;                                        \
+   echo '--- Secret file ---';                  \
+   cat /etc/secrets/TOKEN"
 ```
-<br>
 
-##### 4. Test the changes
-
-
-- Refer to [step 3.3](#3-test-the-app) for testing your server
-
-  ```sh
-  # Login to the server
-  # In this sample, the pod name is: codewizard-secrets-76d99bdc54-s66vl
-  kubectl exec -it codewizard-secrets-76d99bdc54-s66vl -n codewizard -- sh
-
-  # Test the changes to verify that they are set from the Secret/ConfigMap
-  curl localhost:5000
-
-  # Out put should be
-  Language: English
-  Token   : Hard-To-Guess3
-  ```
+!!! info "Volume Mounts vs Environment Variables"
+    | Feature | Environment Variables | Volume Mounts |
+    |---|---|---|
+    | Update method | Pod restart required | Auto-updated (with delay) |
+    | Best for | Simple key-value pairs | Config files, certificates |
+    | File format | N/A | Each key becomes a file |
 
 ---
 
-<br>
+## 08. Updating Secrets & ConfigMaps
 
-!!! warning "Note"
-    Pods are not recreated or updated automatically when `Secrets` or `ConfigMaps` change, so you will have to restart your pods manually
+!!! warning "Important"
+    Pods **do not** automatically restart when Secrets or ConfigMaps change.
 
-- To update existing secrets or ConfigMap:
+    - **Environment variables**: Require a pod restart to pick up new values
+    - **Volume mounts**: Are eventually updated automatically (kubelet sync period, typically ~60s)
 
+##### 1. Update an existing Secret
+
+```sh
+# Use dry-run + replace to update an existing secret
+kubectl create secret generic token \
+  -n codewizard \
+  --from-literal=TOKEN=NewToken123 \
+  -o yaml --dry-run=client | kubectl replace -f -
 ```
-$ kubectl create secret generic token -n codewizard --from-literal=TOKEN=Token3 -o yaml --dry-run=client | kubectl replace -f -
-secret/token replaced
+
+##### 2. Restart the pods to pick up the changes
+
+```sh
+# Rolling restart — zero downtime
+kubectl rollout restart deployment/codewizard-secrets -n codewizard
+
+# Wait for rollout to complete
+kubectl rollout status deployment/codewizard-secrets -n codewizard
 ```
 
-- Test your server and verify that you see the old values.
-- Delete the old pods so they can come back to life with the new values.
-- Test your server again, now you should be able to see the changes.
+##### 3. Verify the new values
+
+```sh
+kubectl exec -it -n codewizard \
+  $(kubectl get pod -n codewizard -l name=codewizard-secrets -o jsonpath='{.items[0].metadata.name}') \
+  -- sh -c "curl -s localhost:5000"
+
+# Expected response:
+# Language: English
+# Token   : NewToken123
+```
+
+---
+
+## 09. Immutable Secrets & ConfigMaps
+
+Starting from Kubernetes v1.21, you can mark Secrets and ConfigMaps as **immutable**.
+This prevents accidental (or malicious) modifications and improves cluster performance.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stable-config
+data:
+  VERSION: "1.0"
+immutable: true     # <-- Cannot be changed once created
+```
+
+```sh
+# Once applied, attempting to modify this ConfigMap will fail:
+# error: configmaps "stable-config" is immutable
+```
+
+!!! info "When to use immutable resources"
+    - Application configuration that should never change after deployment
+    - Certificates or credentials tied to a specific release
+    - Improves performance: kubelet skips watching for updates on immutable resources
+
+---
+
+## 10. Cleanup
+
+```sh
+# Delete all resources created in this lab
+kubectl delete namespace codewizard --ignore-not-found
+```
+
+---
+
+## Summary
+
+| Concept | Description |
+| --- | --- |
+| **Secret** | Stores sensitive data as Base64-encoded key-value pairs |
+| **ConfigMap** | Stores non-sensitive configuration as plain key-value pairs |
+| **Imperative creation** | `kubectl create secret/configmap` — quick for testing |
+| **Declarative creation** | YAML files with `data:` / `stringData:` — version-controlled |
+| **Env injection** | `valueFrom.secretKeyRef` / `valueFrom.configMapKeyRef` |
+| **Volume mount** | Mount as files inside the pod — auto-updates for volume mounts |
+| **Immutable** | `immutable: true` — prevents changes, improves performance |
+| **Updating** | Use `dry-run=client` + `replace`, then `rollout restart` for env vars |
+
+### Key Takeaways
+
+1. **Never** hardcode sensitive values in Deployment YAML files
+2. **Secrets are not encrypted** by default — they are only Base64-encoded
+3. **ConfigMaps** are for non-sensitive data; **Secrets** are for sensitive data
+4. **Volume-mounted** ConfigMaps/Secrets auto-update; **env vars** require pod restart
+5. Use **immutable** resources when values should never change after deployment
+6. In production, consider using external secret management tools (Vault, Sealed Secrets, etc.)
 
