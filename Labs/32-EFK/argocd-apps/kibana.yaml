@@ -1,0 +1,28 @@
+# Kibana - ArgoCD Application for the EFK stack
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: efk-kibana
+  namespace: argocd
+  annotations:
+    # Deploy after Elasticsearch (sync wave 1)
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nirgeier/KubernetesLabs
+    targetRevision: HEAD
+    path: Labs/32-EFK/helm/kibana
+    helm:
+      releaseName: kibana
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: efk
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

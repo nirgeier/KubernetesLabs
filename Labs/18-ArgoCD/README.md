@@ -2,874 +2,628 @@
 
 # ArgoCD
 
-- In this tutorial, we will learn the essentials of `ArgoCD`, a declarative GitOps continuous delivery tool for Kubernetes.
-- We will install `ArgoCD`, deploy applications, sync resources from Git repositories, and gain practical experience with GitOps workflows.
+- `ArgoCD` is a declarative, GitOps continuous delivery tool for Kubernetes.
+- It follows the **GitOps** pattern where a Git repository is the single source of truth for the desired application state.
+- `ArgoCD` automates the deployment and reconciliation of applications against one or more Kubernetes clusters.
 
 ---
 
 ## What will we learn?
 
-- What `ArgoCD` is and why it's useful for GitOps.
-- How to install and configure `ArgoCD` on Kubernetes.
-- `ArgoCD` core concepts: Applications, Projects, and Sync.
-- How to deploy applications from `Git repositories`.
-- Application health and sync status monitoring.
-- Rollback and sync strategies.
-- Best practices for GitOps workflows.
+- What `ArgoCD` is and why it is useful for GitOps
+- How to install and configure `ArgoCD` on Kubernetes using Helm
+- `ArgoCD` core concepts: Applications, Projects, Sync, and Health
+- How to expose ArgoCD via a Nginx Ingress
+- How to deploy applications from Git repositories
+- Application health and sync status monitoring
+- Rollback and sync strategies
+- The **App of Apps** pattern to manage multiple applications declaratively
+- How to deploy the EFK stack (Lab 32) via ArgoCD
 
 ---
 
 ### What is ArgoCD?
 
-- `ArgoCD` is a declarative, GitOps continuous delivery tool for Kubernetes.
-- It follows the `GitOps` pattern where Git repositories are the source of truth for defining the desired application state.
-- `ArgoCD` automates the deployment of the desired application states in the specified target environments.
-
-### Why ArgoCD?
-
-- **GitOps Workflow**: Uses Git as the single source of truth.
-- **Automated Deployment**: Automatically syncs your Kubernetes cluster with Git repositories.
-- **Application Health Monitoring**: Continuous monitoring of deployed applications.
-- **Rollback Capabilities**: Easy rollback to previous versions.
-- **Multi-Cluster Support**: Manage applications across multiple clusters.
-- **SSO Integration**: Supports various SSO providers for authentication.
-- **RBAC**: Fine-grained access control.
-- **Audit Trail**: Full audit trail of all operations.
+- `ArgoCD` is a **pull-based** GitOps operator: it watches Git and continuously reconciles the cluster state to match what is defined in Git.
+- It consists of a **control plane** (running in the cluster) and optionally a **CLI** for interacting with it.
+- Unlike push-based CI/CD (Jenkins, GitHub Actions), no pipeline ever needs direct `kubectl` access to the cluster.
 
 ### Terminology
 
-* **Application**
-    - An `ArgoCD` **Application** is a Kubernetes resource object representing a deployed application instance in an environment.
-    - It defines the source repository, target cluster, and sync policies.
+| Term             | Description                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| **Application**  | An ArgoCD resource linking a Git path to a target Kubernetes cluster+namespace                  |
+| **Project**      | A logical grouping of applications; controls permitted repos/clusters/namespaces                |
+| **Sync**         | The process of applying Git state to the live cluster                                           |
+| **Sync Status**  | `Synced` - live matches Git; `OutOfSync` - live differs from Git                               |
+| **Health Status**| `Healthy`, `Progressing`, `Degraded`, `Suspended`, or `Missing`                                |
+| **App of Apps**  | A pattern where one ArgoCD Application manages a directory of child Application manifests       |
 
-* **Project**
-    - An `ArgoCD` **Project** provides a logical grouping of applications.
-    - Projects are useful for organizing applications and implementing RBAC.
+### ArgoCD Components
 
-* **Sync**
-    - **Sync** is the process of making a live cluster state match the desired state defined in Git.
-    - Sync can run manually or automatically.
-
-* **Sync Status**
-    - Indicates whether the live state matches the Git state.
-    - Status can be: **Synced**, **OutOfSync**, or **Unknown**.
-
-* **Health Status**
-    - Indicates the health of the application resources.
-    - Status can be: **Healthy**, **Progressing**, **Degraded**, **Suspended**, or **Missing**.
-
-### ArgoCD Architecture
-
-| Component                | Description                                                                                    |
-| ------------------------ | ---------------------------------------------------------------------------------------------- |
-| **API Server**           | Exposes the API consumed by Web UI, CLI, and CI/CD systems                                     |
-| **Repository Server**    | Maintains a local cache of Git repositories holding application manifests                      |
-| **Application Controller** | Monitors running applications and compares the current live state against the desired state   |
-| **Dex**                  | Identity service for integrating with external identity providers                              |
-| **Redis**                | Used for caching                                                                               |
+| Component                  | Description                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| **API Server**             | Exposes REST/gRPC API consumed by Web UI, CLI, and CI/CD systems                        |
+| **Repository Server**      | Local cache of Git repositories; renders Helm, Kustomize, plain YAML                    |
+| **Application Controller** | Monitors live cluster state and compares against desired state from Git                  |
+| **Dex**                    | Identity service for integrating with external SSO providers                             |
+| **Redis**                  | Caching layer; short-lived state between components                                      |
 
 ### Common ArgoCD CLI Commands
 
-| Command                                               | Description                                                          |
-| ----------------------------------------------------- | -------------------------------------------------------------------- |
-| `argocd login <server>`                               | Login to `ArgoCD` server                                               |
-| `argocd app create <app-name>`                        | Create a new application                                             |
-| `argocd app list`                                     | List all applications                                                |
-| `argocd app get <app-name>`                           | Get application details                                              |
-| `argocd app sync <app-name>`                          | Sync (deploy) an application                                         |
-| `argocd app delete <app-name>`                        | Delete an application                                                |
-| `argocd app set <app-name>`                           | Update application parameters                                        |
-| `argocd app diff <app-name>`                          | Show differences between Git and live state                          |
-| `argocd app history <app-name>`                       | Show application deployment history                                  |
-| `argocd app rollback <app-name> <revision>`           | Rollback to a previous revision                                      |
+| Command                                     | Description                                       |
+| ------------------------------------------- | ------------------------------------------------- |
+| `argocd login <server>`                     | Login to ArgoCD server                            |
+| `argocd app create <name>`                  | Create a new application                          |
+| `argocd app list`                           | List all applications                             |
+| `argocd app get <name>`                     | Get details of an application                     |
+| `argocd app sync <name>`                    | Sync (deploy) an application                      |
+| `argocd app diff <name>`                    | Show diff between Git and live state              |
+| `argocd app history <name>`                 | Show deployment history                           |
+| `argocd app rollback <name> <revision>`     | Rollback to a previous revision                   |
+| `argocd app delete <name>`                  | Delete an application                             |
+
+---
+
+## Architecture
+
+```mermaid
+graph TB
+    dev["Developer\npushes to Git"] --> git["Git Repository\n(Source of Truth)"]
+
+    subgraph cluster["Kubernetes Cluster"]
+        subgraph argocd["argocd namespace"]
+            api["ArgoCD API Server\n(argocd.local via Ingress)"]
+            ctrl["Application Controller"]
+            repo["Repository Server"]
+            dex["Dex (SSO)"]
+            redis["Redis (cache)"]
+            ingress["Nginx Ingress\nargocd.local"]
+        end
+
+        subgraph apps["Managed Namespaces"]
+            guestbook["guestbook namespace\nGuestbook App"]
+            efk["efk namespace\nEFK Stack"]
+        end
+    end
+
+    browser["Browser / argocd CLI"] --> ingress
+    ingress --> api
+    git --> repo
+    repo --> ctrl
+    ctrl --> guestbook
+    ctrl --> efk
+    api --> ctrl
+    api --> dex
+    ctrl --> redis
+```
+
+---
+
+## App of Apps Pattern
+
+```mermaid
+graph TD
+    root["app-of-apps\nwatches: Labs/18-ArgoCD/apps/"]
+
+    root --> guestbook["guestbook\nrepo: argocd-example-apps\nnamespace: guestbook"]
+    root --> efk["efk-stack\nwatches: Labs/32-EFK/argocd-apps/"]
+
+    efk --> es["efk-elasticsearch\nHelm chart\nwave: 0"]
+    efk --> fb["efk-filebeat\nHelm chart\nwave: 1"]
+    efk --> kb["efk-kibana\nHelm chart\nwave: 1"]
+    efk --> lg["efk-log-generator\nHelm chart\nwave: 2"]
+    efk --> lp["efk-log-processor\nHelm chart\nwave: 2"]
+```
+
+---
+
+## Directory Structure
+
+```
+18-ArgoCD/
+├── README.md                 # This file
+├── demo.sh                   # Full automated demo script
+├── ArgoCD.sh                 # Legacy install script (manual)
+├── install-argocd.sh         # Install ArgoCD via kustomize (legacy)
+├── install.sh                # Print admin password
+├── run-demo.sh               # Run guestbook demo (legacy)
+│
+├── manifests/
+│   └── argocd-ingress.yaml   # Nginx Ingress for ArgoCD UI
+│
+├── apps/                     # App of Apps - all YAML files here are managed
+│   ├── app-of-apps.yaml      # Root application - points to this apps/ folder
+│   ├── guestbook.yaml        # Guestbook demo application
+│   └── efk-stack.yaml        # EFK stack App of Apps (points to Lab 32)
+│
+├── guestbook-app.yaml        # Standalone guestbook application manifest
+├── kustomization.yaml        # Kustomize patch for argocd-server --insecure
+└── patch-replace.yaml        # Kustomize strategic merge patch
+```
+
+---
+
+## Prerequisites
+
+- Kubernetes cluster (v1.24+)
+- `kubectl` configured to access your cluster
+- `Helm 3.x` installed
+- Nginx Ingress Controller installed on the cluster
+- (Optional) `argocd` CLI
+
+```bash
+# Install kubectl (macOS)
+brew install kubectl
+
+# Install Helm
+brew install helm
+
+# Install argocd CLI (optional)
+brew install argocd
+
+# Install Nginx Ingress Controller (if not present)
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+    --namespace ingress-nginx --create-namespace
+```
 
 ---
 
 # Lab
 
-## Part 01 - Installing ArgoCD
+## Part 01 - Full Automated Demo
 
-### Step 01 - Create an ArgoCD Namespace
+The `demo.sh` script handles the complete lifecycle in one command: ArgoCD installation via Helm, Ingress setup, Guestbook deployment, and App of Apps deployment.
 
-- Create a dedicated namespace for `ArgoCD`:
-
-```bash
-kubectl create namespace argocd
-```
-
-### Step 02 - Install ArgoCD
-
-- Install `ArgoCD` using the official installation manifest:
+### 01. Run the Demo
 
 ```bash
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+chmod +x demo.sh
+./demo.sh deploy
 ```
 
-### Step 03 - Verify Installation
+The script will:
 
-- Check that all `ArgoCD` pods are running:
+- Install ArgoCD via Helm (`argo/argo-cd` chart) with `--insecure` mode
+- Apply the Nginx Ingress pointing `argocd.local` to the ArgoCD server
+- Print admin credentials
+- Deploy the Guestbook demo application and wait for it to sync
+- Deploy the App of Apps, which triggers the EFK stack deployment from Lab 32
+
+### 02. Other Commands
+
+```bash
+# Show current status of all applications
+./demo.sh status
+
+# Print admin username and password
+./demo.sh credentials
+
+# Remove all ArgoCD resources and managed apps
+./demo.sh cleanup
+```
+
+---
+
+## Part 02 - Manual ArgoCD Installation
+
+### 01. Install ArgoCD via Helm
+
+```bash
+# Add Argo Helm repository
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update argo
+
+# Install ArgoCD (insecure mode - TLS handled by Ingress)
+helm upgrade --install argocd argo/argo-cd \
+    --namespace argocd \
+    --create-namespace \
+    --set server.insecure=true \
+    --wait
+```
+
+### 02. Verify Installation
 
 ```bash
 kubectl get pods -n argocd
 ```
 
-- Expected output should show all pods in **Running** status:
+Expected output (all pods Running):
 
-```plaintext
-NAME                                  READY   STATUS    RESTARTS   AGE
-argocd-application-controller-0       1/1     Running   0          2m
-argocd-dex-server-xxx                 1/1     Running   0          2m
-argocd-redis-xxx                      1/1     Running   0          2m
-argocd-repo-server-xxx                1/1     Running   0          2m
-argocd-server-xxx                     1/1     Running   0          2m
+```
+NAME                                                READY   STATUS
+argocd-application-controller-0                    1/1     Running
+argocd-dex-server-xxxx                             1/1     Running
+argocd-redis-xxxx                                  1/1     Running
+argocd-repo-server-xxxx                            1/1     Running
+argocd-server-xxxx                                 1/1     Running
 ```
 
-### Step 04 - Expose ArgoCD Server
-
-- By default, the `ArgoCD` API server is not exposed externally. 
-- We' will use port-forwarding to access it, by running:
+### 03. Get Admin Password
 
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
-
-- Alternatively, you can change the service type to **LoadBalancer** or create an **Ingress**:
-
-```bash
-# Change to LoadBalancer (for cloud environments)
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-
-# Or use NodePort (for local/development)
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
-```
-
-### Step 05 - Get Initial Admin Password
-
-- The initial password for the `admin` user is auto-generated and stored as a secret by running the following command:
-
-```bash
-# Get the initial admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+kubectl -n argocd get secret argocd-initial-admin-secret \
+    -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
 !!! note
-    Save this password - you'll need it to login to the ArgoCD UI later.
-
-### Step 06 - Access ArgoCD UI
-
-- Open your browser and navigate to:
-    - **Port-forward**: `https://localhost:8080`
-    - **LoadBalancer**: Use the external IP
-    - **NodePort**: Use `http://<node-ip>:<node-port>`
-
-- Login with:
-    - **Username**: `admin`
-    - **Password**: (from Step 05)
-
----
-# Quick Start (Automated)
-
-For a fully automated setup and demo of the concepts in this lab, you can use the provided scripts:
-
-1.  **Install ArgoCD**:
-    ```bash
-    ./install-argocd.sh
-    ```
-    This script creates the namespace, installs ArgoCD, and patches the server for insecure access (easier for labs). It also prints the initial admin password.
-
-2.  **Run Full Demo**:
-    ```bash
-    ./run-demo.sh
-    ```
-    This script will run the installation if needed, deploy the Guestbook application, and wait for it to sync, demonstrating the complete GitOps workflow.
+    Save this password — you'll need it to log in to the ArgoCD UI and CLI.
 
 ---
 
-## Part 02 - Installing ArgoCD CLI
+## Part 03 - Expose ArgoCD via Ingress
 
-### Step 01 - Download and Install ArgoCD CLI
+An Nginx Ingress allows you to access the ArgoCD UI at `http://argocd.local` instead of requiring port-forwarding.
 
-- Install the `ArgoCD CLI` based on your operating system:
+!!! warning "Prerequisite"
+    Nginx Ingress Controller must be installed in the cluster.
 
-**Linux:**
+### 01. Apply the Ingress
+
 ```bash
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-rm argocd-linux-amd64
+kubectl apply -f manifests/argocd-ingress.yaml
 ```
 
-**macOS:**
+The Ingress forwards HTTP traffic to the ArgoCD server which runs in `--insecure` mode (no TLS at the pod level):
+
+```yaml
+# manifests/argocd-ingress.yaml (summary)
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: argocd.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80
+```
+
+### 02. Add to /etc/hosts
+
 ```bash
+# Get the node IP
+INGRESS_IP=$(kubectl get nodes \
+    -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+
+# Add entry
+echo "${INGRESS_IP}  argocd.local" | sudo tee -a /etc/hosts
+
+# Open the UI
+open http://argocd.local
+```
+
+### 03. Port-Forward Fallback
+
+If Ingress is not available:
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:80 &
+open http://localhost:8080
+```
+
+---
+
+## Part 04 - ArgoCD CLI
+
+### 01. Install the CLI
+
+```bash
+# macOS
 brew install argocd
+
+# Linux
+curl -sSL -o argocd-linux-amd64 \
+    https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 ```
 
-**Windows (via Chocolatey):**
-```bash
-choco install argocd-cli
-```
-
-### Step 02 - Verify CLI Installation
+### 02. Login
 
 ```bash
-argocd version --short
-```
+# Via Ingress
+argocd login argocd.local --insecure
 
-### Step 03 - Login via CLI
-
-```bash
-# If using port-forward
+# Via port-forward
 argocd login localhost:8080 --insecure
 
-# You'll be prompted for username and password
-```
-
-### Step 04 - Change Admin Password (optional, but highly recommended)
-
-```bash
+# Change admin password (recommended)
 argocd account update-password
 ```
 
 ---
 
-## Part 03 - Deploying Your First Application
+## Part 05 - Deploying the Guestbook Application
 
-### Step 01 - Prepare a Git Repository
-
-- For this lab, we will use a sample Git repository with Kubernetes manifests.
-- You can use the `ArgoCD` example repository or your own:
+### 01. Create via Manifest
 
 ```bash
-# Sample repository URL
-https://github.com/argoproj/argocd-example-apps.git
+kubectl apply -f apps/guestbook.yaml
 ```
 
-### Step 02 - Create an Application via CLI
-
-- Create an `ArgoCD` application that deploys the guestbook app:
+### 02. Create via CLI
 
 ```bash
 argocd app create guestbook \
   --repo https://github.com/argoproj/argocd-example-apps.git \
   --path guestbook \
   --dest-server https://kubernetes.default.svc \
-  --dest-namespace default
+  --dest-namespace guestbook \
+  --sync-policy automated \
+  --auto-prune \
+  --self-heal
 ```
 
-??? info "Command Explanation"
-    - `--repo`: The Git repository URL
-    - `--path`: Path within the repository where manifests are located
-    - `--dest-server`: Target Kubernetes cluster (default is the cluster where ArgoCD is installed)
-    - `--dest-namespace`: Target namespace for deployment
-
-### Step 03 - View Application Status
+### 03. Monitor Sync
 
 ```bash
-# List all applications
+# Via CLI
+argocd app get guestbook
+
+# Via kubectl
+kubectl get application guestbook -n argocd -w
+```
+
+### 04. Access the Guestbook
+
+```bash
+kubectl port-forward svc/guestbook-ui -n guestbook 8081:80 &
+open http://localhost:8081
+```
+
+---
+
+## Part 06 - App of Apps Pattern
+
+The **App of Apps** pattern uses a single root ArgoCD Application as a controller that watches a Git directory for Application manifests. Adding an app is as simple as committing a new YAML file.
+
+### GitOps Flow
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant Git as Git Repository
+    participant ArgoCD as ArgoCD
+    participant K8s as Kubernetes
+
+    Dev->>Git: git push (new app YAML in apps/)
+    ArgoCD->>Git: Poll for changes (every 3 min)
+    Git-->>ArgoCD: Detects new Application manifest
+    ArgoCD->>K8s: Creates child Application resource
+    ArgoCD->>Git: Fetches manifests from child app's source
+    Git-->>ArgoCD: Returns Helm/Kustomize/YAML manifests
+    ArgoCD->>K8s: Deploys resources to target namespace
+    K8s-->>ArgoCD: Reports health status
+```
+
+### 01. Deploy the App of Apps
+
+```bash
+kubectl apply -f apps/app-of-apps.yaml
+```
+
+ArgoCD will:
+
+1. Detect the `apps/` directory in the repo
+2. Create a child Application for each `.yaml` file found there
+3. Each child Application then deploys its own resources
+
+### 02. Verify All Applications
+
+```bash
 argocd app list
-
-# Get detailed information about the application
-argocd app get guestbook
 ```
 
-### Step 04 - Sync the Application
+Expected output:
 
-- Initially, the application status will be **OutOfSync**. 
-- Sync it to deploy by running:
-
-```bash
-argocd app sync guestbook
+```
+NAME               CLUSTER     NAMESPACE  STATUS  HEALTH   SYNCPOLICY
+app-of-apps        in-cluster  argocd     Synced  Healthy  Auto-Prune
+efk-stack          in-cluster  argocd     Synced  Healthy  Auto-Prune
+efk-elasticsearch  in-cluster  efk        Synced  Healthy  Auto-Prune
+efk-filebeat       in-cluster  efk        Synced  Healthy  Auto-Prune
+efk-kibana         in-cluster  efk        Synced  Healthy  Auto-Prune
+efk-log-generator  in-cluster  efk        Synced  Healthy  Auto-Prune
+efk-log-processor  in-cluster  efk        Synced  Healthy  Auto-Prune
+guestbook          in-cluster  guestbook  Synced  Healthy  Auto-Prune
 ```
 
-### Step 05 - Verify Deployment
+### 03. Add a New Application
+
+To add a new application, commit a new manifest to `apps/`:
 
 ```bash
-# Check the deployed resources
-kubectl get all -n default
+cat > apps/my-new-app.yaml << 'EOF'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-new-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/my-org/my-repo.git
+    targetRevision: HEAD
+    path: manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: my-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+EOF
 
-# You should see the guestbook deployment, service, and pods
-```
-
-### Step 06 - Access the Application
-
-```bash
-# Port-forward to access the guestbook service
-kubectl port-forward svc/guestbook-ui -n default 8081:80
-
-# Open browser to http://localhost:8081
+git add apps/my-new-app.yaml
+git commit -m "feat: add my-new-app to App of Apps"
+git push
+# ArgoCD automatically detects and deploys the new application
 ```
 
 ---
 
-## Part 04 - Creating Application via UI
+## Part 07 - Auto-Sync and Self-Healing
 
-### Step 01 - Access ArgoCD UI
+### Enable Auto-Sync
 
-- Navigate to the `ArgoCD` UI at `https://localhost:8080`
+```bash
+argocd app set guestbook \
+  --sync-policy automated \
+  --self-heal \
+  --auto-prune
+```
 
-### Step 02 - Create a New Application
+### Test Self-Healing
 
-1. Click on **"+ NEW APP"** button.
-2. Fill in the following details:
-    - **Application Name**: `helm-guestbook`
-    - **Project**: `default`
-    - **Sync Policy**: `Manual` (or `Automatic` for auto-sync)
-    - **Repository URL**: `https://github.com/argoproj/argocd-example-apps.git`
-    - **Revision**: `HEAD`
-    - **Path**: `helm-guestbook`
-    - **Cluster URL**: `https://kubernetes.default.svc`
-    - **Namespace**: `default`
+```bash
+# Manually break the desired state
+kubectl scale deployment guestbook-ui --replicas=5 -n guestbook
 
-3. Click **"CREATE"**.
-
-### Step 03 - View Application in UI
-
-- You should now be able to see the `helm-guestbook` application tile in the UI.
-- Click on it to see the application topology.
-
-### Step 04 - Sync via UI
-
-- Click the **"SYNC"** button.
-- Select the resources you want to sync (or select all).
-- Click **"SYNCHRONIZE"**.
-
-### Step 05 - Monitor Sync Progress
-
-- Watch the sync progress in real-time.
-- The UI will show each resource being created/updated.
-- Once completed, all resources should show as **Healthy** and **Synced**.
+# ArgoCD detects the drift and restores the desired replica count from Git
+watch argocd app get guestbook
+```
 
 ---
 
-## Part 05 - Application Management
-
-### Step 01 - View Application Details
-
-```bash
-# Get full application details
-argocd app get guestbook
-
-# View application parameters
-argocd app get guestbook --show-params
-```
-
-### Step 02 - View Sync History
+## Part 08 - Rollback
 
 ```bash
 # View deployment history
 argocd app history guestbook
-```
 
-### Step 03 - View Differences
+# Rollback to a specific revision
+argocd app rollback guestbook <revision-id>
 
-```bash
-# Show differences between Git and live state
-argocd app diff guestbook
-```
-
-### Step 04 - Manual Sync with Options
-
-```bash
-# Sync with prune (removes resources not in Git)
-argocd app sync guestbook --prune
-
-# Sync specific resources
-argocd app sync guestbook --resource Deployment:guestbook-ui
-
-# Dry-run sync
-argocd app sync guestbook --dry-run
-```
-
----
-
-## Part 06 - Auto-Sync and Self-Healing
-
-### Step 01 - Enable Auto-Sync
-
-- Enable automatic synchronization so `ArgoCD` automatically deploys changes from Git:
-
-```bash
-argocd app set guestbook --sync-policy automated
-```
-
-### Step 02 - Enable Self-Healing
-
-- Enable self-healing to automatically fix out-of-sync resources:
-
-```bash
-argocd app set guestbook --self-heal
-```
-
-### Step 03 - Enable Auto-Prune
-
-- Enable auto-prune to automatically delete resources removed from Git:
-
-```bash
-argocd app set guestbook --auto-prune
-```
-
-### Step 04 - Test Auto-Sync
-
-1. Make a change to your Git repository (e.g., change replica count).
-2. Commit and push the change.
-3. Watch as `ArgoCD` automatically detects and syncs the change:
-
-```bash
-# Watch the application sync status
-watch argocd app get guestbook
-```
-
-### Step 05 - Test Self-Healing
-
-1. Manually modify a deployed resource by running:
-
-```bash
-# Manually scale the deployment
-kubectl scale deployment guestbook-ui --replicas=5
-```
-
-2. Watch as `ArgoCD` detects the drift and automatically restores the desired state:
-
-```bash
-# ArgoCD will revert the replica count to what's in Git
+# Verify the rollback
 argocd app get guestbook
+kubectl get all -n guestbook
 ```
 
 ---
 
-## Part 07 - Rollback
+## Part 09 - Sync Waves (Deployment Ordering)
 
-### Step 01 - View Application History
+Sync waves control the order in which resources are applied during a sync. Resources in wave `N` are applied only after all resources in wave `N-1` are healthy. The EFK App of Apps uses waves to ensure Elasticsearch is ready before Filebeat and Kibana start.
 
-```bash
-# View all deployment revisions
-argocd app history guestbook
-```
+```yaml
+# wave 0: Elasticsearch (must be ready first)
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 
-Example output:
-```plaintext
-ID  DATE                 REVISION
-0   2025-11-10 10:15:30  abc123 (HEAD)
-1   2025-11-10 10:20:45  def456
-2   2025-11-10 10:25:30  ghi789
-```
+# wave 1: Filebeat and Kibana (require Elasticsearch)
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 
-### Step 02 - Rollback to Previous Revision
-
-```bash
-# Rollback to revision ID 1
-argocd app rollback guestbook 1
-```
-
-### Step 03 - Verify Rollback
-
-```bash
-# Verify the application state
-argocd app get guestbook
-
-# Check deployed resources
-kubectl get all -n default
+# wave 2: Log Generator and Processor (require everything else)
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 ```
 
 ---
 
-## Part 08 - Working with Helm Charts
-
-### Step 01 - Create Helm-Based Application
+## Part 10 - Working with Helm Charts
 
 ```bash
+# Deploy a Helm chart from a registry
 argocd app create nginx-helm \
   --repo https://charts.bitnami.com/bitnami \
   --helm-chart nginx \
   --revision 15.1.0 \
   --dest-server https://kubernetes.default.svc \
-  --dest-namespace default
-```
-
-### Step 02 - Set Helm Values
-
-```bash
-# Set Helm values
-argocd app set nginx-helm \
+  --dest-namespace default \
   --helm-set service.type=NodePort \
   --helm-set replicaCount=3
-```
 
-### Step 03 - Sync Helm Application
-
-```bash
 argocd app sync nginx-helm
 ```
 
-### Step 04 - View Helm Parameters
-
-```bash
-# View all Helm parameters
-argocd app get nginx-helm --show-params
-```
-
 ---
 
-## Part 09 - Working with Kustomize
-
-### Step 01 - Create Kustomize-Based Application
-
-```bash
-argocd app create kustomize-guestbook \
-  --repo https://github.com/argoproj/argocd-example-apps.git \
-  --path kustomize-guestbook \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace default
-```
-
-### Step 02 - Sync Kustomize Application
-
-```bash
-argocd app sync kustomize-guestbook
-```
-
-### Step 03 - Verify Deployment
-
-```bash
-kubectl get all -n default -l app=kustomize-guestbook
-```
-
----
-
-## Part 10 - Projects and RBAC
-
-### Step 01 - Create a New Project
-
-```bash
-argocd proj create my-project \
-  --description "My demo project" \
-  --src https://github.com/argoproj/argocd-example-apps.git \
-  --dest https://kubernetes.default.svc,default \
-  --dest https://kubernetes.default.svc,my-namespace
-```
-
-### Step 02 - List Projects
-
-```bash
-argocd proj list
-```
-
-### Step 03 - View Project Details
-
-```bash
-argocd proj get my-project
-```
-
-### Step 04 - Create Application in Project
-
-```bash
-argocd app create my-app \
-  --project my-project \
-  --repo https://github.com/argoproj/argocd-example-apps.git \
-  --path guestbook \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace default
-```
-
----
-
-## Part 11 - Multi-Source Applications
-
-### Step 01 - Create Multi-Source Application
-
-- `ArgoCD` supports applications with multiple source repositories:
-
-```yaml
-# Save as multi-source-app.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: multi-source-app
-  namespace: argocd
-spec:
-  project: default
-  sources:
-    - repoURL: https://github.com/argoproj/argocd-example-apps.git
-      path: guestbook
-      targetRevision: HEAD
-    - repoURL: https://github.com/another-repo/configs.git
-      path: overlays/prod
-      targetRevision: HEAD
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: default
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-```
-
-### Step 02 - Apply Multi-Source Application
-
-```bash
-kubectl apply -f multi-source-app.yaml
-```
-
----
-
-## Part 12 - Sync Windows and Waves
-
-### Step 01 - Configure Sync Windows
-
-- Sync windows allow you to define time periods when syncs are allowed or denied:
-
-```bash
-# Add a sync window to allow syncs only during business hours
-argocd proj windows add my-project \
-  --kind allow \
-  --schedule "0 9 * * 1-5" \
-  --duration 8h \
-  --applications "*"
-```
-
-### Step 02 - Configure Sync Waves
-
-- Use annotations to control the order of resource synchronization:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: database
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"  # Deploy first
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: backend
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Deploy after database
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"  # Deploy last
-```
-
----
-
-## Part 13 - Health Checks and Hooks
-
-### Step 01 - Custom Health Checks
-
-- Define custom health checks for your resources:
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: argocd-cm
-  namespace: argocd
-data:
-  resource.customizations: |
-    cert-manager.io/Certificate:
-      health.lua: |
-        hs = {}
-        if obj.status ~= nil then
-          if obj.status.conditions ~= nil then
-            for i, condition in ipairs(obj.status.conditions) do
-              if condition.type == "Ready" and condition.status == "False" then
-                hs.status = "Degraded"
-                hs.message = condition.message
-                return hs
-              end
-              if condition.type == "Ready" and condition.status == "True" then
-                hs.status = "Healthy"
-                hs.message = condition.message
-                return hs
-              end
-            end
-          end
-        end
-        hs.status = "Progressing"
-        hs.message = "Waiting for certificate"
-        return hs
-```
-
-### Step 02 - Sync Hooks
-
-- Use hooks to execute actions during sync:
-
-```yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: database-migration
-  annotations:
-    argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
-spec:
-  template:
-    spec:
-      containers:
-      - name: migration
-        image: myapp/migration:latest
-        command: ["./run-migrations.sh"]
-      restartPolicy: Never
-```
-
----
-
-## Finalize & Cleanup
-
-### Clean Up Applications
-
-```bash
-# Delete all applications
-argocd app delete guestbook --cascade
-argocd app delete helm-guestbook --cascade
-argocd app delete nginx-helm --cascade
-argocd app delete kustomize-guestbook --cascade
-
-# Or delete via kubectl
-kubectl delete applications -n argocd --all
-```
-
-### Uninstall ArgoCD
-
-```bash
-# Delete ArgoCD installation
-kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Delete the namespace
-kubectl delete namespace argocd
-```
-
----
-
-## Troubleshooting
+## Part 11 - Troubleshooting
 
 ### ArgoCD Server Not Accessible
 
-- Check if the `ArgoCD` server pod is running:
-
 ```bash
+# Check ArgoCD pods
 kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server
+
+# Check Ingress
+kubectl get ingress -n argocd
+kubectl describe ingress argocd-server-ingress -n argocd
 ```
 
-- Check the service:
-
-```bash
-kubectl get svc -n argocd argocd-server
-```
-
-### Application Stuck in Progressing State
-
-- Check application details:
+### Application Stuck in Progressing
 
 ```bash
 argocd app get <app-name>
 kubectl describe application <app-name> -n argocd
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller --tail=50
 ```
 
-- Check pod logs:
+### Out of Sync / Repository Error
 
 ```bash
-kubectl logs -n argocd -l app.kubernetes.io/name=argocd-application-controller
-```
-
-### Sync Fails with Permission Errors
-
-- Verify RBAC settings:
-
-```bash
-argocd proj get <project-name>
-```
-
-- Check if the destination namespace exists:
-
-```bash
-kubectl get namespace <namespace>
-```
-
-### Out of Sync Status
-
-- View the differences:
-
-```bash
+# Show the diff
 argocd app diff <app-name>
-```
 
-- Force sync:
+# Force refresh from Git
+argocd app get <app-name> --refresh
 
-```bash
+# Force sync
 argocd app sync <app-name> --force
 ```
 
-### Repository Connection Issues
-
-- Test repository connectivity:
+### App of Apps Not Creating Child Apps
 
 ```bash
-argocd repo add <repo-url> --username <username> --password <password>
+# Check root app is synced
+argocd app get app-of-apps
+
+# Check ArgoCD can reach the repo
 argocd repo list
+
+# Check the apps/ directory exists in the configured path
+argocd app manifests app-of-apps
 ```
 
 ---
 
-## Best Practices
+## Cleanup
 
-### GitOps Workflow
+```bash
+# Full cleanup via demo.sh
+./demo.sh cleanup
 
-1. **Single Source of Truth**: Keep all Kubernetes manifests in Git.
-2. **Branch Strategy**: Use branches for different environments (dev, staging, prod).
-3. **Pull Requests**: Use PRs for all changes with proper reviews.
-4. **Automated Testing**: Validate manifests before merging.
-5. **Rollback Strategy**: Use Git revert for rollbacks.
-
-### Application Organization
-
-1. **Use Projects**: Organize applications by team or environment.
-2. **Naming Conventions**: Use clear, consistent naming.
-3. **Sync Policies**: Choose appropriate sync policies per environment.
-4. **Resource Limits**: Set proper resource limits in manifests.
-5. **Health Checks**: Define custom health checks for complex resources.
-
-### Security
-
-1. **RBAC**: Implement fine-grained access control.
-2. **SSO Integration**: Use SSO for authentication.
-3. **Secret Management**: Use sealed-secrets or external secret managers.
-4. **Network Policies**: Restrict `ArgoCD` network access.
-5. **Audit Logging**: Enable and monitor audit logs.
-
-### Monitoring
-
-1. **Notifications**: Configure notifications for sync failures.
-2. **Metrics**: Monitor `ArgoCD` metrics with `Prometheus`.
-3. **Dashboards**: Create Grafana dashboards for visibility.
-4. **Alerts**: Set up alerts for critical failures.
-5. **Regular Reviews**: Periodically review application health.
+# Or manually
+kubectl delete applications --all -n argocd
+helm uninstall argocd --namespace argocd
+kubectl delete namespace argocd guestbook efk
+```
 
 ---
 
-## Next Steps
-
-- Explore **ApplicationSets** for managing multiple applications.
-- Integrate `ArgoCD` with **CI/CD pipelines**.
-- Set up **notifications** using Slack, email, or webhooks.
-- Implement **Progressive Delivery** with Argo Rollouts.
-- Configure **SSO** integration with your identity provider.
-- Set up **multi-cluster** management.
-- Explore **ArgoCD Image Updater** for automated image updates.
-- Read the [official ArgoCD documentation](https://argo-cd.readthedocs.io/)
-- Join the [ArgoCD community](https://github.com/argoproj/argo-cd)
-
----
-
-## Additional Resources
+## Resources
 
 - [ArgoCD Official Documentation](https://argo-cd.readthedocs.io/)
+- [ArgoCD Helm Chart](https://artifacthub.io/packages/helm/argo/argo-cd)
+- [App of Apps Pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
+- [Sync Waves](https://argo-cd.readthedocs.io/en/stable/user-guide/sync-waves/)
+- [ApplicationSet Controller](https://argo-cd.readthedocs.io/en/stable/user-guide/application-set/)
 - [ArgoCD GitHub Repository](https://github.com/argoproj/argo-cd)
-- [ArgoCD Best Practices](https://argo-cd.readthedocs.io/en/stable/user-guide/best_practices/)
 - [GitOps Principles](https://www.gitops.tech/)
-- [Argo Rollouts (Progressive Delivery)](https://argoproj.github.io/argo-rollouts/)
-- [ArgoCD ApplicationSet](https://argo-cd.readthedocs.io/en/stable/user-guide/application-set/)
- 
+

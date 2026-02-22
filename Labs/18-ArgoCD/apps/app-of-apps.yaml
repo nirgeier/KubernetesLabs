@@ -1,0 +1,28 @@
+# App of Apps - Root Application
+# This application watches the apps/ directory in the repo.
+# Any Application manifest placed there will be automatically
+# picked up and managed by ArgoCD (the "App of Apps" pattern).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+  # Cascade-delete child apps when this root app is deleted
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nirgeier/KubernetesLabs
+    targetRevision: HEAD
+    # All Application manifests inside this directory are managed
+    path: Labs/18-ArgoCD/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
