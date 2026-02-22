@@ -1,0 +1,37 @@
+image:
+  repository: docker.elastic.co/beats/filebeat
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+elasticsearch:
+  host: "elasticsearch.efk.svc.cluster.local"
+  port: 9200
+
+kibana:
+  host: "kibana.efk.svc.cluster.local"
+  port: 5601
+
+namespace: efk
+
+# Schedule for the CronJob (runs every 2 minutes)
+schedule: "*/2 * * * *"
+
+# How long to keep successful job pods (in seconds)
+successfulJobsHistoryLimit: 3
+# How long to keep failed job pods (in seconds)
+failedJobsHistoryLimit: 1
+
+# Processing behavior
+processing:
+  # Keep original files after processing (true) or move them to processed folder (false)
+  keepOriginalFiles: true
+  # Create backup copies in processed folder
+  createBackups: true

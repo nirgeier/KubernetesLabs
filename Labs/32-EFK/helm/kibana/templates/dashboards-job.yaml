@@ -1,0 +1,50 @@
+{{- if .Values.dashboards.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kibana-dashboard-importer-{{ .Release.Revision }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: kibana
+    component: dashboard-importer
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: {{ .Values.dashboards.job.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.dashboards.job.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        app: kibana
+        component: dashboard-importer
+    spec:
+      restartPolicy: {{ .Values.dashboards.job.restartPolicy }}
+      containers:
+      - name: dashboard-importer
+        image: {{ .Values.dashboards.job.image }}
+        command: ["/bin/sh"]
+        args: ["/scripts/import-dashboards.sh"]
+        volumeMounts:
+        - name: dashboards
+          mountPath: /dashboards
+        - name: scripts
+          mountPath: /scripts
+      volumes:
+      - name: dashboards
+        configMap:
+          name: kibana-dashboards
+          items:
+          {{- range .Values.dashboards.files }}
+          - key: {{ . }}
+            path: {{ . }}
+          {{- end }}
+      - name: scripts
+        configMap:
+          name: kibana-dashboards
+          items:
+          - key: import-dashboards.sh
+            path: import-dashboards.sh
+            mode: 0755
+{{- end }}

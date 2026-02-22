@@ -1,0 +1,77 @@
+image:
+  repository: docker.elastic.co/beats/filebeat
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+elasticsearch:
+  host: "elasticsearch.efk.svc.cluster.local"
+  port: 9200
+
+kibana:
+  host: "kibana.efk.svc.cluster.local"
+  port: 5601
+
+namespace: efk
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 5Gi
+  # Access mode: ReadWriteOnce (single node) or ReadWriteMany (multi-node with NFS/etc)
+  # Most local dev clusters (kind, k3s, orbstack) only support ReadWriteOnce
+  accessMode: ReadWriteOnce
+
+# Output mode configuration
+outputMode:
+  # Available modes: "file", "elasticsearch", "both"
+  # - file: Write logs to files only (processed by log-processor)
+  # - elasticsearch: Send logs directly to Elasticsearch
+  # - both: Write to files AND send to Elasticsearch (requires filebeat to support multi-output)
+  mode: "file"
+  # When mode is "both", logs are written to files and processed by log-processor
+  # while also being available for direct output if needed
+
+# Filebeat configuration
+filebeatConfig:
+  filebeat.inputs:
+  - type: container
+    paths:
+    - /var/log/containers/*.log
+    processors:
+    - add_kubernetes_metadata:
+        host: ${NODE_NAME}
+        matchers:
+        - logs_path:
+            logs_path: "/var/log/containers/"
+    - decode_json_fields:
+        fields: [ "message" ]
+        target: "json"
+        overwrite_keys: true
+    - drop_fields:
+        fields: [ "agent.ephemeral_id", "agent.id", "ecs.version" ]
+        ignore_missing: true
+  # Output to file instead of directly to Elasticsearch
+  output.file:
+    path: "/filebeat-logs"
+    filename: filebeat
+    rotate_every_kb: 10000
+    number_of_files: 7
+    permissions: 0644
+
+  setup.template.name: "filebeat"
+  setup.template.pattern: "filebeat-*"
+  setup.dashboards.enabled: false
+  setup.kibana:
+    host: '${KIBANA_HOST:kibana}:${KIBANA_PORT:5601}'
+
+  logging.level: info
+  logging.to_files: false
+  logging.to_stderr: true

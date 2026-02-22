@@ -1,0 +1,13 @@
+# Offline artifacts - charts
+artifacts/charts/*.tgz
+
+# Offline artifacts - images
+artifacts/images/*.tar
+
+# Offline artifacts - harbor
+artifacts/harbor/*.tgz
+artifacts/harbor/*.tar
+
+# Offline artifacts - ingress
+artifacts/ingress/*.tgz
+artifacts/ingress/*.tar
