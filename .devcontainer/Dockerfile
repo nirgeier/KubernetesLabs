@@ -41,8 +41,8 @@ RUN ARCH="$(dpkg --print-architecture)" \
     && rm /tmp/kubewall.tar.gz
 
 # Install kubectx + kubens
-RUN curl -Lo /usr/local/bin/kubectx https://github.com/ahmetb/kubectx/releases/latest/download/kubectx \
-    && curl -Lo /usr/local/bin/kubens https://github.com/ahmetb/kubectx/releases/latest/download/kubens \
+RUN curl -fsSLo /usr/local/bin/kubectx https://github.com/ahmetb/kubectx/releases/latest/download/kubectx \
+    && curl -fsSLo /usr/local/bin/kubens https://github.com/ahmetb/kubectx/releases/latest/download/kubens \
     && chmod +x /usr/local/bin/kubectx /usr/local/bin/kubens
 
 
