@@ -1,8 +1,8 @@
-![Kubernetes Logo](../assets/images/Kubernetes-Logo.wine.png)
+![Kubernetes Logo](assets/images/Kubernetes-Logo.wine.png)
 
 ---
 
-# 
+#
 
 ## Kubernetes Labs
 
@@ -80,7 +80,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install DevBox using Homebrew
     brew install getdevbox/tap/devbox
-    
+
     # Verify installation
     devbox --version
     ```
@@ -88,17 +88,17 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
 
     ```bash
     # Download and install DevBox
-    curl -fsSL https://get.devbox.sh | bash 
+    curl -fsSL https://get.devbox.sh | bash
     # Restart terminal or run:
-    source ~/.bashrc  
+    source ~/.bashrc
     # Verify installation
     devbox --version
-    ``` 
+    ```
 === "🐧 Linux (CentOS)"
 
     ```bash
     # Download and install DevBox
-    curl -fsSL https://get.devbox.sh | bash         
+    curl -fsSL https://get.devbox.sh | bash
     # Restart terminal or run:
     source ~/.bashrc
     # Verify installation
@@ -121,11 +121,11 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install orbstack
     brew install --cask orbstack
-    
+
     # Start orbstack
     open -a orbstack
 
-    
+
     ```
 
 === "🐧 Linux (Ubuntu/Debian)"
@@ -133,13 +133,13 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Update package index
     sudo apt-get update
-    
+
     # Install Docker
     curl -fsSL https://get.docker.com | sh
-    
+
     # Add user to docker group
     sudo usermod -aG docker $USER
-    
+
     # Restart session or run:
     newgrp docker
     ```
@@ -159,8 +159,8 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     # Restart session or run:
     newgrp docker
 
-    ```  
-  
+    ```
+
 === "⊞ Windows"
 
     ```powershell
@@ -178,7 +178,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install Git using Homebrew
     brew install git
-    
+
     # Verify installation
     git --version
     ```
@@ -188,10 +188,10 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Update package index
     sudo apt update
-    
+
     # Install Git
     sudo apt install -y git
-    
+
     # Verify installation
     git --version
     ```
@@ -201,7 +201,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install Git
     sudo yum install -y git
-    
+
     # Verify installation
     git --version
     ```
@@ -219,7 +219,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install Helm using Homebrew
     brew install helm
-    
+
     # Verify installation
     helm version
     ```
@@ -232,7 +232,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     tar -zxvf helm.tar.gz
     sudo mv linux-amd64/helm /usr/local/bin/helm
     rm -rf linux-amd64 helm.tar.gz
-    
+
     # Verify installation
     helm version
     ```
@@ -245,7 +245,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     tar -zxvf helm.tar.gz
     sudo mv linux-amd64/helm /usr/local/bin/helm
     rm -rf linux-amd64 helm.tar.gz
-    
+
     # Verify installation
     helm version
     ```
@@ -263,7 +263,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install kubectl using Homebrew
     brew install kubectl
-    
+
     # Verify installation
     kubectl version --client
     ```
@@ -273,13 +273,13 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Download kubectl
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    
+
     # Make it executable
     chmod +x kubectl
-    
+
     # Move to PATH
     sudo mv kubectl /usr/local/bin/
-    
+
     # Verify installation
     kubectl version --client
     ```
@@ -289,13 +289,13 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Download kubectl
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    
+
     # Make it executable
     chmod +x kubectl
-    
+
     # Move to PATH
     sudo mv kubectl /usr/local/bin/
-    
+
     # Verify installation
     kubectl version --client
     ```
@@ -313,7 +313,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install Node.js using Homebrew
     brew install node
-    
+
     # Verify installation
     node --version
     npm --version
@@ -325,7 +325,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     # Install Node.js using NodeSource repository
     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
     sudo apt-get install -y nodejs
-    
+
     # Verify installation
     node --version
     npm --version
@@ -354,7 +354,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install VS Code using Homebrew
     brew install --cask visual-studio-code
-    
+
     # Start VS Code
     code .
     ```
@@ -364,14 +364,14 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install VS Code using snap
     sudo snap install code --classic
-    
+
     # Or using apt repository
     # wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
     # sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
     # sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
     # sudo apt update
     # sudo apt install code
-    
+
     # Start VS Code
     code .
     ```
@@ -381,13 +381,13 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Import Microsoft GPG key
     sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-    
+
     # Add VS Code repository
     sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
-    
+
     # Install VS Code
     sudo yum install -y code
-    
+
     # Start VS Code
     code .
     ```
@@ -405,7 +405,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install k9s using Homebrew
     brew install k9s
-    
+
     # Verify installation
     k9s version
     ```
@@ -415,12 +415,12 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install k9s using webinstall
     curl -sS https://webinstall.dev/k9s | bash
-    
+
     # Or download binary
     # curl -L https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_amd64.tar.gz -o k9s.tar.gz
     # tar -xzf k9s.tar.gz
     # sudo mv k9s /usr/local/bin/
-    
+
     # Verify installation
     k9s version
     ```
@@ -433,7 +433,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     tar -xzf k9s.tar.gz
     sudo mv k9s /usr/local/bin/
     rm k9s.tar.gz
-    
+
     # Verify installation
     k9s version
     ```
@@ -451,7 +451,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     ```bash
     # Install Kind using Homebrew
     brew install kind
-    
+
     # Verify installation
     kind version
     ```
@@ -463,7 +463,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
     chmod +x ./kind
     sudo mv ./kind /usr/local/bin/kind
-    
+
     # Verify installation
     kind version
     ```
@@ -475,7 +475,7 @@ This is a comprehensive collection of hands-on labs designed to help you learn a
     curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
     chmod +x ./kind
     sudo mv ./kind /usr/local/bin/kind
-    
+
     # Verify installation
     kind version
     ```

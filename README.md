@@ -1,241 +1,232 @@
-<!-- header start -->
-<a href="https://stackoverflow.com/users/1755598/codewizard"><img src="https://stackoverflow.com/users/flair/1755598.png" width="208" height="58" alt="profile for CodeWizard at Stack Overflow, Q&amp;A for professional and enthusiast programmers" title="profile for CodeWizard at Stack Overflow, Q&amp;A for professional and enthusiast programmers"></a>&emsp;&emsp;[![Linkedin Badge](https://img.shields.io/badge/-nirgeier-blue?style=flat&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/nirgeier/)](https://www.linkedin.com/in/nirgeier/)&emsp;[![Gmail Badge](https://img.shields.io/badge/-nirgeier@gmail.com-fcc624?style=flat&logo=Gmail&logoColor=red&link=mailto:nirgeier@gmail.com)](mailto:nirgeier@gmail.com)&emsp;[![Outlook Badge](https://img.shields.io/badge/-nirg@codewizard.co.il-fcc624?style=flat&logo=microsoftoutlook&logoColor=blue&link=mailto:nirg@codewizard.co.il)](mailto:nirg@codewizard.co.il)
-<!-- header end -->
+<div align="center">
+
+<!-- Kubernetes Logo -->
+<img src="./mkdocs/overrides/assets/images/Kubernetes-Logo.wine.png" alt="Kubernetes Logo" width="400">
+
+<br>
+
+# ☸️ Kubernetes Hands-on Labs
+
+**A comprehensive collection of 33+ hands-on labs designed to help you learn and master Kubernetes — from basic deployments to advanced topics like Istio, ArgoCD and custom schedulers.**
+
+<br>
+
+[![Website](https://img.shields.io/badge/📖_Documentation-nirgeier.github.io-3e84e0?style=for-the-badge&labelColor=1c1c1c)](https://nirgeier.github.io/KubernetesLabs/)&nbsp;
+[![Open in Cloud Shell](https://img.shields.io/badge/☁️_Open_in-Cloud_Shell-4285F4?style=for-the-badge&labelColor=1c1c1c)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
+
+<br>
+
+<a href="https://github.com/nirgeier/KubernetesLabs/stargazers"><img src="https://img.shields.io/github/stars/nirgeier/KubernetesLabs?style=for-the-badge&color=e3b341&labelColor=1c1c1c" alt="Stars"></a>&nbsp;
+<a href="https://github.com/nirgeier/KubernetesLabs/network/members"><img src="https://img.shields.io/github/forks/nirgeier/KubernetesLabs?style=for-the-badge&color=0072b1&labelColor=1c1c1c" alt="Forks"></a>&nbsp;
+<a href="https://www.linkedin.com/in/nirgeier/"><img src="https://img.shields.io/badge/LinkedIn-nirgeier-0072b1?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=1c1c1c" alt="LinkedIn"></a>&nbsp;
+<a href="https://stackoverflow.com/users/1755598/codewizard"><img src="https://img.shields.io/badge/StackOverflow-CodeWizard-f48024?style=for-the-badge&logo=stackoverflow&logoColor=white&labelColor=1c1c1c" alt="StackOverflow"></a>&nbsp;
+<a href="mailto:nirgeier@gmail.com"><img src="https://img.shields.io/badge/Email-nirgeier@gmail.com-d14836?style=for-the-badge&logo=gmail&logoColor=white&labelColor=1c1c1c" alt="Email"></a>
+
+</div>
 
 ---
 
-# Kubernetes Hands-on Repository
+## 📚 What You'll Learn
 
-- A collection of Hands-on labs for Kubernetes (K8S).
-- Each lab is a standalone lab and does not require to complete the previous labs.
+This lab series covers a wide range of Kubernetes topics:
 
----
-
-![](./resources/lab.jpg)
-
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
-
-### **<kbd>CTRL</kbd> + click to open in new window**
-
----
-
-- List of the labs in this repository:
-
-<!-- Labs list start -->
-
-:green_book: [00-VerifyCluster](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/)  
-:green_book: [01-Namespace](https://nirgeier.github.io/KubernetesLabs/01-Namespace/)  
-:green_book: [02-Deployments-Imperative](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/)  
-:green_book: [03-Deployments-Declarative](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/)  
-:green_book: [04-Rollout](https://nirgeier.github.io/KubernetesLabs/04-Rollout/)  
-:green_book: [05-Services](https://nirgeier.github.io/KubernetesLabs/05-Services/)  
-:green_book: [06-DataStore](https://nirgeier.github.io/KubernetesLabs/06-DataStore/)  
-:green_book: [07-nginx-Ingress](https://nirgeier.github.io/KubernetesLabs/07-nginx-Ingress/)  
-:green_book: [08-Kustomization](https://nirgeier.github.io/KubernetesLabs/08-Kustomization/)  
-:green_book: [09-StatefulSet](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/)  
-:green_book: [10-Istio](https://nirgeier.github.io/KubernetesLabs/10-Istio/)  
-:green_book: [11-CRD-Custom-Resource-Definition](https://nirgeier.github.io/KubernetesLabs/11-CRD-Custom-Resource-Definition/)  
-:green_book: [12-Wordpress-MySQL-PVC](https://nirgeier.github.io/KubernetesLabs/12-Wordpress-MySQL-PVC/)  
-:green_book: [13-HelmChart](https://nirgeier.github.io/KubernetesLabs/13-HelmChart/)  
-:green_book: [14-Logging](https://nirgeier.github.io/KubernetesLabs/14-Logging/)  
-:green_book: [15-Prometheus-Grafana](https://nirgeier.github.io/KubernetesLabs/15-Prometheus-Grafana/)  
-:green_book: [16-Affinity-Taint-Tolleration](https://nirgeier.github.io/KubernetesLabs/16-Affinity-Taint-Tolleration/)  
-:green_book: [17-PodDisruptionBudgets-PDB](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/)  
-:green_book: [18-ArgoCD](https://nirgeier.github.io/KubernetesLabs/18-ArgoCD/)  
-:green_book: [19-CustomScheduler](https://nirgeier.github.io/KubernetesLabs/19-CustomScheduler/)  
-:green_book: [20-CronJob](https://nirgeier.github.io/KubernetesLabs/20-CronJob/)  
-:green_book: [21-Auditing](https://nirgeier.github.io/KubernetesLabs/21-Auditing/)  
-:green_book: [21-KubeAPI](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/)  
-:green_book: [22-Rancher](https://nirgeier.github.io/KubernetesLabs/22-Rancher/)  
-:green_book: [23-MetricServer](https://nirgeier.github.io/KubernetesLabs/23-MetricServer/)  
-:green_book: [24-HelmOperator](https://nirgeier.github.io/KubernetesLabs/24-HelmOperator/)  
-:green_book: [25-kubebuilder](https://nirgeier.github.io/KubernetesLabs/25-kubebuilder/)  
-:green_book: [26-k9s](https://nirgeier.github.io/KubernetesLabs/26-k9s/)  
-:green_book: [27-krew](https://nirgeier.github.io/KubernetesLabs/27-krew/)  
-:green_book: [28-kubeapps](https://nirgeier.github.io/KubernetesLabs/28-kubeapps/)  
-:green_book: [29-kubeadm](https://nirgeier.github.io/KubernetesLabs/29-kubeadm/)  
-:green_book: [30-k9s](https://nirgeier.github.io/KubernetesLabs/30-k9s/)  
-
-### Tasks
-
-:blue_book: [Kubernetes-CLI-Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/)  
-:blue_book: [Kubernetes-Service-Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/)  
-
+<table>
+<tr>
+<td align="center" width="25%"><h4>🧱 Basics</h4>Namespaces, Deployments,<br>Services and Rollouts</td>
+<td align="center" width="25%"><h4>💾 Storage</h4>DataStores, Persistent Volume<br>Claims and StatefulSets</td>
+<td align="center" width="25%"><h4>🌐 Networking</h4>Ingress Controllers and<br>Service Mesh (Istio)</td>
+<td align="center" width="25%"><h4>⚙️ Configuration</h4>Kustomization and<br>Helm Charts</td>
+</tr>
+<tr>
+<td align="center"><h4>🔀 GitOps</h4>ArgoCD for continuous<br>deployment</td>
+<td align="center"><h4>👁️ Observability</h4>Logging, Prometheus<br>and Grafana</td>
+<td align="center"><h4>🚀 Advanced</h4>CRDs, Custom Schedulers<br>and Pod Disruption Budgets</td>
+<td align="center"><h4>🔧 Tools</h4>k9s, Krew, Kubeapps<br>and Kubeadm</td>
+</tr>
+</table>
 
 ---
 
-:green_book: [00-VerifyCluster](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/)
+## 🗂️ Available Labs
 
-- [01. Installing minikube](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/#01-Installing-minikube)
-- [02. Start minikube](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/#02-Start-minikube)
-- [03. Check the minikube status](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/#03-Check-the-minikube-status)
-- [04. Verify that the cluster is up and running](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/#04-Verify-that-the-cluster-is-up-and-running)
-- [05. Verify that you can "talk" to your cluster](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/#05-Verify-that-you-can-talk-to-your-cluster)
-  - [05.01. Verify that you can "talk" to your cluster](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/#0501-Verify-that-you-can-talk-to-your-cluster)
+### Getting Started
 
-:green_book: [01-Namespace](https://nirgeier.github.io/KubernetesLabs/01-Namespace/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [00](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/) | **Verify Cluster** | Ensure your Kubernetes cluster is properly configured |
+| [01](https://nirgeier.github.io/KubernetesLabs/01-Namespace/) | **Namespace** | Learn to organize resources with namespaces |
+| [02](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/) | **Deployments (Imperative)** | Create deployments using kubectl commands |
+| [03](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/) | **Deployments (Declarative)** | Create deployments using YAML manifests |
+| [04](https://nirgeier.github.io/KubernetesLabs/04-Rollout/) | **Rollout** | Manage deployment updates and rollbacks |
+| [20](https://nirgeier.github.io/KubernetesLabs/20-CronJob/) | **CronJob** | Schedule recurring tasks |
 
-- [01. Create Namespace](https://nirgeier.github.io/KubernetesLabs/01-Namespace/#01-Create-Namespace)
-  - [01.01. Create Namespace](https://nirgeier.github.io/KubernetesLabs/01-Namespace/#0101-Create-Namespace)
-- [02. Setting the default Namespace for `kubectl`](https://nirgeier.github.io/KubernetesLabs/01-Namespace/#02-Setting-the-default-Namespace-for-kubectl)
-- [03. Verify that you've updated the namespace](https://nirgeier.github.io/KubernetesLabs/01-Namespace/#03-Verify-that-youve-updated-the-namespace)
+### Networking
 
-:green_book: [02-Deployments-Imperative](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [05](https://nirgeier.github.io/KubernetesLabs/05-Services/) | **Services** | Expose applications with Kubernetes services |
+| [07](https://nirgeier.github.io/KubernetesLabs/07-nginx-Ingress/) | **Nginx Ingress** | Configure ingress controllers for external access |
+| [10](https://nirgeier.github.io/KubernetesLabs/10-Istio/) | **Istio** | Implement service mesh for microservices |
+| [33](https://nirgeier.github.io/KubernetesLabs/33-NetworkPolicies/) | **NetworkPolicies** | Control traffic flow between pods |
 
-- [01. Create namespace](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/#01-Create-namespace)
-- [02. Deploy multitool image](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/#02-Deploy-multitool-image)
-- [03. Test the deployment](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/#03-Test-the-deployment)
-  - [03.01. Create a Service using `kubectl expose`](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/#0301-Create-a-Service-using-kubectl-expose)
-  - [03.02. Find the port & the IP which was assigned to our pod by the cluster.](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/#0302-Find-the-port--the-IP-which-was-assigned-to-our-pod-by-the-cluster)
-  - [03.03. Test the deployment](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/#0303-Test-the-deployment)
+### Security
 
-:green_book: [03-Deployments-Declarative](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [31](https://nirgeier.github.io/KubernetesLabs/31-RBAC/) | **RBAC** | Role-based access control for Kubernetes |
+| [32](https://nirgeier.github.io/KubernetesLabs/32-Secrets/) | **Secrets** | Manage sensitive data in Kubernetes |
+| [33](https://nirgeier.github.io/KubernetesLabs/33-NetworkPolicies/) | **NetworkPolicies** | Control traffic flow between pods |
+| [37](https://nirgeier.github.io/KubernetesLabs/37-ResourceQuotas/) | **ResourceQuotas & LimitRanges** | Manage resource consumption per namespace |
 
-- [01. Create namespace](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#01-Create-namespace)
-- [02. Deploy nginx using yaml file (declarative)](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#02-Deploy-nginx-using-yaml-file-declarative)
-- [03. Verify that the deployment is created:](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#03-Verify-that-the-deployment-is-created)
-- [04. Check if the pods are running:](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#04-Check-if-the-pods-are-running)
-- [05. Update the yaml file with replica's value of 5](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#05-Update-the-yaml-file-with-replicas-value-of-5)
-- [06. Update the deployment using `kubectl apply`](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#06-Update-the-deployment-using-kubectl-apply)
-- [07. Scaling down with `kubectl scale`](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/#07-Scaling-down-with-kubectl-scale)
+### Storage & Config
 
-:green_book: [04-Rollout](https://nirgeier.github.io/KubernetesLabs/04-Rollout/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [06](https://nirgeier.github.io/KubernetesLabs/06-DataStore/) | **DataStore** | Work with persistent storage in Kubernetes |
+| [08](https://nirgeier.github.io/KubernetesLabs/08-Kustomization/) | **Kustomization** | Manage configurations with Kustomize |
+| [09](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/) | **StatefulSet** | Deploy stateful applications |
+| [12](https://nirgeier.github.io/KubernetesLabs/12-Wordpress-MySQL-PVC/) | **WordPress MySQL PVC** | Complete stateful application with persistent storage |
 
-- [01. Create namespace](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#01-Create-namespace)
-- [02. Create the desired deployment](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#02-Create-the-desired-deployment)
-- [03. Expose nginx as service](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#03-Expose-nginx-as-service)
-- [04. Verify that the pods and the service are running](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#04-Verify-that-the-pods-and-the-service-are-running)
-- [05. Change the number of replicas to 3](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#05-Change-the-number-of-replicas-to-3)
-- [06. Verify that now we have 3 replicas](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#06-Verify-that-now-we-have-3-replicas)
-- [07. Test the deployment](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#07-Test-the-deployment)
-- [08. Deploy another version of nginx](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#08-Deploy-another-version-of-nginx)
-- [09. Investigate rollout history:](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#09-Investigate-rollout-history)
-- [10. Lets see what was changed during the previous updates:](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#10-Lets-see-what-was-changed-during-the-previous-updates)
-- [11. Undo the version upgrade by rolling back and restoring previous version](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#11-Undo-the-version-upgrade-by-rolling-back-and-restoring-previous-version)
-- [12. Rolling Restart](https://nirgeier.github.io/KubernetesLabs/04-Rollout/#12-Rolling-Restart)
+### Observability
 
-:green_book: [05-Services](https://nirgeier.github.io/KubernetesLabs/05-Services/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [14](https://nirgeier.github.io/KubernetesLabs/14-Logging/) | **Logging** | Centralized logging with Fluentd |
+| [15](https://nirgeier.github.io/KubernetesLabs/15-Prometheus-Grafana/) | **Prometheus & Grafana** | Monitoring and visualization |
+| [22](https://nirgeier.github.io/KubernetesLabs/22-MetricServer/) | **Metric Server** | Kubernetes metrics collection |
+| [29](https://nirgeier.github.io/KubernetesLabs/29-EFK/) | **EFK Stack** | Elasticsearch, Fluentd, and Kibana stack |
 
-- [01. Create namespace and clear previous data if there is any](https://nirgeier.github.io/KubernetesLabs/05-Services/#01-Create-namespace-and-clear-previous-data-if-there-is-any)
-- [02. Create the required resources for this hand-on](https://nirgeier.github.io/KubernetesLabs/05-Services/#02-Create-the-required-resources-for-this-hand-on)
-- [03. Expose the nginx with ClusterIP](https://nirgeier.github.io/KubernetesLabs/05-Services/#03-Expose-the-nginx-with-ClusterIP)
-- [04. Test the nginx with ClusterIP](https://nirgeier.github.io/KubernetesLabs/05-Services/#04-Test-the-nginx-with-ClusterIP)
-  - [04.01. Test the nginx with ClusterIP](https://nirgeier.github.io/KubernetesLabs/05-Services/#0401-Test-the-nginx-with-ClusterIP)
-  - [04.02. Test the nginx using the deployment name](https://nirgeier.github.io/KubernetesLabs/05-Services/#0402-Test-the-nginx-using-the-deployment-name)
-  - [04.03. using the full DNS name](https://nirgeier.github.io/KubernetesLabs/05-Services/#0403-using-the-full-DNS-name)
-- [05. Create NodePort](https://nirgeier.github.io/KubernetesLabs/05-Services/#05-Create-NodePort)
-  - [05.01. Delete previous service](https://nirgeier.github.io/KubernetesLabs/05-Services/#0501-Delete-previous-service)
-  - [05.02. Create `NodePort` Service](https://nirgeier.github.io/KubernetesLabs/05-Services/#0502-Create-NodePort-Service)
-  - [05.03. Test the `NodePort` Service](https://nirgeier.github.io/KubernetesLabs/05-Services/#0503-Test-the-NodePort-Service)
-- [06. Create LoadBalancer (only if you are on real cloud)](https://nirgeier.github.io/KubernetesLabs/05-Services/#06-Create-LoadBalancer-only-if-you-are-on-real-cloud)
-  - [06.01. Delete previous service](https://nirgeier.github.io/KubernetesLabs/05-Services/#0601-Delete-previous-service)
-  - [06.02. Create `LoadBalancer` Service](https://nirgeier.github.io/KubernetesLabs/05-Services/#0602-Create-LoadBalancer-Service)
-  - [06.03. Test the `LoadBalancer` Service](https://nirgeier.github.io/KubernetesLabs/05-Services/#0603-Test-the-LoadBalancer-Service)
+### GitOps & CI/CD
 
-:green_book: [06-DataStore](https://nirgeier.github.io/KubernetesLabs/06-DataStore/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [13](https://nirgeier.github.io/KubernetesLabs/13-HelmChart/) | **Helm Chart** | Package and deploy applications with Helm |
+| [18](https://nirgeier.github.io/KubernetesLabs/18-ArgoCD/) | **ArgoCD** | Implement GitOps with ArgoCD |
+| [23](https://nirgeier.github.io/KubernetesLabs/23-HelmOperator/) | **Helm Operator** | Manage Helm releases with operators |
 
-- [01. Create namespace and clear previous data if there is any](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#01-Create-namespace-and-clear-previous-data-if-there-is-any)
-- [02. Build the docker container](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#02-Build-the-docker-container)
-  - [02.01. write the server code](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0201-write-the-server-code)
-  - [02.02. Write the DockerFile](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0202-Write-the-DockerFile)
-  - [02.03. Build the docker container](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0203-Build-the-docker-container)
-  - [02.04. Test the container](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0204-Test-the-container)
-- [03. Using K8S deployment & Secrets/ConfigMap](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#03-Using-K8S-deployment--SecretsConfigMap)
-  - [03.01. Writing the deployment & Service file](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0301-Writing-the-deployment--Service-file)
-  - [03.02. Deploy to cluster](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0302-Deploy-to-cluster)
-  - [03.03. Test the app](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0303-Test-the-app)
-- [04. Using Secrets & config maps](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#04-Using-Secrets--config-maps)
-  - [04.01. Create the desired secret and config map for this lab](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0401-Create-the-desired-secret-and-config-map-for-this-lab)
-  - [04.02. Updating the Deployment to read the values from Secrets & ConfigMap](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0402-Updating-the-Deployment-to-read-the-values-from-Secrets--ConfigMap)
-  - [04.03. Update the deployment to read values from K8S resources](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0403-Update-the-deployment-to-read-values-from-K8S-resources)
-  - [04.04. Test the changes](https://nirgeier.github.io/KubernetesLabs/06-DataStore/#0404-Test-the-changes)
+### Advanced
 
-:green_book: [07-nginx-Ingress](https://nirgeier.github.io/KubernetesLabs/07-nginx-Ingress/)
+| Lab | Topic | Description |
+|:---:|-------|-------------|
+| [11](https://nirgeier.github.io/KubernetesLabs/11-CRD-Custom-Resource-Definition/) | **Custom Resource Definition** | Extend Kubernetes API with CRDs |
+| [16](https://nirgeier.github.io/KubernetesLabs/16-Affinity-Taint-Tolleration/) | **Affinity, Taint & Toleration** | Control pod scheduling |
+| [17](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/) | **Pod Disruption Budgets** | Ensure availability during disruptions |
+| [19](https://nirgeier.github.io/KubernetesLabs/19-CustomScheduler/) | **Custom Scheduler** | Build custom scheduling logic |
+| [21](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/) | **KubeAPI** | Work with Kubernetes API |
+| [24](https://nirgeier.github.io/KubernetesLabs/24-kubebuilder/) | **Kubebuilder** | Build Kubernetes operators |
+| [25](https://nirgeier.github.io/KubernetesLabs/25-krew/) | **Krew** | kubectl plugin manager |
+| [28](https://nirgeier.github.io/KubernetesLabs/28-Telepresence/) | **Telepresence** | Local development with remote clusters |
+| [30](https://nirgeier.github.io/KubernetesLabs/30-Keda/) | **KEDA** | Kubernetes event-driven autoscaling |
+| [34](https://nirgeier.github.io/KubernetesLabs/34-crictl/) | **crictl** | Container runtime interface CLI |
+| [36](https://nirgeier.github.io/KubernetesLabs/36-kubectl-Deep-Dive/) | **kubectl Deep Dive** | Advanced kubectl usage and techniques |
 
-:green_book: [08-Kustomization](https://nirgeier.github.io/KubernetesLabs/08-Kustomization/)
+---
 
-:green_book: [09-StatefulSet](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/)
+## 🧠 Practice Tasks
 
-- [01. Create namespace and clear previous data if there is any](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#01-Create-namespace-and-clear-previous-data-if-there-is-any)
-- [02. Create and test the Stateful application](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#02-Create-and-test-the-Stateful-application)
-- [03. Test the Stateful application](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#03-Test-the-Stateful-application)
-- [04. Scale down the StatefulSet and check that its down](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#04-Scale-down-the-StatefulSet-and-check-that-its-down)
-  - [04.01. Scale down the `Statefulset` to 0](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#0401-Scale-down-the-Statefulset-to-0)
-  - [04.02. Verify that the pods Terminated](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#0402-Verify-that-the-pods-Terminated)
-  - [04.03. Verify that the DB is not reachable](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#0403-Verify-that-the-DB-is-not-reachable)
-- [05. Scale up again and verify that we still have the prevoius data](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#05-Scale-up-again-and-verify-that-we-still-have-the-prevoius-data)
-  - [05.01. scale up the `Statefulset` to 1 or more](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#0501-scale-up-the-Statefulset-to-1-or-more)
-  - [05.02. Verify that the pods is in Running status](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#0502-Verify-that-the-pods-is-in-Running-status)
-  - [05.03. Verify that the pods is using the previous data](https://nirgeier.github.io/KubernetesLabs/09-StatefulSet/#0503-Verify-that-the-pods-is-using-the-previous-data)
+| Task Category | Description |
+|---------------|-------------|
+| [CLI Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/) | Hands-on exercises for CLI, debugging, and orchestration |
+| [Service Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/) | Practice with Kubernetes services and networking |
+| [Helm Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Helm-Tasks/) | Helm chart creation, templating, repositories, and deployment |
+| [ArgoCD Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-ArgoCD-Tasks/) | GitOps workflows with ArgoCD |
+| [Scheduling Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Scheduling-Tasks/) | Pod scheduling, affinity, and resource management |
+| [Kubebuilder Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Kubebuilder-Tasks/) | Building Kubernetes operators |
+| [KEDA Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-KEDA-Tasks/) | Event-driven autoscaling exercises |
 
-:green_book: [10-Istio](https://nirgeier.github.io/KubernetesLabs/10-Istio/)
+---
 
-- [01. Download latest Istio release (Linux)](https://nirgeier.github.io/KubernetesLabs/10-Istio/#01-Download-latest-Istio-release-Linux)
-- [01.01 Add the istioctl client to your path (Linux or macOS):](https://nirgeier.github.io/KubernetesLabs/10-Istio/#0101-Add-the-istioctl-client-to-your-path-Linux-or-macOS)
-  - [01.02. Install Istio](https://nirgeier.github.io/KubernetesLabs/10-Istio/#0102-Install-Istio)
-  - [01.03. Add the required label](https://nirgeier.github.io/KubernetesLabs/10-Istio/#0103-Add-the-required-label)
-  - [01.02. Install Kiali server](https://nirgeier.github.io/KubernetesLabs/10-Istio/#0102-Install-Kiali-server)
-- [02. Deploy the demo application](https://nirgeier.github.io/KubernetesLabs/10-Istio/#02-Deploy-the-demo-application)
-  - [02.01. Check the installation](https://nirgeier.github.io/KubernetesLabs/10-Istio/#0201-Check-the-installation)
-  - [02.02. Verify that Istio is working](https://nirgeier.github.io/KubernetesLabs/10-Istio/#0202-Verify-that-Istio-is-working)
+## 🎯 Learning Path
 
-:green_book: [11-CRD-Custom-Resource-Definition](https://nirgeier.github.io/KubernetesLabs/11-CRD-Custom-Resource-Definition/)
+<table>
+<tr>
+<td valign="top" width="33%">
 
-:green_book: [12-Wordpress-MySQL-PVC](https://nirgeier.github.io/KubernetesLabs/12-Wordpress-MySQL-PVC/)
+### 🟢 Beginner Track
+Start here if you're new to Kubernetes:
 
-:green_book: [13-HelmChart](https://nirgeier.github.io/KubernetesLabs/13-HelmChart/)
+1. [Lab 00: Verify Cluster](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/)
+2. [Lab 01: Namespace](https://nirgeier.github.io/KubernetesLabs/01-Namespace/)
+3. [Lab 02: Deployments (Imperative)](https://nirgeier.github.io/KubernetesLabs/02-Deployments-Imperative/)
+4. [Lab 03: Deployments (Declarative)](https://nirgeier.github.io/KubernetesLabs/03-Deployments-Declarative/)
+5. [Lab 05: Services](https://nirgeier.github.io/KubernetesLabs/05-Services/)
 
-:green_book: [15-Prometheus-Grafana](https://nirgeier.github.io/KubernetesLabs/15-Prometheus-Grafana/)
+</td>
+<td valign="top" width="33%">
 
-:green_book: [16-Affinity-Taint-Tolleration](https://nirgeier.github.io/KubernetesLabs/16-Affinity-Taint-Tolleration/)
+### 🟡 Intermediate Track
+For those with basic Kubernetes knowledge:
 
-:green_book: [17-PodDisruptionBudgets-PDB](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/)
+1. [Lab 04: Rollout](https://nirgeier.github.io/KubernetesLabs/04-Rollout/)
+2. [Lab 06: DataStore](https://nirgeier.github.io/KubernetesLabs/06-DataStore/)
+3. [Lab 07: Nginx Ingress](https://nirgeier.github.io/KubernetesLabs/07-nginx-Ingress/)
+4. [Lab 08: Kustomization](https://nirgeier.github.io/KubernetesLabs/08-Kustomization/)
+5. [Lab 13: Helm Chart](https://nirgeier.github.io/KubernetesLabs/13-HelmChart/)
 
-- [01. start minikube with Feature Gates](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/#01-start-minikube-with-Feature-Gates)
-- [02. Check Node Pressure(s)](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/#02-Check-Node-Pressures)
-- [03. Create 3 Pods using 50 MB each.](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/#03-Create-3-Pods-using-50-MB-each)
-- [04. Check MemoryPressure](https://nirgeier.github.io/KubernetesLabs/17-PodDisruptionBudgets-PDB/#04-Check-MemoryPressure)
+</td>
+<td valign="top" width="33%">
 
-:green_book: [19-CustomScheduler](https://nirgeier.github.io/KubernetesLabs/19-CustomScheduler/)
+### 🔴 Advanced Track
+For experienced Kubernetes users:
 
-:green_book: [20-CronJob](https://nirgeier.github.io/KubernetesLabs/20-CronJob/)
+1. [Lab 10: Istio](https://nirgeier.github.io/KubernetesLabs/10-Istio/)
+2. [Lab 11: CRDs](https://nirgeier.github.io/KubernetesLabs/11-CRD-Custom-Resource-Definition/)
+3. [Lab 18: ArgoCD](https://nirgeier.github.io/KubernetesLabs/18-ArgoCD/)
+4. [Lab 19: Custom Scheduler](https://nirgeier.github.io/KubernetesLabs/19-CustomScheduler/)
+5. [Lab 24: Kubebuilder](https://nirgeier.github.io/KubernetesLabs/24-kubebuilder/)
 
-:green_book: [21-KubeAPI](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/)
+</td>
+</tr>
+</table>
 
-- [01. Build the docker image](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/#01-Build-the-docker-image)
-  - [01.01. The script which will be used for query K8S API](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/#0101-The-script-which-will-be-used-for-query-K8S-API)
-  - [01.02. Build the docker image](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/#0102-Build-the-docker-image)
-- [02. Deploy the Pod to K8S](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/#02-Deploy-the-Pod-to-K8S)
-  - [02.01. Run kustomization to deploy](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/#0201-Run-kustomization-to-deploy)
-  - [02.02. Query the K8S API](https://nirgeier.github.io/KubernetesLabs/21-KubeAPI/#0202-Query-the-K8S-API)
-  
+---
 
-:blue_book: [Kubernetes-CLI-Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/)
+## 🛠️ Prerequisites
 
-- [01. Kubernetes Pod Workflow](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#01-kubernetes-pod-workflow)
-- [02. Pod Debugging Challenge](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#02-pod-debugging-challenge)
-- [03. Imperative to Declarative](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#03-imperative-to-declarative)
-- [04. Scaling Deployments](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#04-scaling-deployments)
-- [05. Rolling Updates and Rollbacks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#05-rolling-updates-and-rollbacks)
-- [06. ConfigMaps and Environment Variables](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#06-configmaps-and-environment-variables)
-- [07. Secrets Management](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#07-secrets-management)
-- [08. Persistent Storage with PVCs](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#08-persistent-storage-with-pvcs)
-- [09. Multi-Container Pods](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#09-multi-container-pods)
-- [10. Jobs and CronJobs](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#10-jobs-and-cronjobs)
-- [11. Namespaces and Isolation](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#11-namespaces-and-isolation)
-- [12. Resource Limits and Quotas](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#12-resource-limits-and-quotas)
-- [13. Liveness and Readiness Probes](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#13-liveness-and-readiness-probes)
-- [14. Node Selection and Affinity](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-CLI-Tasks/#14-node-selection-and-affinity)
+Before starting these labs, you should have:
 
-:blue_book: [Kubernetes-Service-Tasks](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/)
+- Basic understanding of containerization (Docker)
+- Command-line (CLI) familiarity
+- A Kubernetes cluster (Minikube, Kind, or cloud-based)
+- `kubectl` installed and configured
 
-- [01. Basic Service Exposure (ClusterIP)](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#01-basic-service-exposure-clusterip)
-- [02. NodePort & LoadBalancer](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#02-nodeport--loadbalancer)
-- [03. Service Discovery with DNS (FQDN)](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#03-service-discovery-with-dns-fqdn)
-- [04. Headless Services](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#04-headless-services)
-- [05. ExternalName Service](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#05-externalname-service)
-- [06. Manual Endpoints](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#06-manual-endpoints)
-- [07. Session Affinity](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#07-session-affinity)
-- [08. Multi-Port Service](https://nirgeier.github.io/KubernetesLabs/Tasks/Kubernetes-Service-Tasks/#08-multi-port-service)
+### Recommended Tools
 
-<!-- Labs list ends -->
+| Tool | Description |
+|------|-------------|
+| **Docker / OrbStack** | Containerization tool |
+| **kubectl** | Kubernetes command-line tool |
+| **Kind** | Local Kubernetes cluster |
+| **Helm** | Kubernetes package manager |
+| **k9s** | Kubernetes CLI dashboard |
+| **Git** | Version control system |
+| **VS Code** | Source code editor |
+| **DevBox** | Development environment manager |
+
+---
+
+## 💡 Tips for Success
+
+- **Take your time** — Don't rush through the labs
+- **Practice regularly** — Repetition builds muscle memory
+- **Experiment** — Try variations of the examples
+- **Read the docs** — [Kubernetes documentation](https://kubernetes.io/docs/) is excellent
+- **Join the community** — Engage with other learners
+
+---
+
+<div align="center">
+
+### 🚀 Ready to begin?
+
+**Start with [Lab 00: Verify Cluster](https://nirgeier.github.io/KubernetesLabs/00-VerifyCluster/) or browse the [full documentation site](https://nirgeier.github.io/KubernetesLabs/)!**
+
+<br>
+
+©2021-2025 [Nir Geier](https://www.linkedin.com/in/nirgeier/) &emsp;|&emsp;
+[GitHub](https://github.com/nirgeier/KubernetesLabs) &emsp;|&emsp;
+[LinkedIn](https://www.linkedin.com/in/nirgeier/) &emsp;|&emsp;
+[Stack Overflow](https://stackoverflow.com/users/1755598/codewizard) &emsp;|&emsp;
+[Discord](https://discord.gg/U6xW23Ss)
+
+</div>

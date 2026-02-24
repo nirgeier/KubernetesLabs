@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hungry-app
+  namespace: quota-lab
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: hungry
+  template:
+    metadata:
+      labels:
+        app: hungry
+    spec:
+      containers:
+        - name: app
+          image: nginx:alpine
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "1"
+              memory: 2Gi

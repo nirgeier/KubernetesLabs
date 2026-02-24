@@ -2,12 +2,33 @@
 
 # Deployment - Declarative
 
-### 01. Create Namespace
+- In this lab we will create Kubernetes deployments using declarative YAML files.
+- We will deploy nginx, scale it up and down, and observe how Kubernetes manages replicas.
+
+---
+
+## What will we learn?
+
+- How to create a deployment using a YAML file
+- How to apply changes using `kubectl apply`
+- How to scale replicas declaratively and imperatively
+- How Kubernetes handles scaling up and down
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+
+---
+
+## 01. Create Namespace
 
 - As completed in the previous lab, create the desired namespace [codewizard]:
 
 ```sh
-$ kubectl create namespace codewizard
+kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
@@ -15,7 +36,7 @@ namespace/codewizard created
 
 ---
 
-### 02. Deploy nginx using yaml file (declarative)
+## 02. Deploy nginx Using YAML File (Declarative)
 
 - Let's create the `YAML` file for the deployment.
 - If this is your first `k8s` `YAML` file, its advisable that you type it in order to get the feeling of the structure.
@@ -49,17 +70,17 @@ spec:
 
 - Create the deployment using the `-f` flag & `--record=true`
 
-  ```
-  $ kubectl apply -n codewizard -f nginx.yaml --record=true
-  deployment.extensions/nginx created
-  ```
+```sh
+kubectl apply -n codewizard -f nginx.yaml --record=true
+deployment.extensions/nginx created
+```
 
 ---
 
-### 03. Verify that the deployment has been created:
+## 03. Verify That the Deployment Has Been Created
 
-```
-$ kubectl get deployments -n codewizard
+```sh
+kubectl get deployments -n codewizard
 NAME        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE
 multitool   1         1         1            1
 nginx       1         1         1            1
@@ -67,27 +88,29 @@ nginx       1         1         1            1
 
 ---
 
-### 04. Check if the pods are running:
+## 04. Check if the Pods Are Running
 
-```
-$ kubectl get pods -n codewizard
+```sh
+kubectl get pods -n codewizard
 NAME                         READY   STATUS    RESTARTS
 multitool-7885b5f94f-9s7xh   1/1     Running   0
 nginx-647fb5956d-v8d2w       1/1     Running   0
 ```
 
-### 05. Playing with K8S replicas
+---
+
+## 05. Playing with K8S Replicas
 
 - Let's play with the replica and see K8S in action.
 - Open a second terminal and execute:
 
 ```sh
-$ kubectl get pods -n codewizard --watch
+kubectl get pods -n codewizard --watch
 ```
 
 ---
 
-### 05. Update the `nginx.yaml` file with replica's value of 5:
+## 06. Update the `nginx.yaml` File with Replica's Value of 5
 
 ```yaml
 spec:
@@ -96,19 +119,17 @@ spec:
 
 ---
 
-### 06. Update the deployment using `kubectl apply`
+## 07. Update the Deployment Using `kubectl apply`
 
-```
-$ kubectl apply -n codewizard -f nginx.yaml --record=true
+```sh
+kubectl apply -n codewizard -f nginx.yaml --record=true
 deployment.apps/nginx configured
 ```
-
----
 
 - Switch to the second terminal and you should see something like the following:
 
 ```sh
-$ kubectl get pods --watch -n codewizard
+kubectl get pods --watch -n codewizard
 NAME                         READY   STATUS    RESTARTS   AGE
 multitool-74477484b8-dj7th   1/1     Running   0          20m
 nginx-dc8bb9b45-hqdv9        1/1     Running   0          111s
@@ -130,15 +151,13 @@ nginx-dc8bb9b45-x7j4g        1/1     Running             0          3s
 nginx-dc8bb9b45-wkc68        1/1     Running             0          3s
 ```
 
-<br>
 - Can you explain what do you see?
 
   `Why are there more containers than requested?`
 
 ---
 
-### 07. Scaling down with `kubectl scale`
-
+## 08. Scaling Down with `kubectl scale`
 
 - Scaling down using `kubectl`, and not by editing the `YAML` file:
 
@@ -172,4 +191,13 @@ nginx-dc8bb9b45-wkc68        0/1     Terminating   0          6m27s
 nginx-dc8bb9b45-wkc68        0/1     Terminating   0          6m27s
 nginx-dc8bb9b45-x7j4g        0/1     Terminating   0          6m27s
 nginx-dc8bb9b45-x7j4g        0/1     Terminating   0          6m27s
+```
+
+---
+
+## Cleanup
+
+```sh
+kubectl delete deployment nginx -n codewizard
+kubectl delete deployment multitool -n codewizard
 ```

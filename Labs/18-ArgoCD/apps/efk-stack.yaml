@@ -1,5 +1,5 @@
 # EFK Stack - nested App of Apps managed by the root App of Apps.
-# This application watches Labs/32-EFK/argocd-apps/ and manages
+# This application watches Labs/33-EFK/argocd-apps/ and manages
 # all EFK component applications (Elasticsearch, Filebeat, Kibana, etc.).
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://github.com/nirgeier/KubernetesLabs
     targetRevision: HEAD
-    path: Labs/32-EFK/argocd-apps
+    path: Labs/33-EFK/argocd-apps
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

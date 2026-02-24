@@ -2,12 +2,30 @@
 
 # Kustomization - `kubectl kustomize`
 
-## Declarative Configuration in Kubernetes
+- `Kustomize` is a very powerful tool for customizing and building Kubernetes resources.
+- `Kustomize` started in 2017, and was added to `kubectl` since version 1.14.
+- `Kustomize` has many useful features for managing and deploying resources.
+- When you execute a Kustomization beside using the builtin features, it will also re-order the resources in a logical way for K8S to deploy.
 
-- `Kustomize` is a very powerful too for customizing and building Kubernetes resources.
-- `Kustomize` started at 2017, and added to `kubectl` since version 1.14.
-- `Kustomize` has many useful features for managing and deploying resource.
-- When you execute a Kustomization beside using the builtin features, it will also re-order the resources in a logical way for the K8S to be deployed.
+---
+
+## What will we learn?
+
+- How Kustomize re-orders Kubernetes resources
+- Common Kustomize features: annotations, labels, generators, images, namespaces, prefixes/suffixes, replicas
+- How to use ConfigMap and Secret generators
+- How to use patches to modify resources
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster (v1.14+)
+
+---
+
+## Declarative Configuration in Kubernetes
 
 ### 01. Re-order the resources
 
@@ -82,20 +100,20 @@ spec:
 
 - [common Annotation](#commonannotation)
 - [common Labels](#commonlabels)
-- [Generators](#Generators)
-  - [Config Map Generator](#configMapGenerator)
-    - [From Env](#fromenv)
-    - [From File](#fromfile)
-    - [From Literal](#fromliteral)
+- [Generators](#generators)
+  - [Config Map Generator](#configmapgenerator)
+    - [From Env](#from-env)
+    - [From File](#from-file)
+    - [From Literal](#from-literal)
   - [Secret Generator](#secret-generator)
 - [images](#images)
-- [Namespaces](#Namespaces)
+- [Namespaces](#namespaces)
 - [Prefix / Suffix](#prefix-suffix)
 - [Replicas](#replicas)
-  - [Patches](#Patches)
+  - [Patches](#patches)
     - [Patch Add/Update](#patch-addupdate)
-    - [Patch Delete](#Patch-Delete)
-    - [Patch Replace](#Patch-Replace)
+    - [Patch Delete](#patch-delete)
+    - [Patch Replace](#patch-replace)
 
 ---
 
@@ -227,8 +245,9 @@ generatorOptions:
 
 ### `configMapGenerator`
 
-  - #### From Env
-    - `.env`
+#### From Env
+
+  - `.env`
       ```sh
       key1=value1
       env=qa
@@ -252,8 +271,9 @@ generatorOptions:
         name: configMapFromEnv-c9655hf97k
       ```
 
-  - #### From File
-    - `.env`
+#### From File
+
+  - `.env`
       ```sh
       key1=value1
       env=qa
@@ -263,7 +283,7 @@ generatorOptions:
       # Generate config file from env file
       configMapGenerator:
         - name: configMapFromEnv
-          files: 
+          files:
           - .env
       ```
 
@@ -277,8 +297,9 @@ generatorOptions:
         name: configFromFile-dfhmctd84d
       ```
 
-  - #### From Literal
-    - `.env`
+#### From Literal
+
+  - `.env`
       ```sh
       key1=value1
       env=qa
@@ -471,13 +492,13 @@ resources:
     There is a bug with the `replicas` entries which return error for some reason.
 
 ```sh
-$ kubectl kustomize .
+kubectl kustomize .
 
 # For some reason we get this error:
 Error: json: unknown field "replicas"
 
 # Workaround for this error for now is:
-$ kustomize build .
+kustomize build .
 ```
 
 ```yaml
@@ -538,7 +559,7 @@ metadata:
 spec:
   # This is the patch for this demo
   replicas: 3
-```  
+```
 
 ```yaml
 # kustomization.yaml
@@ -547,7 +568,7 @@ kind: Kustomization
 
 bases:
   - ../_base
-  
+
 patchesStrategicMerge:
 - patch-memory.yaml
 - patch-replicas.yaml
@@ -595,7 +616,7 @@ kind: Kustomization
 
 bases:
   - ../../_base
-  
+
 patchesStrategicMerge:
 - patch-delete.yaml
 ```
@@ -610,8 +631,8 @@ spec:
   template:
     spec:
       containers:
-        # Remove this section, in this demo it will remove the 
-        # image with the `name: myapp` 
+        # Remove this section, in this demo it will remove the
+        # image with the `name: myapp`
         - $patch: delete
           name: myapp
           image: __image__
@@ -652,7 +673,7 @@ kind: Kustomization
 
 bases:
   - ../../_base
-  
+
 patchesStrategicMerge:
 - patch-replace.yaml
 ```
@@ -667,8 +688,8 @@ spec:
   template:
     spec:
       containers:
-        # Remove this section, in this demo it will remove the 
-        # image with the `name: myapp` 
+        # Remove this section, in this demo it will remove the
+        # image with the `name: myapp`
         - $patch: replace
         - name: myapp
           image: nginx:latest

@@ -1,0 +1,67 @@
+---
+# ScaledObject: Redis List scaler — scale-to-zero demo
+#
+# Monitors the "jobs:queue" Redis list length and scales the redis-worker
+# Deployment based on queue depth.
+#
+# Scale-to-zero logic:
+#   - minReplicaCount: 0  →  when queue is empty, all pods are terminated
+#   - When jobs arrive   →  KEDA scales from 0 → N pods immediately
+#   - listLength: "5"    →  1 replica per 5 items (50 jobs = 10 replicas)
+#   - cooldownPeriod:30  →  wait 30 seconds after queue empties before scaling to zero
+#
+# Apply:
+#   kubectl apply -f 05-scaled-object-redis.yaml
+#
+# Load test:
+#   kubectl exec -it deployment/redis -n keda-demo -- \
+#       redis-cli RPUSH jobs:queue $(seq -f "job-%g" 1 50 | tr '\n' ' ')
+#
+# Watch:
+#   kubectl get pods -n keda-demo -l app=redis-worker -w
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: redis-worker-scaler
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  scaleTargetRef:
+    name: redis-worker
+
+  # ──────────────────────────────────────
+  # Scale to ZERO when queue is empty
+  # ──────────────────────────────────────
+  minReplicaCount: 0
+  maxReplicaCount: 20
+
+  # How often KEDA queries Redis (seconds)
+  pollingInterval: 5
+
+  # Seconds after last event before scaling back to minReplicaCount (0)
+  cooldownPeriod: 30
+
+  # Fallback: if Redis is unreachable, maintain at least 1 replica
+  fallback:
+    failureThreshold: 3
+    replicas: 1
+
+  triggers:
+    - type: redis
+      metadata:
+        # Redis address (host:port) - uses in-cluster DNS
+        address: redis.keda-demo.svc.cluster.local:6379
+
+        # The Redis list key to monitor
+        listName: jobs:queue
+
+        # Desired replicas per N items in the list
+        # Formula: desiredReplicas = ceil(queueLength / listLength)
+        # Example: 50 jobs / 5 = 10 replicas
+        listLength: "5"
+
+        # Optional: don't activate KEDA until queue exceeds this length
+        # (prevents micro-scaling for tiny bursts)
+        activationListLength: "1"

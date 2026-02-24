@@ -1,12 +1,31 @@
 ---
+
 # WordPress, MySQL, PVC
 
-- In this tutorial you will deploy a WordPress site and a MySQL database.
+- In this lab you will deploy a WordPress site and a MySQL database.
 - You will use `PersistentVolumes` and `PersistentVolumeClaims` as storage.
 
 ---
 
-## Walkthrough 
+## What will we learn?
+
+- How to deploy a multi-tier application (WordPress + MySQL) on Kubernetes
+- How to use `PersistentVolumeClaims` for persistent storage
+- How to use `kustomization.yaml` with secret generators
+- How to use port forwarding to test applications locally
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+- Minikube (for LoadBalancer support)
+
+---
+
+## Walkthrough
+
 - Patch `minikube` so we can use `Service: LoadBalancer`
 
 ```sh
@@ -20,7 +39,8 @@ sudo ip route add \
 
 kubectl run minikube-lb-patch \
     --replicas=1 \
-    --image=elsonrodriguez/minikube-lb-patch:0.1 \--namespace=kube-system
+    --image=elsonrodriguez/minikube-lb-patch:0.1 \
+    --namespace=kube-system
 ```
 
 - Create the desired `Namespace`
@@ -43,4 +63,12 @@ kubectl run minikube-lb-patch \
 
 ```sh
 kubectl port-forward service/wordpress 8080:32267 -n wp-demo
+```
+
+---
+
+## Cleanup
+
+```sh
+kubectl delete namespace wp-demo
 ```

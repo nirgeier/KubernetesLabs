@@ -1,3 +1,5 @@
+---
+
 # Helm Chart
 
 <img src="../assets/images/helm-k8s-lab.png" alt="Helm Logo" />
@@ -7,7 +9,7 @@
 
 ---
 
-## What will you learn
+## What will we learn?
 
 - What `Helm` is and why is it useful
 - `Helm` chart structure and key files
@@ -1481,7 +1483,7 @@ Then open http://localhost:8080 in your browser.
 - To confirm that `Helm` is installed correctly, run:
 
 ```bash
-$ helm version
+helm version
 
 ## Expected output
 version.BuildInfo{Version:"xx", GitCommit:"xx", GitTreeState:"clean", GoVersion:"xx"}
@@ -1514,7 +1516,7 @@ version.BuildInfo{Version:"xx", GitCommit:"xx", GitTreeState:"clean", GoVersion:
 
     - Examine the chart structure!
     - Try to explain to yourself which files are in the folder.
-    - See the above reference to the structure [#](#3#chart-files-and-folders)
+    - See the above reference to the structure [Chart files and folders](#chart-files-and-folders)
 
 #### Navigate to the Chart Directory
 
@@ -1683,7 +1685,7 @@ kubectl run busybox --image=busybox --rm -it --restart=Never \
 - A default maximum of 256 revisions will be returned.
 
 ```sh
-$ helm history codewizard-helm-demo
+helm history codewizard-helm-demo
 
 ### Sample output
 REVISION        UPDATED    STATUS          CHART                           APP VERSION     DESCRIPTION
@@ -1698,7 +1700,7 @@ REVISION        UPDATED    STATUS          CHART                           APP V
 - Rollback the `codewizard-helm-demo` release to previous version:
 
 ```sh
-$ helm rollback codewizard-helm-demo
+helm rollback codewizard-helm-demo
 
 ### Output:
 Rollback was a success! Happy Helming!
