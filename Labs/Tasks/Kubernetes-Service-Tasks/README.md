@@ -7,7 +7,7 @@
 #### Table of Contents
 
 - [01. Basic Service Exposure (ClusterIP)](#01-basic-service-exposure-clusterip)
-- [02. NodePort & LoadBalancer](#02-nodeport--loadbalancer)
+- [02. NodePort & LoadBalancer](#02-nodeport-loadbalancer)
 - [03. Service Discovery with DNS (FQDN)](#03-service-discovery-with-dns-fqdn)
 - [04. Headless Services](#04-headless-services)
 - [05. ExternalName Service](#05-externalname-service)

@@ -4,8 +4,31 @@
 
 <img src="../assets/images/statefulSet.png" width=500>
 
+- In this lab we will learn about `StatefulSets` in Kubernetes and how they differ from `Deployments`.
+- We will deploy a PostgreSQL database as a StatefulSet and verify that data persists across pod restarts.
 
-## The Difference Between a `Statefulset` And a `Deployment`
+---
+
+## What will we learn?
+
+- The difference between stateless and stateful applications
+- How `StatefulSets` maintain sticky identities and stable storage
+- How to deploy a PostgreSQL database as a StatefulSet
+- How to verify data persistence across pod restarts and scaling
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+- `psql` client installed (for testing PostgreSQL)
+
+---
+
+## Introduction
+
+### The Difference Between a `Statefulset` And a `Deployment`
 
 #### `Stateless` application
 
@@ -55,18 +78,18 @@
 
 ---
 
-### 01. Create namespace and clear previous data if there is any
+## 01. Create namespace and clear previous data if there is any
 
 ```sh
 # If the namespace already exist and contains data form previous steps, lets clean it
 kubectl delete namespace codewizard
 
 # Create the desired namespace [codewizard]
-$ kubectl create namespace codewizard
+kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
-### 02. Create and test the Stateful application
+## 02. Create and test the Stateful application
 
 - In order to deploy the Stateful set we will need the following resources:
 
@@ -194,7 +217,7 @@ kubectl kustomize PostgreSQL/ | kubectl apply -f -
 
 ---
 
-### 03. Test the Stateful application
+## 03. Test the Stateful application
 
 - Use the - [testDB.sh](./PostgreSQL/testDB.sh) to test the StatefulSet
 - Don't forget to set the execution flag `chmod +x testDb.sh` if required
@@ -241,7 +264,7 @@ psql \
     -c "CREATE TABLE IF NOT EXISTS stateful (str VARCHAR); INSERT INTO stateful values (1); SELECT count(*) FROM stateful"
 ```
 
-### 04. Scale down the StatefulSet and check that its down
+## 04. Scale down the StatefulSet and check that its down
 
 #### 04.01. Scale down the `Statefulset` to 0
 
@@ -281,7 +304,7 @@ psql: error: could not connect to server: Connection refused
         TCP/IP connections on port 32570?
 ```
 
-### 05. Scale up again and verify that we still have the prevoius data
+## 05. Scale up again and verify that we still have the prevoius data
 
 #### 05.01. scale up the `Statefulset` to 1 or more
 

@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patch-target
+  namespace: kubectl-lab
+  labels:
+    app: patch-target
+    tier: backend
+    environment: training
+  annotations:
+    description: "Deployment used for kubectl patch exercises"
+    version: "1.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: patch-target
+  template:
+    metadata:
+      labels:
+        app: patch-target
+        tier: backend
+        environment: training
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.24-alpine
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: APP_ENV
+              value: "training"
+            - name: LOG_LEVEL
+              value: "info"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: patch-target
+  namespace: kubectl-lab
+  labels:
+    app: patch-target
+spec:
+  selector:
+    app: patch-target
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  type: ClusterIP

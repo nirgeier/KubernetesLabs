@@ -2,16 +2,33 @@
 
 # Rollout (Rolling Update)
 
-- In this step we will deploy the same application with several different versions and we will "switch" between them.
+- In this lab we will deploy the same application with several different versions and we will "switch" between them.
 - For learning purposes we will play a little with the `CLI`.
 
 ---
-### 01. Create namespace
+
+## What will we learn?
+
+- How to perform rolling updates on a Kubernetes deployment
+- How to inspect rollout history
+- How to rollback to a previous version
+- How to use `rollout restart` for quick restarts
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+
+---
+
+## 01. Create Namespace
 
 - As completed in the previous lab, create the desired namespace [codewizard]:
 
 ```sh
-$ kubectl create namespace codewizard
+kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
@@ -19,38 +36,38 @@ namespace/codewizard created
 
 ---
 
-### 02. Create the desired deployment
+## 02. Create the desired deployment
 
 - We will use the `save-config` flag
-  > `save-config`  
-  > If true, the configuration of current object will be saved in its annotation.  
-  > Otherwise, the annotation will be unchanged.  
+  > `save-config`
+  > If true, the configuration of current object will be saved in its annotation.
+  > Otherwise, the annotation will be unchanged.
   > This flag is useful when you want to perform `kubectl apply` on this object in the future.
 
 - Let's run the following:
 ```sh
 
-$ kubectl create deployment -n codewizard nginx --image=nginx:1.17 --save-config
+kubectl create deployment -n codewizard nginx --image=nginx:1.17 --save-config
 ```
 Note that in case we already have this deployed, we will get an error message.
 
 ---
 
-### 03. Expose nginx as a service
+## 03. Expose nginx as a service
 
 ```sh
 
-$ kubectl expose deployment -n codewizard nginx --port 80 --type NodePort
+kubectl expose deployment -n codewizard nginx --port 80 --type NodePort
 service/nginx exposed
 ```
 Again, note that in case we already have this service we will get an error message as well.
 
 ---
 
-### 04. Verify that the pods and the service are running
+## 04. Verify that the pods and the service are running
 
 ```sh
-$ kubectl get all -n codewizard
+kubectl get all -n codewizard
 
 # The output should be similar to this
 NAME                        READY      STATUS    RESTARTS   AGE
@@ -68,19 +85,19 @@ replicaset.apps/nginx-db749865c   1         1         1       66s
 
 ---
 
-### 05. Change the number of replicas to 3
+## 05. Change the number of replicas to 3
 
 ```sh
-$ kubectl scale deployment -n codewizard nginx --replicas=3
+kubectl scale deployment -n codewizard nginx --replicas=3
 deployment.apps/nginx scaled
 ```
 
 ---
 
-### 06. Verify that now we have 3 replicas
+## 06. Verify that now we have 3 replicas
 
 ```sh
-$ kubectl get pods -n codewizard
+kubectl get pods -n codewizard
 NAME                    READY   STATUS    RESTARTS   AGE
 nginx-db749865c-f5mkt   1/1     Running   0          86s
 nginx-db749865c-jgcvb   1/1     Running   0          86s
@@ -89,23 +106,23 @@ nginx-db749865c-lmgtv   1/1     Running   0          4m44s
 
 ---
 
-### 07. Test the deployment
+## 07. Test the deployment
 
 ```sh
 # !!! Get the Ip & port for this service
-$ kubectl get services -n codewizard -o wide 
+kubectl get services -n codewizard -o wide
 
 # Write down the port number
 NAME    TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE    SELECTOR
 nginx   NodePort   10.102.79.9   <none>        80:31204/TCP   7m7s   app=nginx
 
 # Get the cluster IP and port
-$ kubectl cluster-info  
+kubectl cluster-info
 Kubernetes control plane is running at https://192.168.49.2:8443
 
 # Using the above <host>:<port> test the nginx
 # -I is for getting the headers
-$ curl -sI <host>:<port>
+curl -sI <host>:<port>
 
 # The response should display the nginx version
 example: curl -sI 192.168.49.2:31204
@@ -124,15 +141,15 @@ Accept-Ranges: bytes
 
 ---
 
-### 08. Deploy another version of nginx
+## 08. Deploy another version of nginx
 
 ```sh
 # Deploy another version of nginx (1.16)
-$ kubectl set image deployment -n codewizard nginx nginx=nginx:1.16 --record
+kubectl set image deployment -n codewizard nginx nginx=nginx:1.16 --record
 deployment.apps/nginx image updated
 
 # Check to verify that the new version deployed - same as in previous step
-$ curl -sI <host>:<port>
+curl -sI <host>:<port>
 
 # The response should display the new version
 HTTP/1.1 200 OK
@@ -148,12 +165,12 @@ Accept-Ranges: bytes
 
 ---
 
-### 09. Investigate rollout history:
+## 09. Investigate rollout history:
 
 - The rollout history command print out all the saved records:
 
 ```sh
-$ kubectl rollout history deployment nginx -n codewizard
+kubectl rollout history deployment nginx -n codewizard
 deployment.apps/nginx
 REVISION  CHANGE-CAUSE
 1         <none>
@@ -163,13 +180,13 @@ REVISION  CHANGE-CAUSE
 
 ---
 
-### 10. Let's see what was changed during the previous updates:
+## 10. Let's see what was changed during the previous updates:
 
 - Print out the rollout changes:
 
 ```sh
 # replace the X with 1 or 2 or any number revision id
-$ kubectl rollout history deployment nginx -n codewizard --revision=<X>  # replace here
+kubectl rollout history deployment nginx -n codewizard --revision=<X>  # replace here
 deployment.apps/nginx with revision #1
 Pod Template:
   Labels:       app=nginx
@@ -186,23 +203,23 @@ Pod Template:
 
 ---
 
-### 11. Undo the version upgrade by rolling back and restoring previous version
+## 11. Undo the version upgrade by rolling back and restoring previous version
 
 ```
 # Check the current nginx version
-$ curl -sI <host>:<port>
+curl -sI <host>:<port>
 
 # Undo the last deployment
-$ kubectl rollout undo deployment nginx
+kubectl rollout undo deployment nginx
 deployment.apps/nginx rolled back
 
 # Verify that we have the previous version
-$ curl -sI <host>:<port>
+curl -sI <host>:<port>
 ```
 
 ---
 
-### 12. Rolling Restart
+## 12. Rolling Restart
 
 - If we deploy using `imagePullPolicy: always` set in the `YAML` file, we can use `rollout restart` to force `K8S` to grab the latest image.
 - **This is the fastest restart method these days**

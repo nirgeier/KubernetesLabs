@@ -1,10 +1,6 @@
- 
-
-
-
 ---
 
-## Logging
+# Logging
 
 - Welcome to the `Logging` hands-on lab! In this tutorial, we will learn the essentials of `Logging` in Kubernetes clusters.
 - We will deploy a sample application, configure log collection, and explore logs using popular tools like `Fluentd`, `Elasticsearch`, and `Kibana` (EFK stack).

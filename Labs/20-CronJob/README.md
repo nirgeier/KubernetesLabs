@@ -1,6 +1,5 @@
 ---
 
-
 # CronJobs
 
 - In this lab, we will learn how to create and manage `CronJobs` in Kubernetes.
@@ -8,53 +7,69 @@
 
 ---
 
-### What is a CronJob?
+## What will we learn?
+
+- What CronJobs are and how they work in Kubernetes
+- How to create, monitor, and manage CronJobs
+- How to view Job and Pod outputs from scheduled tasks
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+
+---
+
+## Introduction
+
 - A `CronJob` in Kubernetes runs Jobs on a time-based schedule, similar to Linux cron.
 - Useful for periodic tasks like backups, reports, or cleanup.
 
 ---
 
-### Step - 01: Create a CronJob YAML
+### Step 01 - Create a CronJob YAML
 - Create a file named `hello-cronjob.yaml` with the following content:
 
 ```yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-	name: hello
-	namespace: default
+  name: hello
+  namespace: default
 spec:
-	schedule: "*/1 * * * *" # Every 1 minute
-	jobTemplate:
-		spec:
-			template:
-				spec:
-					containers:
-					- name: hello
-						image: busybox
-						args:
-						- /bin/sh
-						- -c
-						- date; echo Hello from the Kubernetes CronJob!
-					restartPolicy: OnFailure
+  schedule: "*/1 * * * *" # Every 1 minute
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes CronJob!
+          restartPolicy: OnFailure
 ```
 
 
 
-### Step - 02: Apply the CronJob
+### Step 02 - Apply the CronJob
 
 ```sh
 kubectl apply -f hello-cronjob.yaml
 ```
 
-### Step - 03: Verify CronJob Creation
+### Step 03 - Verify CronJob Creation
 
 ```sh
 kubectl get cronjob hello
 ```
 
 
-### Step - 04: Check CronJob and Jobs
+### Step 04 - Check CronJob and Jobs
 
 - List CronJobs:
 
@@ -76,7 +91,7 @@ kubectl get pods
 
 
 
-### Step - 05: View Job Output
+### Step 05 - View Job Output
 
 - Get the name of a pod created by the CronJob, then view its logs:
 
@@ -92,9 +107,9 @@ Hello from the Kubernetes CronJob!
 ```
 
 
-### Step - 06: Clean Up
+---
 
-- Delete the CronJob and its Jobs:
+## Cleanup
 
 ```sh
 kubectl delete cronjob hello
@@ -103,7 +118,7 @@ kubectl delete jobs --all
 
 ---
 
-### Questions:
+## Questions
 
 - What happens if the job takes longer than the schedule interval?
 - How would you change the schedule to run every 5 minutes?

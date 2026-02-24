@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubectl-lab
+  labels:
+    app.kubernetes.io/name: kubectl-lab
+    app.kubernetes.io/part-of: kubectl-deep-dive
+    purpose: training
+  annotations:
+    description: "Namespace for kubectl deep-dive lab exercises"

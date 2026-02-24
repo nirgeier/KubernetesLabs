@@ -1,0 +1,28 @@
+# Log Processor - ArgoCD Application for the EFK stack
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: efk-log-processor
+  namespace: argocd
+  annotations:
+    # Deploy last - needs Elasticsearch, Filebeat, and log files to exist (sync wave 2)
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/nirgeier/KubernetesLabs
+    targetRevision: HEAD
+    path: Labs/33-EFK/helm/log-processor
+    helm:
+      releaseName: log-processor
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: efk
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

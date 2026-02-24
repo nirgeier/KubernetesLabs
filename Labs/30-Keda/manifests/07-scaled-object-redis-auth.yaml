@@ -1,0 +1,40 @@
+---
+# ScaledObject: Redis scaler with TriggerAuthentication
+#
+# Same as 05-scaled-object-redis.yaml but uses the TriggerAuthentication
+# from 06-trigger-auth.yaml to supply the Redis password without embedding
+# credentials in this manifest.
+#
+# Prerequisites:
+#   kubectl apply -f 06-trigger-auth.yaml  (and create the Secret first)
+#   kubectl apply -f 04-redis-stack.yaml
+#
+# Apply:
+#   kubectl apply -f 07-scaled-object-redis-auth.yaml
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: redis-auth-worker-scaler
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  scaleTargetRef:
+    name: redis-worker
+
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  pollingInterval: 5
+  cooldownPeriod: 30
+
+  triggers:
+    - type: redis
+      # Reference the TriggerAuthentication resource
+      authenticationRef:
+        name: redis-auth # Must exist in the same namespace
+      metadata:
+        address: redis.keda-demo.svc.cluster.local:6379
+        listName: jobs:queue
+        listLength: "5"
+        activationListLength: "1"

@@ -2,10 +2,27 @@
 
 # Service Discovery
 
-- In the following lab we will learn what is a `Service` and go over the different `Service` types.
+- In this lab we will learn what is a `Service` and go over the different `Service` types.
 
 ---
-## 01. Some general notes on what is a `Service`
+
+## What will we learn?
+
+- What a Kubernetes `Service` is and why you need one
+- How to create and test `ClusterIP`, `NodePort`, and `LoadBalancer` services
+- How to use Kubernetes internal DNS (`FQDN`) to access services
+- The differences between the service types
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+
+---
+
+## 01. Some General Notes on What is a `Service`
 
 
 - `Service` is a unit of application behavior bound to a unique name in a `service registry`.
@@ -19,32 +36,32 @@
 
 ---
 
-### 01. Create namespace and clear previous data if there is any
+## 01. Create namespace and clear previous data if there is any
 
 ```sh
 # If the namespace already exists and contains data form previous steps, let's clean it
 kubectl delete namespace codewizard
 
 # Create the desired namespace [codewizard]
-$ kubectl create namespace codewizard
+kubectl create namespace codewizard
 namespace/codewizard created
 ```
 
 ---
 
-### 02. Create the required resources for this hand-on
+## 02. Create the required resources for this hand-on
 
 ```sh
 # Network tools pod
-$ kubectl create deployment -n codewizard multitool --image=praqma/network-multitool
+kubectl create deployment -n codewizard multitool --image=praqma/network-multitool
 deployment.apps/multitool created
 
 # nginx pod
-$ kubectl create deployment -n codewizard nginx --image=nginx
+kubectl create deployment -n codewizard nginx --image=nginx
 deployment.apps/nginx created
 
 # Verify that the pods running
-$ kubectl get all -n codewizard
+kubectl get all -n codewizard
 
 NAME                             READY   STATUS    RESTARTS   AGE
 pod/multitool-74477484b8-bdrwr   1/1     Running   0          29s
@@ -59,11 +76,7 @@ replicaset.apps/nginx-6799fc88d8       1         1         1       8s
 
 ---
 
-# Service types
-
-- As previously mentioned, there are several services type. Let's practice them:
-
-### Service type: ClusterIP
+## Service Type: ClusterIP
 
 - If not specified, the default service type is `ClusterIP`.
 - In order to expose the deployment as a service, use: `--type=ClusterIP`
@@ -72,16 +85,16 @@ replicaset.apps/nginx-6799fc88d8       1         1         1       8s
 
 ---
 
-### 03. Expose the nginx with ClusterIP
+## 03. Expose the nginx with ClusterIP
 
 ```sh
 # Expose the service on port 80
-$ kubectl expose deployment nginx -n codewizard --port 80 --type ClusterIP
+kubectl expose deployment nginx -n codewizard --port 80 --type ClusterIP
 service/nginx exposed
 
 # Check the services and see it's type
 # Grab the ClusterIP - we will use it in the next steps
-$ kubectl get services -n codewizard
+kubectl get services -n codewizard
 
 NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)
 nginx        ClusterIP   10.109.78.182   <none>        80/TCP
@@ -89,18 +102,18 @@ nginx        ClusterIP   10.109.78.182   <none>        80/TCP
 
 ---
 
-### 04. Test the nginx with ClusterIP
+## 04. Test the nginx with ClusterIP
 
 - Since the service is a `ClusterIP`, we will test if we can access the service using the multitool pod.
 
 ```sh
 # Get the name of the multitool pod to be used
-$ kubectl get pods -n codewizard
+kubectl get pods -n codewizard
 NAME
 multitool-XXXXXX-XXXXX
 
 # Run an interactive shell inside the network-multitool-container (same concept as with Docker)
-$ kubectl exec -it <pod name> -n codewizard -- sh
+kubectl exec -it <pod name> -n codewizard -- sh
 ```
 
 - Connect to the service in **any** of the following ways:
@@ -190,20 +203,20 @@ bash-5.0# curl -s nginx.codewizard.svc.cluster.local
 
 ---
 
-# Service type: NodePort
+## Service Type: NodePort
 
 - `NodePort`: Exposes the Service on each Node's IP at a **static port** (the `NodePort`).
 - A `ClusterIP` Service, to which the `NodePort` Service routes, **is automatically created**.
 - `NodePort` service is reachable from outside the cluster, by requesting `<Node IP>:<Node Port>`.
 - The NodePort is allocated from a flag-configured range (default: 30000-32767).
 
-### 05. Create NodePort
+## 05. Create NodePort
 
 ##### 1. Delete previous service
 
 ```sh
 # Delete the existing service from previous steps
-$ kubectl delete svc nginx -n codewizard
+kubectl delete svc nginx -n codewizard
 service "nginx" deleted
 ```
 
@@ -213,12 +226,12 @@ service "nginx" deleted
 
 ```sh
 # As before but this time the type is a NodePort
-$ kubectl expose deployment -n codewizard nginx --port 80 --type NodePort
+kubectl expose deployment -n codewizard nginx --port 80 --type NodePort
 service/nginx exposed
 
 # Verify that the type is set to NodePort.
 # This time you should see ClusterIP and port as well
-$ kubectl get svc -n codewizard
+kubectl get svc -n codewizard
 NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)
 nginx        NodePort    100.65.29.172  <none>        80:32593/TCP
 ```
@@ -241,7 +254,7 @@ We can retrieve the allocated NodePort manually from the `kubectl get svc` outpu
 
 ```sh
 # Get the NodePort allocated to the 'nginx' service
-$ kubectl get svc nginx -n codewizard -o jsonpath='{.spec.ports[0].nodePort}{"\n"}'
+kubectl get svc nginx -n codewizard -o jsonpath='{.spec.ports[0].nodePort}{"\n"}'
 32593
 ```
 
@@ -251,7 +264,7 @@ We need the IP address of a node. In a multi-node cluster, any node's IP will wo
 
 ```sh
 # List nodes and their IP addresses
-$ kubectl get nodes -o wide
+kubectl get nodes -o wide
 NAME           STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE
 minikube       Ready    control-plane   1d    v1.26.1   192.168.49.2   <none>        Buildroot 2021.02.4
 ```
@@ -264,7 +277,7 @@ Now construct the URL using the format `http://<NODE_IP>:<NODE_PORT>`.
 ```sh
 # Example: curl http://192.168.49.2:32593
 # Replace with YOUR actual Node IP and Node Port
-$ curl -s http://<NODE_IP>:<NODE_PORT>
+curl -s http://<NODE_IP>:<NODE_PORT>
 ```
 
 ```html
@@ -283,12 +296,12 @@ $ curl -s http://<NODE_IP>:<NODE_PORT>
 
 ---
 
-# Service type: LoadBalancer
+## Service Type: LoadBalancer
 
 !!! warning "Note"
     **We cannot test a `LoadBalancer` service locally on a localhost, but only on a cluster which can provide an `external-IP`**
 
-### 06. Create LoadBalancer (only if you are on real cloud)
+## 06. Create LoadBalancer (only if you are on real cloud)
 
 <br>
 
@@ -296,7 +309,7 @@ $ curl -s http://<NODE_IP>:<NODE_PORT>
 
 ```sh
 # Delete the existing service from previous steps
-$ kubectl delete svc nginx -n codewizard
+kubectl delete svc nginx -n codewizard
 service "nginx" deleted
 ```
 <br>
@@ -305,12 +318,12 @@ service "nginx" deleted
 
 ```sh
 # As before this time the type is a LoadBalancer
-$ kubectl expose deployment nginx -n codewizard --port 80 --type LoadBalancer
+kubectl expose deployment nginx -n codewizard --port 80 --type LoadBalancer
 service/nginx exposed
 
 # In real cloud we should se an EXTERNAL-IP and we can access the service
 # via the internet
-$ kubectl get svc
+kubectl get svc
 NAME         TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)
 nginx        LoadBalancer   100.69.15.89   35.205.60.29  80:31354/TCP
 ```
@@ -320,5 +333,5 @@ nginx        LoadBalancer   100.69.15.89   35.205.60.29  80:31354/TCP
 
 ```sh
 # Testing load balancer only require us to use the EXTERNAL-IP
-$ curl -s <EXTERNAL-IP>
+curl -s <EXTERNAL-IP>
 ```

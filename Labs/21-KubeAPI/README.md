@@ -1,18 +1,35 @@
 ---
-# Kube API Access from Pod
 
+# Kube API Access from Pod
 
 - In this lab, we will learn how to access the Kubernetes API from within a Pod.
 - We will create a simple Pod that runs a script to query the Kubernetes API server and retrieve information about the cluster.
 
 ---
 
-### Part 01 - Build the docker image
+## What will we learn?
+
+- How to access the Kubernetes API from within a Pod
+- How Kubernetes Service Account tokens are mounted inside pods
+- How to build a custom Docker image for API access
+- How to deploy and test the API query using Kustomize
+
+---
+
+## Prerequisites
+
+- A running Kubernetes cluster (`kubectl cluster-info` should work)
+- `kubectl` configured against the cluster
+- Docker installed (for building custom images)
+
+---
+
+## Part 01 - Build the Docker Image
 
 - In order to demonstrate the API query we will build a custom docker image.
 - It is optional to use the pre-build image and skip this step.
 
-### Step 01 - The script which will be used for query K8S API
+### Step 01 - The Script for Querying K8S API
 
 - In order to be able to access K8S API from within a pod, we will be using the following script:
 
@@ -45,7 +62,7 @@ CACERT=${SERVICE_ACCOUNT_FOLDER}/ca.crt
 curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${API_SERVER_URL}/api
 ```
 
-### Step 02 - Build the docker image
+### Step 02 - Build the Docker Image
 
 - For the pod image we will use the following Dockerfile:
 
@@ -69,12 +86,12 @@ RUN     chmod +x api_query.sh .
 
 ---
 
-### Part 02 - Deploy the Pod to K8S
+## Part 02 - Deploy the Pod to K8S
 
 - Once the image is ready, we can deploy it as a pod to the cluster.
 - The required resources are under the k8s folder.
 
-### Step 01 - Run kustomization to deploy
+### Step 01 - Run Kustomization to Deploy
 
 - Deploy to the cluster
 

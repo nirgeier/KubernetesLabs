@@ -1,0 +1,186 @@
+#!/bin/bash
+set -euo pipefail
+# =============================================================================
+# Istio + Kiali Lab - Main Deployment Script
+# Usage:
+#   ./demo.sh deploy   - Deploy Istio, addons, Bookinfo, and traffic generator
+#   ./demo.sh cleanup  - Remove everything
+# =============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/scripts/common.sh"
+
+# Deploy all components
+deploy() {
+  print_header "Istio + Kiali Lab Deployment"
+
+  check_prerequisites
+  echo ""
+
+  # Step 1: Install Istio
+  source "${SCRIPT_DIR}/scripts/01-install-istio.sh"
+  install_istio
+  echo ""
+
+  # Step 2: Install observability addons
+  source "${SCRIPT_DIR}/scripts/02-install-addons.sh"
+  install_addons
+  echo ""
+
+  # Step 3: Deploy Bookinfo application
+  source "${SCRIPT_DIR}/scripts/03-deploy-bookinfo.sh"
+  deploy_bookinfo
+  echo ""
+
+  # Step 4: Deploy traffic generator
+  source "${SCRIPT_DIR}/scripts/04-traffic-generator.sh"
+  deploy_traffic_generator
+  echo ""
+
+  # Step 5: Verify
+  source "${SCRIPT_DIR}/scripts/05-verify.sh"
+  verify_deployment
+  echo ""
+
+  # Display access information
+  display_access_info
+}
+
+# Display access information
+display_access_info() {
+  echo ""
+  echo "=========================================="
+  print_success "Istio + Kiali Lab Deployment Complete!"
+  echo "=========================================="
+  echo ""
+
+  # Get ingress IP
+  INGRESS_IP=$(kubectl get ingress -n istio-system kiali -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+
+  print_info "Access via Ingress (recommended):"
+  echo ""
+  echo -e "  Kiali:       ${GREEN}http://kiali.local${NC}"
+  echo -e "  Grafana:     ${GREEN}http://grafana.local${NC}"
+  echo -e "  Jaeger:      ${GREEN}http://jaeger.local${NC}"
+  echo -e "  Prometheus:  ${GREEN}http://prometheus.local${NC}"
+  echo -e "  Bookinfo:    ${GREEN}http://bookinfo.local/productpage${NC}"
+  echo ""
+
+  # Check /etc/hosts
+  HOSTS_NEEDED=""
+  for host in kiali.local grafana.local jaeger.local prometheus.local bookinfo.local; do
+    if ! grep -q "$host" /etc/hosts 2>/dev/null; then
+      HOSTS_NEEDED="$HOSTS_NEEDED $host"
+    fi
+  done
+
+  if [ -n "$HOSTS_NEEDED" ]; then
+    print_warning "Add these hosts to /etc/hosts:"
+    echo "  echo \"${INGRESS_IP:-192.168.139.2}${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    echo ""
+  else
+    print_success "/etc/hosts already configured"
+    echo ""
+  fi
+
+  print_info "Or access via port-forwarding:"
+  echo ""
+  echo "  kubectl port-forward svc/kiali -n istio-system 20001:20001 &"
+  echo "  kubectl port-forward svc/grafana -n istio-system 3000:3000 &"
+  echo "  kubectl port-forward svc/tracing -n istio-system 16686:80 &"
+  echo "  kubectl port-forward svc/prometheus -n istio-system 9090:9090 &"
+  echo "  kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &"
+  echo ""
+
+  print_info "Istio Feature Demos:"
+  echo "  ./istio-features/apply-feature.sh list              # List features"
+  echo "  ./istio-features/apply-feature.sh 01-traffic-shifting  # Canary deploy"
+  echo "  ./istio-features/apply-feature.sh 02-fault-injection   # Chaos testing"
+  echo "  ./istio-features/apply-feature.sh 04-request-routing   # A/B testing"
+  echo "  ./istio-features/apply-feature.sh 07-mtls-strict       # Security"
+  echo "  ./istio-features/apply-feature.sh reset                # Reset all"
+  echo ""
+
+  print_info "Monitoring:"
+  echo "  ./monitor.sh           # Interactive monitoring menu"
+  echo "  ./monitor.sh summary   # Quick status summary"
+  echo "  ./monitor.sh test      # Test all components"
+  echo "  ./monitor.sh full      # Full detailed report"
+  echo ""
+
+  print_info "Useful Commands:"
+  echo "  kubectl get pods -n istio-system    # Control plane pods"
+  echo "  kubectl get pods -n bookinfo        # Application pods"
+  echo "  kubectl get vs,dr -n bookinfo       # Istio routing config"
+  echo "  kubectl get cronjob -n traffic-gen  # Traffic generator status"
+  echo ""
+}
+
+# Cleanup all components
+cleanup() {
+  print_header "Cleaning Up Istio + Kiali Lab"
+
+  # Remove traffic generator
+  print_step "Removing traffic generator..."
+  kubectl delete namespace traffic-gen 2>/dev/null
+  print_success "Traffic generator removed"
+
+  # Remove Bookinfo
+  print_step "Removing Bookinfo application..."
+  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo-gateway.yaml" -n bookinfo 2>/dev/null
+  kubectl delete -f "${SCRIPT_DIR}/manifests/destination-rules.yaml" -n bookinfo 2>/dev/null
+  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo.yaml" -n bookinfo 2>/dev/null
+  kubectl delete namespace bookinfo 2>/dev/null
+  print_success "Bookinfo removed"
+
+  # Remove Istio feature demos (if any applied)
+  print_step "Cleaning up Istio feature demos..."
+  kubectl delete peerauthentication --all -n bookinfo 2>/dev/null
+  kubectl delete peerauthentication --all -n istio-system 2>/dev/null
+
+  # Remove addons and ingress
+  print_step "Removing observability addons and ingress..."
+  kubectl delete -f "${SCRIPT_DIR}/manifests/ingress.yaml" 2>/dev/null
+  kubectl delete -f "${SCRIPT_DIR}/manifests/addons/" -n istio-system 2>/dev/null
+  print_success "Addons and ingress removed"
+
+  # Remove Istio
+  print_step "Removing Istio..."
+  helm uninstall istio-ingressgateway -n istio-system 2>/dev/null
+  helm uninstall istiod -n istio-system 2>/dev/null
+  helm uninstall istio-base -n istio-system 2>/dev/null
+  print_success "Istio Helm releases removed"
+
+  # Clean up namespace
+  print_step "Removing istio-system namespace..."
+  kubectl delete namespace istio-system 2>/dev/null
+
+  # Clean up Istio CRDs
+  print_step "Removing Istio CRDs..."
+  kubectl get crd -o name | grep 'istio.io' | xargs -r kubectl delete 2>/dev/null
+
+  # Clean up cluster-wide resources
+  kubectl delete clusterrole istio-prometheus kiali 2>/dev/null
+  kubectl delete clusterrolebinding istio-prometheus kiali 2>/dev/null
+
+  echo ""
+  print_success "Cleanup complete! All Istio + Kiali resources removed."
+}
+
+# Parse command line arguments
+case "${1}" in
+deploy)
+  deploy
+  ;;
+cleanup)
+  cleanup
+  ;;
+*)
+  echo "Usage: $0 {deploy|cleanup}"
+  echo ""
+  echo "Commands:"
+  echo "  deploy  - Deploy Istio + Kiali + Bookinfo + traffic generator"
+  echo "  cleanup - Remove all resources"
+  exit 1
+  ;;
+esac

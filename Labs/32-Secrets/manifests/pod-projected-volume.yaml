@@ -1,0 +1,83 @@
+---
+# ConfigMap to be combined with Secret via projected volume
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: secrets-lab
+  labels:
+    app: projected-demo
+    lab: "34"
+data:
+  app.properties: |
+    app.name=secrets-demo
+    app.version=1.0.0
+    app.environment=development
+    app.log.level=info
+  feature-flags.json: |
+    {
+      "enableNewUI": true,
+      "enableBetaFeatures": false,
+      "maxRetries": 3
+    }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: projected-volume-demo
+  namespace: secrets-lab
+  labels:
+    app: projected-demo
+    lab: "34"
+spec:
+  containers:
+    - name: demo
+      image: busybox:1.36
+      command:
+        - sh
+        - -c
+        - |
+          echo "=== Projected volume contents ==="
+          echo "--- Listing /etc/app-config ---"
+          ls -la /etc/app-config/
+          echo ""
+          echo "--- Secret: username ---"
+          cat /etc/app-config/username
+          echo ""
+          echo "--- Secret: password ---"
+          cat /etc/app-config/password
+          echo ""
+          echo "--- ConfigMap: app.properties ---"
+          cat /etc/app-config/app.properties
+          echo ""
+          echo "--- ConfigMap: feature-flags.json ---"
+          cat /etc/app-config/feature-flags.json
+          echo ""
+          echo "=== All config and secrets unified under one mount ==="
+          sleep 3600
+      volumeMounts:
+        - name: all-config
+          mountPath: /etc/app-config
+          readOnly: true
+  volumes:
+    # projected volume combines multiple sources into a single directory
+    - name: all-config
+      projected:
+        sources:
+          # Source 1: Secret keys
+          - secret:
+              name: app-credentials
+              items:
+                - key: username
+                  path: username
+                - key: password
+                  path: password
+          # Source 2: ConfigMap keys
+          - configMap:
+              name: app-config
+              items:
+                - key: app.properties
+                  path: app.properties
+                - key: feature-flags.json
+                  path: feature-flags.json
+  restartPolicy: Never

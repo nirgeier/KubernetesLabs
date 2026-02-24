@@ -1,0 +1,82 @@
+# -----------------------------------------------------------------------------
+# GitHub Actions Workflow: Build & Push devlab Image to GHCR
+#
+# This workflow builds the standalone devlab Docker image and pushes it to
+# GitHub Container Registry as a multi-arch image (amd64 + arm64).
+#
+# Main Steps:
+#   1. Checkout the repository.
+#   2. Set up QEMU for cross-platform builds.
+#   3. Set up Docker Buildx.
+#   4. Login to GitHub Container Registry.
+#   5. Extract image metadata (tags, labels).
+#   6. Build and push the multi-arch image.
+#
+# The image is published to ghcr.io/<owner>/kubernetes-labs-devlab with `latest` and
+# `sha-<short>` tags so users can pull a ready-to-use environment.
+# -----------------------------------------------------------------------------
+
+name: Build devlab Image
+
+# Event triggers for the workflow
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "scripts/Dockerfile.devlab"
+      - "scripts/entrypoint-devlab.sh"
+  workflow_dispatch:
+
+# Workflow permissions
+permissions:
+  contents: read
+  packages: write
+
+# Concurrency settings
+concurrency:
+  cancel-in-progress: true
+  group: "devlab-build"
+
+# The build job
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/kubernetes-labs-devlab
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: scripts/
+          file: scripts/Dockerfile.devlab
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

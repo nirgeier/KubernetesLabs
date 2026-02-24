@@ -1,0 +1,8 @@
+---
+# Namespace for all KEDA demo workloads
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab

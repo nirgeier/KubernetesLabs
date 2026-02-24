@@ -1,8 +1,33 @@
-### 01. Installing Kind
+---
 
-- If you don't have an existing cluster you can use google cloud for the labs hands-on
-- Click on the button below to be able to run the labs on Google Shell <br/>
-  **[Use: <kbd>CTRL + click to open in new window]** 
+# Verify Cluster
+
+- In this lab we will set up a local Kubernetes cluster using `Kind` and verify that it is working correctly.
+- By the end of this lab you will have a running Kubernetes cluster and confirmed connectivity.
+
+---
+
+## What will we learn?
+
+- How to install `Kind` (Kubernetes in Docker)
+- How to create a local Kubernetes cluster
+- How to verify cluster connectivity using `kubectl`
+
+---
+
+## Prerequisites
+
+- Docker installed and running
+- `kubectl` installed
+
+---
+
+## 01. Install Kind
+
+- If you don't have an existing cluster you can use Google Cloud for the labs hands-on.
+- Click on the button below to be able to run the labs on Google Shell:
+
+    **[Use: <kbd>CTRL + click to open in new window]**
 
     [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https://github.com/nirgeier/KubernetesLabs)
 
@@ -13,7 +38,7 @@
     ```bash
     # Install Kind using Homebrew
     brew install kind
-    
+
     # Verify installation
     kind version
     ```
@@ -25,7 +50,7 @@
     curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
     chmod +x ./kind
     sudo mv ./kind /usr/local/bin/kind
-    
+
     # Verify installation
     kind version
     ```
@@ -37,7 +62,7 @@
     curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
     chmod +x ./kind
     sudo mv ./kind /usr/local/bin/kind
-    
+
     # Verify installation
     kind version
     ```
@@ -46,7 +71,9 @@
 
     Download Kind from: [https://kind.sigs.k8s.io/dl/v0.20.0/kind-windows-amd64](https://kind.sigs.k8s.io/dl/v0.20.0/kind-windows-amd64)
 
-### 02. Create Kind cluster
+---
+
+## 02. Create a Kind Cluster
 
 ```sh
 kind create cluster
@@ -70,7 +97,9 @@ kubectl cluster-info --context kind-kind
 Thanks for using kind! 😊
 ```
 
-### 03. Check the Kind cluster status
+---
+
+## 03. Check the Cluster Status
 
 ```sh
 kubectl cluster-info
@@ -85,13 +114,15 @@ CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/servi
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
 
-### 04. Verify that the cluster is up and running
+---
+
+## 04. Verify the Cluster is Up and Running
 
 ```sh
 kubectl cluster-info
 ```
 
-- Verify that `kubectl` is installed and configured
+- Verify that `kubectl` is installed and configured:
 
 ```sh
 kubectl config view
@@ -120,7 +151,9 @@ users:
     client-key-data: REDACTED
 ```
 
-### 05. Verify that you can "talk" to your cluster
+---
+
+## 05. Verify That You Can Talk to Your Cluster
 
 ```sh
 # Check the nodes in the Kind cluster
