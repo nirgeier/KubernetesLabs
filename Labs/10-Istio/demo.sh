@@ -55,10 +55,13 @@ display_access_info() {
   echo "=========================================="
   echo ""
 
-  # Get ingress IP
-  INGRESS_IP=$(kubectl get ingress -n istio-system kiali -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+  # Get Istio Ingress Gateway external IP (or hostname for LoadBalancer)
+  GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+  if [ -z "$GATEWAY_IP" ]; then
+    GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
+  fi
 
-  print_info "Access via Ingress (recommended):"
+  print_info "Access via Istio Ingress Gateway:"
   echo ""
   echo -e "  Kiali:       ${GREEN}http://kiali.local${NC}"
   echo -e "  Grafana:     ${GREEN}http://grafana.local${NC}"
@@ -78,7 +81,12 @@ display_access_info() {
 
   if [ -n "$HOSTS_NEEDED" ]; then
     print_warning "Add these hosts to /etc/hosts:"
-    echo "  echo \"${INGRESS_IP:-192.168.139.2}${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    if [ -n "$GATEWAY_IP" ]; then
+      echo "  echo \"${GATEWAY_IP}${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    else
+      echo "  # Get gateway IP: kubectl get svc istio-ingressgateway -n istio-system"
+      echo "  echo \"<GATEWAY_IP>${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    fi
     echo ""
   else
     print_success "/etc/hosts already configured"
@@ -141,11 +149,11 @@ cleanup() {
   kubectl delete peerauthentication --all -n bookinfo 2>/dev/null || true
   kubectl delete peerauthentication --all -n istio-system 2>/dev/null || true
 
-  # Remove addons and ingress
-  print_step "Removing observability addons and ingress..."
-  kubectl delete -f "${LAB_DIR}/manifests/ingress.yaml" 2>/dev/null || true
+  # Remove addons and Istio gateway routes
+  print_step "Removing observability addons and gateway routes..."
+  kubectl delete -f "${LAB_DIR}/manifests/observability-routes.yaml" 2>/dev/null || true
   kubectl delete -f "${LAB_DIR}/manifests/addons/" 2>/dev/null || true
-  print_success "Addons and ingress removed"
+  print_success "Addons and gateway routes removed"
 
   # Remove Istio
   print_step "Removing Istio..."

@@ -43,16 +43,19 @@ deploy_bookinfo() {
   echo ""
   kubectl get pods -n bookinfo
 
-  # Verify the application works
+  # Verify the application works (non-fatal — don't abort deploy if check fails)
   echo ""
   print_step "Verifying application connectivity..."
   sleep 5
-  PRODUCTPAGE_POD=$(kubectl get pod -n bookinfo -l app=productpage -o jsonpath='{.items[0].metadata.name}')
-  RESULT=$(kubectl exec -n bookinfo "$PRODUCTPAGE_POD" -c productpage -- curl -s -o /dev/null -w "%{http_code}" http://productpage:9080/productpage 2>/dev/null)
-  if [ "$RESULT" = "200" ]; then
-    print_success "Bookinfo productpage is responding (HTTP 200)"
+  if PRODUCTPAGE_POD=$(kubectl get pod -n bookinfo -l app=productpage -o jsonpath='{.items[0].metadata.name}' 2>/dev/null) && [ -n "$PRODUCTPAGE_POD" ]; then
+    RESULT=$(kubectl exec -n bookinfo "$PRODUCTPAGE_POD" -c productpage -- wget -q -S -O /dev/null http://productpage:9080/productpage 2>&1 | awk '/HTTP\// {print $2}' | tail -1) || true
+    if [ "$RESULT" = "200" ]; then
+      print_success "Bookinfo productpage is responding (HTTP 200)"
+    else
+      print_warning "Productpage returned HTTP ${RESULT:-unknown} - it may need more time to initialize"
+    fi
   else
-    print_warning "Productpage returned HTTP $RESULT - it may need more time to initialize"
+    print_warning "Could not find productpage pod - skipping connectivity check"
   fi
 }
 

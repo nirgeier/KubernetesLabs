@@ -265,11 +265,13 @@ spec:
         checksum/config: 7beee9ce6dba8de1e670322d1f02ca6271acbff4e76efe12d443937c11f802f8
         storage/size: "10Gi"
         kubectl.kubernetes.io/default-container: "loki"
+        sidecar.istio.io/inject: "true"
       labels:
         app.kubernetes.io/name: loki
         app.kubernetes.io/instance: loki
         app.kubernetes.io/component: single-binary
         app.kubernetes.io/part-of: memberlist
+        sidecar.istio.io/inject: "true"
     spec:
       serviceAccountName: loki
       automountServiceAccountToken: true

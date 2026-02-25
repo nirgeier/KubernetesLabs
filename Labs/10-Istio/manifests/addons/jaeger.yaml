@@ -76,8 +76,9 @@ spec:
     metadata:
       labels:
         app: jaeger
+        sidecar.istio.io/inject: "true"
       annotations:
-        sidecar.istio.io/inject: "false"
+        sidecar.istio.io/inject: "true"
         prometheus.io/scrape: "true"
         prometheus.io/port: "14269"
     spec:

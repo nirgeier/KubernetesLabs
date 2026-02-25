@@ -11,11 +11,7 @@ source "${SCRIPT_DIR}/common.sh"
 deploy_traffic_generator() {
   print_header "Deploying Traffic Generator"
 
-  # Create traffic-gen namespace
-  print_step "Creating traffic-gen namespace..."
-  kubectl create namespace traffic-gen 2>/dev/null || true
-
-  # Deploy traffic generator CronJob
+  # Deploy traffic generator (namespace is defined in the manifest with istio-injection label)
   print_step "Deploying traffic generator CronJob..."
   kubectl apply -f "${LAB_DIR}/manifests/traffic-generator.yaml"
   print_success "Traffic generator deployed"

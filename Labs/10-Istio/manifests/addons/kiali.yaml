@@ -141,8 +141,9 @@ spec:
     metadata:
       labels:
         app: kiali
+        sidecar.istio.io/inject: "true"
       annotations:
-        sidecar.istio.io/inject: "false"
+        sidecar.istio.io/inject: "true"
         prometheus.io/scrape: "true"
         prometheus.io/port: "9090"
     spec:

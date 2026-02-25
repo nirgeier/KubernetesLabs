@@ -25,7 +25,7 @@ metadata:
   namespace: bookinfo
 spec:
   hosts:
-    - "*"
+    - "bookinfo.local"
   gateways:
     - bookinfo-gateway
   http:

@@ -44,17 +44,17 @@ install_addons() {
   wait_for_pods "app=kiali" "istio-system" 180
   wait_for_pods "app.kubernetes.io/name=loki" "istio-system" 180
 
-  # Install Ingress for all services
-  print_step "Installing Ingress resources for all services..."
-  kubectl apply -f "${LAB_DIR}/manifests/ingress.yaml"
-  print_success "Ingress resources applied"
+  # Route addons and Bookinfo through Istio Ingress Gateway (no nginx)
+  print_step "Configuring Istio Gateway routes for all services..."
+  kubectl apply -f "${LAB_DIR}/manifests/observability-routes.yaml"
+  print_success "Istio Gateway routes applied"
 
   echo ""
   print_success "All observability addons installed!"
   echo ""
   kubectl get pods -n istio-system
   echo ""
-  print_info "Ingress URLs:"
+  print_info "Access via Istio Ingress Gateway (add these hosts to /etc/hosts with gateway IP):"
   echo "  - http://kiali.local"
   echo "  - http://grafana.local"
   echo "  - http://jaeger.local"
