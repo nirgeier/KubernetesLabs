@@ -64,12 +64,13 @@ display_access_info() {
   echo -e "  Grafana:     ${GREEN}http://grafana.local${NC}"
   echo -e "  Jaeger:      ${GREEN}http://jaeger.local${NC}"
   echo -e "  Prometheus:  ${GREEN}http://prometheus.local${NC}"
+  echo -e "  Loki:        ${GREEN}http://loki.local${NC}"
   echo -e "  Bookinfo:    ${GREEN}http://bookinfo.local/productpage${NC}"
   echo ""
 
   # Check /etc/hosts
   HOSTS_NEEDED=""
-  for host in kiali.local grafana.local jaeger.local prometheus.local bookinfo.local; do
+  for host in kiali.local grafana.local jaeger.local prometheus.local loki.local bookinfo.local; do
     if ! grep -q "$host" /etc/hosts 2>/dev/null; then
       HOSTS_NEEDED="$HOSTS_NEEDED $host"
     fi
@@ -88,6 +89,7 @@ display_access_info() {
   echo ""
   echo "  kubectl port-forward svc/kiali -n istio-system 20001:20001 &"
   echo "  kubectl port-forward svc/grafana -n istio-system 3000:3000 &"
+  echo "  kubectl port-forward svc/loki -n istio-system 3100:3100 &"
   echo "  kubectl port-forward svc/tracing -n istio-system 16686:80 &"
   echo "  kubectl port-forward svc/prometheus -n istio-system 9090:9090 &"
   echo "  kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &"
@@ -142,7 +144,7 @@ cleanup() {
   # Remove addons and ingress
   print_step "Removing observability addons and ingress..."
   kubectl delete -f "${LAB_DIR}/manifests/ingress.yaml" 2>/dev/null || true
-  kubectl delete -f "${LAB_DIR}/manifests/addons/" -n istio-system 2>/dev/null || true
+  kubectl delete -f "${LAB_DIR}/manifests/addons/" 2>/dev/null || true
   print_success "Addons and ingress removed"
 
   # Remove Istio
@@ -162,9 +164,9 @@ cleanup() {
     kubectl delete "$crd" --ignore-not-found 2>/dev/null || true
   done
 
-  # Clean up cluster-wide resources
-  kubectl delete clusterrole istio-prometheus kiali 2>/dev/null || true
-  kubectl delete clusterrolebinding istio-prometheus kiali 2>/dev/null || true
+  # Clean up cluster-wide resources (addon ClusterRoles/ClusterRoleBindings)
+  kubectl delete clusterrole istio-prometheus kiali loki-clusterrole 2>/dev/null || true
+  kubectl delete clusterrolebinding istio-prometheus kiali loki-clusterrolebinding 2>/dev/null || true
 
   echo ""
   print_success "Cleanup complete! All Istio + Kiali resources removed."

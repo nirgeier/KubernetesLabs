@@ -92,6 +92,28 @@ spec:
                 port:
                   number: 9090
 ---
+# Loki Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: loki
+  namespace: istio-system
+  labels:
+    app.kubernetes.io/name: loki
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: loki.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: loki
+                port:
+                  number: 3100
+---
 # Bookinfo Productpage Ingress (via Istio Ingress Gateway)
 apiVersion: networking.k8s.io/v1
 kind: Ingress

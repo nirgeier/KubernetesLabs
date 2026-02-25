@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 # =============================================================================
-# Install Istio Observability Addons (Kiali, Prometheus, Grafana, Jaeger)
+# Install Istio Observability Addons (Kiali, Prometheus, Grafana, Jaeger, Loki)
 # =============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,12 +31,18 @@ install_addons() {
   kubectl apply -f "${LAB_DIR}/manifests/addons/kiali.yaml"
   print_success "Kiali manifest applied"
 
+  # Install Loki
+  print_step "Installing Loki..."
+  kubectl apply -f "${LAB_DIR}/manifests/addons/loki.yaml"
+  print_success "Loki manifest applied"
+
   # Wait for addons to be ready
   print_step "Waiting for addons to be ready..."
   wait_for_pods "app=prometheus" "istio-system" 180
   wait_for_pods "app=grafana" "istio-system" 180
   wait_for_pods "app=jaeger" "istio-system" 180
   wait_for_pods "app=kiali" "istio-system" 180
+  wait_for_pods "app.kubernetes.io/name=loki" "istio-system" 180
 
   # Install Ingress for all services
   print_step "Installing Ingress resources for all services..."
@@ -53,6 +59,7 @@ install_addons() {
   echo "  - http://grafana.local"
   echo "  - http://jaeger.local"
   echo "  - http://prometheus.local"
+  echo "  - http://loki.local"
   echo "  - http://bookinfo.local/productpage"
 }
 
