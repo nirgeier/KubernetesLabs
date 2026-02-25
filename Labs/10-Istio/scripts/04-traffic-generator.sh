@@ -8,6 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_DIR="$(dirname "$SCRIPT_DIR")"
 source "${SCRIPT_DIR}/common.sh"
 
+# Deploy the traffic generator CronJob to send periodic requests to Bookinfo
+# for observability demos (Kiali, Grafana, Jaeger).
 deploy_traffic_generator() {
   print_header "Deploying Traffic Generator"
 

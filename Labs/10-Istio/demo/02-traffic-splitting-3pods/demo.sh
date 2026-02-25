@@ -11,6 +11,8 @@ WORK_DIR="$SCRIPT_DIR"
 RUNTIME_DIR="${TMPDIR:-/tmp}/kuberneteslabs-istio-traffic-splitting"
 PF_PID_FILE="$RUNTIME_DIR/port-forward.pids"
 
+# Return whether a TCP port is in LISTEN state (uses lsof if available).
+# Args: $1 - Port number. Returns: 0 if listening, 1 otherwise.
 is_port_listening() {
   local port="$1"
   if command -v lsof >/dev/null 2>&1; then
@@ -20,6 +22,8 @@ is_port_listening() {
   fi
 }
 
+# Start kubectl port-forward in background; skip if local port already in use. Append PID to PF_PID_FILE.
+# Args: $1 - namespace; $2 - service name; $3 - local port; $4 - remote port.
 start_port_forward() {
   local namespace="$1"
   local svc="$2"
@@ -40,6 +44,8 @@ start_port_forward() {
   echo $! >>"$PF_PID_FILE"
 }
 
+# Open URL in default browser (macOS open or Linux xdg-open). No-op if neither available.
+# Args: $1 - URL to open.
 open_url() {
   local url="$1"
   if command -v open >/dev/null 2>&1; then

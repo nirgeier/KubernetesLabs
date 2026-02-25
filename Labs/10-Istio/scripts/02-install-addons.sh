@@ -8,6 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_DIR="$(dirname "$SCRIPT_DIR")"
 source "${SCRIPT_DIR}/common.sh"
 
+# Install Istio observability addons (Prometheus, Grafana, Jaeger, Kiali, Loki)
+# and apply gateway routes. Waits for addon pods to be ready.
 install_addons() {
   print_header "Installing Istio Observability Addons"
 

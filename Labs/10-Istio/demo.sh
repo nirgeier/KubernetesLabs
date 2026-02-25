@@ -11,7 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_DIR="${SCRIPT_DIR}"
 source "${LAB_DIR}/scripts/common.sh"
 
-# Deploy all components
+# Run full lab deployment: Istio, addons, Bookinfo, traffic generator, and verify.
+# Prints access info at the end.
 deploy() {
   print_header "Istio + Kiali Lab Deployment"
 
@@ -47,7 +48,7 @@ deploy() {
   display_access_info
 }
 
-# Display access information
+# Print gateway URLs, /etc/hosts hints, port-forward commands, and demo usage.
 display_access_info() {
   echo ""
   echo "=========================================="
@@ -127,7 +128,8 @@ display_access_info() {
   echo ""
 }
 
-# Cleanup all components
+# Remove all lab resources: traffic-gen, Bookinfo, addons, Istio Helm releases,
+# istio-system namespace, CRDs, and related cluster roles/bindings.
 cleanup() {
   print_header "Cleaning Up Istio + Kiali Lab"
 
@@ -153,6 +155,10 @@ cleanup() {
   print_step "Removing observability addons and gateway routes..."
   kubectl delete -f "${LAB_DIR}/manifests/observability-routes.yaml" 2>/dev/null || true
   kubectl delete -f "${LAB_DIR}/manifests/addons/" 2>/dev/null || true
+  # Delete Loki PVCs from StatefulSet volumeClaimTemplates (e.g. storage-loki-0)
+  for pvc in $(kubectl get pvc -n istio-system -o name 2>/dev/null | sed 's|persistentvolumeclaim/||' | grep -E '^storage-loki-' || true); do
+    kubectl delete pvc -n istio-system "$pvc" --ignore-not-found 2>/dev/null || true
+  done
   print_success "Addons and gateway routes removed"
 
   # Remove Istio

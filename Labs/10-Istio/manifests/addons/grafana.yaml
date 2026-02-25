@@ -70,11 +70,22 @@ spec:
       labels:
         app: grafana
         sidecar.istio.io/inject: "true"
-      annotations:
-        sidecar.istio.io/inject: "true"
     spec:
+      securityContext:
+        fsGroup: 472
+        runAsNonRoot: true
       containers:
         - name: grafana
+          securityContext:
+            runAsUser: 472
+            runAsGroup: 472
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           image: grafana/grafana:10.4.1
           ports:
             - containerPort: 3000

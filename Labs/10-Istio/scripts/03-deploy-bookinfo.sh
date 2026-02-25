@@ -8,6 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_DIR="$(dirname "$SCRIPT_DIR")"
 source "${SCRIPT_DIR}/common.sh"
 
+# Deploy the Bookinfo sample app: namespace, microservices, gateway, and
+# destination rules. Waits for pods and optionally verifies productpage connectivity.
 deploy_bookinfo() {
   print_header "Deploying Bookinfo Sample Application"
 

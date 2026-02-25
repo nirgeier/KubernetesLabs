@@ -7,6 +7,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+# Verify Istio control plane, ingress gateway, addons, Bookinfo, traffic
+# generator, and Prometheus metrics. Prints pass/fail summary.
 verify_deployment() {
   print_header "Verifying Istio + Kiali Deployment"
 

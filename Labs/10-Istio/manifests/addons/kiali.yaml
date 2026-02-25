@@ -148,11 +148,24 @@ spec:
         prometheus.io/port: "9090"
     spec:
       serviceAccountName: kiali
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
       containers:
         - name: kiali
           image: quay.io/kiali/kiali:v1.86
           command: ["/opt/kiali/kiali"]
           args: ["-config", "/kiali-configuration/config.yaml"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           env:
             - name: ACTIVE_NAMESPACE
               valueFrom:

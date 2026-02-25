@@ -129,7 +129,7 @@ metadata:
   name: loki-clusterrole
 rules:
 - apiGroups: [""] # "" indicates the core API group
-  resources: ["configmaps", "secrets"]
+  resources: ["configmaps"]
   verbs: ["get", "watch", "list"]
 ---
 # Source: loki/templates/backend/clusterrolebinding.yaml
@@ -262,7 +262,6 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 7beee9ce6dba8de1e670322d1f02ca6271acbff4e76efe12d443937c11f802f8
         storage/size: "10Gi"
         kubectl.kubernetes.io/default-container: "loki"
         sidecar.istio.io/inject: "true"
@@ -328,7 +327,12 @@ spec:
             - name: sc-rules-volume
               mountPath: "/rules"
           resources:
-            {}
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
         - name: loki-sc-rules
           image: docker.io/kiwigrid/k8s-sidecar:1.30.9
           imagePullPolicy: IfNotPresent
@@ -354,17 +358,28 @@ spec:
               - ALL
             readOnlyRootFilesystem: true
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: sc-rules-volume
               mountPath: "/rules"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app.kubernetes.io/component: single-binary
-                app.kubernetes.io/instance: 'loki'
-                app.kubernetes.io/name: 'loki'
-            topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: single-binary
+                  app.kubernetes.io/instance: 'loki'
+                  app.kubernetes.io/name: 'loki'
+              topologyKey: kubernetes.io/hostname
       volumes:
         - name: tmp
           emptyDir: {}

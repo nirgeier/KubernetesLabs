@@ -7,6 +7,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+# Install Istio service mesh via Helm: base CRDs, istiod, and ingress gateway.
+# Cleans conflicting resources from prior istioctl/Helm installs. Exits on failure.
 install_istio() {
   print_header "Installing Istio Service Mesh via Helm"
 
@@ -24,7 +26,7 @@ install_istio() {
     release=$(kubectl get "$crd" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
     if [ "$release" != "istio-base" ]; then
       print_info "Removing $crd (not managed by Helm istio-base)"
-      kubectl delete "$crd" --ignore-not-found --wait=false 2>/dev/null || true
+      kubectl delete "$crd" --ignore-not-found 2>/dev/null || true
     fi
   done
 
@@ -43,9 +45,6 @@ install_istio() {
       kubectl delete "$webhook" --ignore-not-found 2>/dev/null || true
     fi
   done
-
-  # Allow removal to complete before Helm install
-  sleep 3
 
   # Install Istio base (CRDs)
   print_step "Installing Istio base (CRDs)..."
@@ -67,14 +66,14 @@ install_istio() {
   print_step "Checking for conflicting Istiod cluster resources..."
   for role in $(kubectl get clusterrole -o name 2>/dev/null | grep -i istio || true); do
     release=$(kubectl get "$role" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
-    if [ "$release" != "istiod" ]; then
+    if [ "$release" != "istiod" ] && [ "$release" != "istio-base" ]; then
       print_info "Removing $role (not managed by Helm istiod)"
       kubectl delete "$role" --ignore-not-found 2>/dev/null || true
     fi
   done
   for binding in $(kubectl get clusterrolebinding -o name 2>/dev/null | grep -i istio || true); do
     release=$(kubectl get "$binding" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
-    if [ "$release" != "istiod" ]; then
+    if [ "$release" != "istiod" ] && [ "$release" != "istio-base" ]; then
       print_info "Removing $binding (not managed by Helm istiod)"
       kubectl delete "$binding" --ignore-not-found 2>/dev/null || true
     fi

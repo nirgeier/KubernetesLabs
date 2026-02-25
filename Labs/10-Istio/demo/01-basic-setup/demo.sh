@@ -16,6 +16,7 @@ TRAFFIC_LOG_FILE="$RUNTIME_DIR/traffic.log"
 
 ISTIO_DOWNLOAD_DIR=""
 
+# Remove temporary Istio download directory on exit (used by trap).
 cleanup_temp_dirs() {
   if [ -n "${ISTIO_DOWNLOAD_DIR}" ] && [ -d "${ISTIO_DOWNLOAD_DIR}" ]; then
     rm -rf "${ISTIO_DOWNLOAD_DIR}" >/dev/null 2>&1 || true
@@ -24,11 +25,14 @@ cleanup_temp_dirs() {
 
 trap cleanup_temp_dirs EXIT
 
+# Return whether a Kubernetes CRD exists (exit 0 if yes).
+# Args: $1 - CRD name (e.g. virtualservices.networking.istio.io).
 crd_exists() {
   local crd_name="$1"
   kubectl get crd "${crd_name}" >/dev/null 2>&1
 }
 
+# Remove prior demo resources: port-forwards, Bookinfo in default, Istio config, demo namespace workloads.
 cleanup_previous_demo() {
   echo "Step 00: Cleaning previous demo resources (if any)..."
 
@@ -61,6 +65,8 @@ cleanup_previous_demo() {
   echo
 }
 
+# Return whether a TCP port is in LISTEN state (uses lsof if available).
+# Args: $1 - Port number. Returns: 0 if listening, 1 otherwise.
 is_port_listening() {
   local port="$1"
   if command -v lsof >/dev/null 2>&1; then
@@ -70,6 +76,7 @@ is_port_listening() {
   fi
 }
 
+# Stop port-forwards and traffic generator started by this script (using saved PIDs).
 stop_previous_port_forwards() {
   mkdir -p "$RUNTIME_DIR" >/dev/null 2>&1 || true
 
@@ -92,6 +99,8 @@ stop_previous_port_forwards() {
   rm -f "$RUNTIME_DIR"/port-forward-*.log >/dev/null 2>&1 || true
 }
 
+# Start kubectl port-forward in background; skip if local port already in use. Append PID to PF_PID_FILE.
+# Args: $1 - namespace; $2 - service name; $3 - local port; $4 - remote port.
 start_port_forward() {
   local namespace="$1"
   local svc="$2"
@@ -112,6 +121,8 @@ start_port_forward() {
   echo $! >>"$PF_PID_FILE"
 }
 
+# Open URL in default browser (macOS open or Linux xdg-open). No-op if neither available.
+# Args: $1 - URL to open.
 open_url() {
   local url="$1"
   if command -v open >/dev/null 2>&1; then
@@ -121,6 +132,8 @@ open_url() {
   fi
 }
 
+# Start a background loop that curls productpage and reviews; store PID in TRAFFIC_PID_FILE.
+# No-op if curl missing or generator already running.
 start_traffic_generator() {
   if ! command -v curl >/dev/null 2>&1; then
     return 0

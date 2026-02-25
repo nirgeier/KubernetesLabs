@@ -20,6 +20,8 @@ CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m'
 
+# Print a cyan section header with a border.
+# Args: $1 - Header text.
 print_header() {
   echo ""
   echo -e "${CYAN}========================================${NC}"
@@ -27,17 +29,27 @@ print_header() {
   echo -e "${CYAN}========================================${NC}"
 }
 
+# Print a blue subsection label.
+# Args: $1 - Section title.
 print_section() {
   echo ""
   echo -e "${BLUE}--- $1 ---${NC}"
 }
 
+# Print an info line with a green checkmark.
 print_info() { echo -e "${GREEN}✓${NC} $1"; }
+
+# Print a warning line with a yellow symbol.
 print_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
+
+# Print an error line with a red symbol.
 print_error() { echo -e "${RED}✗${NC} $1"; }
+
+# Print a key-value line with magenta key.
+# Args: $1 - Label; $2 - Value.
 print_value() { echo -e "  ${MAGENTA}$1:${NC} $2"; }
 
-# Check prerequisites
+# Ensure kubectl is installed and cluster is reachable. Exits on failure.
 check_prerequisites() {
   if ! command -v kubectl >/dev/null 2>&1; then
     print_error "kubectl is not installed"
@@ -50,7 +62,7 @@ check_prerequisites() {
   print_info "Connected to Kubernetes cluster"
 }
 
-# Check Istio control plane
+# Report Istiod, ingress gateway, sidecar injection, and Helm releases in istio-system.
 check_istio() {
   print_header "ISTIO CONTROL PLANE"
 
@@ -86,7 +98,7 @@ check_istio() {
   helm list -n istio-system 2>/dev/null | grep -E '(NAME|istio)' || echo "  No Istio Helm releases found"
 }
 
-# Check all pods
+# List pods in istio-system, bookinfo, and traffic-gen (including cronjobs/jobs).
 check_pods() {
   print_header "POD STATUS"
 
@@ -100,7 +112,7 @@ check_pods() {
   kubectl get pods,cronjobs,jobs -n traffic-gen 2>/dev/null
 }
 
-# Check observability addons
+# Report status of Prometheus, Grafana, Jaeger, Kiali and list addon services.
 check_addons() {
   print_header "OBSERVABILITY ADDONS"
 
@@ -118,7 +130,7 @@ check_addons() {
     kubectl get svc -n istio-system 2>/dev/null | grep -E '(NAME|prometheus|grafana|kiali|tracing|jaeger|zipkin)'
 }
 
-# Check Bookinfo application
+# Report Bookinfo services, deployments, sidecar status, and Istio config (VS/DR/GW).
 check_bookinfo() {
   print_header "BOOKINFO APPLICATION"
 
@@ -157,7 +169,7 @@ check_bookinfo() {
   kubectl get gateways -n bookinfo 2>/dev/null | sed 's/^/    /'
 }
 
-# Check mesh traffic metrics
+# Query Prometheus for Bookinfo request rate, 5xx rate, and traffic generator status.
 check_traffic() {
   print_header "MESH TRAFFIC METRICS"
 
@@ -196,7 +208,7 @@ check_traffic() {
   fi
 }
 
-# Check mTLS status
+# Show PeerAuthentication policies and per-namespace mTLS mode (bookinfo, istio-system).
 check_mtls() {
   print_header "mTLS STATUS"
 
@@ -214,7 +226,8 @@ check_mtls() {
   done
 }
 
-# Test all components
+# Run connectivity checks: Istiod, gateway, addons, Bookinfo pods, productpage HTTP, traffic gen.
+# Prints passed/failed counts.
 test_pipeline() {
   print_header "COMPONENT CONNECTIVITY TEST"
 
@@ -298,7 +311,7 @@ test_pipeline() {
   print_header "TEST RESULTS: $passed passed, $failed failed"
 }
 
-# Quick summary
+# Print a short status table and port-forward / feature-demo commands.
 show_summary() {
   print_header "QUICK SUMMARY"
 
@@ -330,7 +343,7 @@ show_summary() {
   echo "  ./istio-features/apply-feature.sh list"
 }
 
-# Interactive menu
+# Print the interactive monitoring menu (numbered options and exit).
 show_menu() {
   echo ""
   echo -e "${CYAN}╔═══════════════════════════════════════════════╗${NC}"
@@ -350,7 +363,8 @@ show_menu() {
   echo ""
 }
 
-# Main
+# Entry point: run full/test/summary report or start interactive menu.
+# Args: $@ - Optional mode: full, test, summary, or none for menu.
 main() {
   clear
   print_header "ISTIO + KIALI LAB MONITORING"
