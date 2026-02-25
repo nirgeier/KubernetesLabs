@@ -57,9 +57,9 @@ display_access_info() {
   echo ""
 
   # Get Istio Ingress Gateway external IP (or hostname for LoadBalancer)
-  GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+  GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null) || true
   if [ -z "$GATEWAY_IP" ]; then
-    GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
+    GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null) || true
   fi
 
   print_info "Access via Istio Ingress Gateway:"
@@ -187,7 +187,7 @@ cleanup() {
 }
 
 # Parse command line arguments
-case "${1}" in
+case "${1:-}" in
 deploy)
   deploy
   ;;

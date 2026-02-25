@@ -116,7 +116,7 @@ check_pods() {
 check_addons() {
   print_header "OBSERVABILITY ADDONS"
 
-  for addon in prometheus grafana jaeger kiali; do
+  for addon in prometheus grafana jaeger kiali loki; do
     STATUS=$(kubectl get pods -n istio-system -l app=$addon -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
     if [ "$STATUS" = "Running" ]; then
       print_info "${addon}: Running"
@@ -126,8 +126,8 @@ check_addons() {
   done
 
   print_section "Addon Services"
-  kubectl get svc -n istio-system -l 'app in (prometheus,grafana,kiali,jaeger)' 2>/dev/null ||
-    kubectl get svc -n istio-system 2>/dev/null | grep -E '(NAME|prometheus|grafana|kiali|tracing|jaeger|zipkin)'
+  kubectl get svc -n istio-system -l 'app in (prometheus,grafana,kiali,jaeger,loki)' 2>/dev/null ||
+    kubectl get svc -n istio-system 2>/dev/null | grep -E '(NAME|prometheus|grafana|kiali|tracing|jaeger|zipkin|loki)'
 }
 
 # Report Bookinfo services, deployments, sidecar status, and Istio config (VS/DR/GW).
@@ -145,8 +145,8 @@ check_bookinfo() {
         POD_NAME=$(echo "$line" | awk '{print $1}')
         VERSION=$(echo "$line" | awk '{print $2}')
         PHASE=$(echo "$line" | awk '{print $3}')
-        HAS_SIDECAR=$(echo "$line" | grep -c "istio-proxy")
-        if [ "$HAS_SIDECAR" -gt 0 ]; then
+        HAS_SIDECAR=$(echo "$line" | grep -c "istio-proxy" || true)
+        if [ "${HAS_SIDECAR:-0}" -gt 0 ]; then
           print_info "$app ($VERSION): $PHASE [sidecar ✓]"
         else
           print_warning "$app ($VERSION): $PHASE [NO sidecar]"
@@ -235,7 +235,7 @@ test_pipeline() {
   local failed=0
 
   print_section "Step 1: Istio Control Plane"
-  ISTIOD=$(kubectl get pods -n istio-system -l app=istiod --no-headers 2>/dev/null | grep -c Running)
+  ISTIOD=$(kubectl get pods -n istio-system -l app=istiod --no-headers 2>/dev/null | grep -c Running || true)
   if [ "$ISTIOD" -gt 0 ]; then
     print_info "Istiod is running"
     passed=$((passed + 1))
@@ -245,9 +245,9 @@ test_pipeline() {
   fi
 
   print_section "Step 2: Ingress Gateway"
-  GW=$(kubectl get pods -n istio-system -l istio=ingressgateway --no-headers 2>/dev/null | grep -c Running)
+  GW=$(kubectl get pods -n istio-system -l istio=ingressgateway --no-headers 2>/dev/null | grep -c Running || true)
   if [ "$GW" -eq 0 ]; then
-    GW=$(kubectl get pods -n istio-system -l app=istio-ingressgateway --no-headers 2>/dev/null | grep -c Running)
+    GW=$(kubectl get pods -n istio-system -l app=istio-ingressgateway --no-headers 2>/dev/null | grep -c Running || true)
   fi
   if [ "$GW" -gt 0 ]; then
     print_info "Ingress Gateway is running"
@@ -258,8 +258,8 @@ test_pipeline() {
   fi
 
   print_section "Step 3: Observability Addons"
-  for addon in prometheus grafana kiali jaeger; do
-    RUNNING=$(kubectl get pods -n istio-system -l app=$addon --no-headers 2>/dev/null | grep -c Running)
+  for addon in prometheus grafana kiali jaeger loki; do
+    RUNNING=$(kubectl get pods -n istio-system -l app=$addon --no-headers 2>/dev/null | grep -c Running || true)
     if [ "$RUNNING" -gt 0 ]; then
       print_info "$addon is running"
       passed=$((passed + 1))
@@ -271,7 +271,7 @@ test_pipeline() {
 
   print_section "Step 4: Bookinfo Application"
   for app in productpage details reviews ratings; do
-    RUNNING=$(kubectl get pods -n bookinfo -l app=$app --no-headers 2>/dev/null | grep -c Running)
+    RUNNING=$(kubectl get pods -n bookinfo -l app=$app --no-headers 2>/dev/null | grep -c Running || true)
     if [ "$RUNNING" -gt 0 ]; then
       print_info "$app is running ($RUNNING pod(s))"
       passed=$((passed + 1))
@@ -321,15 +321,15 @@ show_summary() {
   ISTIOD=$(kubectl get pods -n istio-system -l app=istiod -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
   print_value "Istiod" "${ISTIOD:-Not Found}"
 
-  for addon in kiali prometheus grafana jaeger; do
+  for addon in kiali prometheus grafana jaeger loki; do
     STATUS=$(kubectl get pods -n istio-system -l app=$addon -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
     print_value "$addon" "${STATUS:-Not Found}"
   done
 
-  BOOKINFO_PODS=$(kubectl get pods -n bookinfo --no-headers 2>/dev/null | grep -c Running)
+  BOOKINFO_PODS=$(kubectl get pods -n bookinfo --no-headers 2>/dev/null | grep -c Running || true)
   print_value "Bookinfo pods running" "${BOOKINFO_PODS:-0}"
 
-  SIDECAR_PODS=$(kubectl get pods -n bookinfo -o jsonpath='{range .items[*]}{.spec.containers[*].name}{"\n"}{end}' 2>/dev/null | grep -c istio-proxy)
+  SIDECAR_PODS=$(kubectl get pods -n bookinfo -o jsonpath='{range .items[*]}{.spec.containers[*].name}{"\n"}{end}' 2>/dev/null | grep -c istio-proxy || true)
   print_value "Pods with sidecar" "${SIDECAR_PODS:-0}"
 
   echo ""
@@ -370,7 +370,8 @@ main() {
   print_header "ISTIO + KIALI LAB MONITORING"
   check_prerequisites
 
-  if [ "$1" = "full" ] || [ "$1" = "-f" ] || [ "$1" = "--full" ]; then
+  local mode="${1:-}"
+  if [ "$mode" = "full" ] || [ "$mode" = "-f" ] || [ "$mode" = "--full" ]; then
     show_summary
     check_istio
     check_pods
@@ -382,12 +383,12 @@ main() {
     exit 0
   fi
 
-  if [ "$1" = "test" ] || [ "$1" = "-t" ] || [ "$1" = "--test" ]; then
+  if [ "$mode" = "test" ] || [ "$mode" = "-t" ] || [ "$mode" = "--test" ]; then
     test_pipeline
     exit 0
   fi
 
-  if [ "$1" = "summary" ] || [ "$1" = "-s" ] || [ "$1" = "--summary" ]; then
+  if [ "$mode" = "summary" ] || [ "$mode" = "-s" ] || [ "$mode" = "--summary" ]; then
     show_summary
     exit 0
   fi

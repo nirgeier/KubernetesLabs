@@ -11,15 +11,45 @@ WORK_DIR="$SCRIPT_DIR"
 RUNTIME_DIR="${TMPDIR:-/tmp}/kuberneteslabs-istio-traffic-splitting"
 PF_PID_FILE="$RUNTIME_DIR/port-forward.pids"
 
-# Return whether a TCP port is in LISTEN state (uses lsof if available).
+# Kill port-forwards started by this script and remove PF_PID_FILE. No-op if file missing or empty.
+cleanup_port_forwards() {
+  [ -f "$PF_PID_FILE" ] || return 0
+  [ -s "$PF_PID_FILE" ] || return 0
+  while IFS= read -r pid; do
+    [ -n "$pid" ] || continue
+    kill "$pid" 2>/dev/null || true
+  done <"$PF_PID_FILE"
+  rm -f "$PF_PID_FILE" >/dev/null 2>&1 || true
+}
+trap cleanup_port_forwards EXIT INT TERM
+
+# Return whether a TCP port is in LISTEN state (tries lsof, ss, netstat).
+# Portable: macOS and Linux (e.g. Ubuntu). Uses lsof (both), ss (Linux), netstat (both).
 # Args: $1 - Port number. Returns: 0 if listening, 1 otherwise.
+# If no tool is available, logs a warning and returns 1 (guard disabled).
 is_port_listening() {
   local port="$1"
+  # lsof: macOS and Ubuntu (same flags)
   if command -v lsof >/dev/null 2>&1; then
     lsof -nP -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1
-  else
+    return
+  fi
+  # ss: Ubuntu (iproute2); not on macOS
+  if command -v ss >/dev/null 2>&1; then
+    if ss -tln 2>/dev/null | grep -qE ":${port}[[:space:]]"; then
+      return 0
+    fi
     return 1
   fi
+  # netstat: macOS (*.port) and Ubuntu (:port); -an is portable
+  if command -v netstat >/dev/null 2>&1; then
+    if netstat -an 2>/dev/null | grep -E '^(tcp|tcp4|tcp6)' | grep LISTEN | grep -qE "[:.]${port}[[:space:]]"; then
+      return 0
+    fi
+    return 1
+  fi
+  echo "Warning: Port-check guard disabled (lsof/ss/netstat not found). Duplicate port-forwards may occur." >&2
+  return 1
 }
 
 # Start kubectl port-forward in background; skip if local port already in use. Append PID to PF_PID_FILE.
@@ -50,9 +80,12 @@ open_url() {
   local url="$1"
   if command -v open >/dev/null 2>&1; then
     open "${url}" >/dev/null 2>&1 || true
+    return 0
   elif command -v xdg-open >/dev/null 2>&1; then
     xdg-open "${url}" >/dev/null 2>&1 || true
+    return 0
   fi
+  return 0
 }
 
 echo "========================================"
@@ -108,7 +141,7 @@ echo "========================================"
 echo "Starting Port-Forward + Local Curl Loop"
 echo "========================================"
 
-touch "$PF_PID_FILE"
+: > "$PF_PID_FILE"
 start_port_forward istio-system kiali 20001 20001
 start_port_forward istio-system istio-ingressgateway 8080 80
 
@@ -135,7 +168,7 @@ echo "To see traffic splitting in Kiali:"
 echo "- Go to Graph"
 echo "- Select namespace: istio02"
 echo "- Turn on 'Requests distribution' (traffic animation/labels)"
-echo "Cleanup resources: kubectl delete -f manifests/02-istio-routing.yaml; kubectl delete -f manifests/01-app.yaml"
+echo "Cleanup resources: kubectl delete -f ${WORK_DIR}/manifests/02-istio-routing.yaml; kubectl delete -f ${WORK_DIR}/manifests/01-app.yaml"
 
 echo
 echo "========================================"

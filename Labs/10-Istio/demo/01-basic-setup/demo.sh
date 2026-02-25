@@ -61,19 +61,36 @@ cleanup_previous_demo() {
     kubectl delete -n demo deployment/nginx deployment/httpd svc/nginx svc/httpd --ignore-not-found >/dev/null 2>&1 || true
   fi
 
+  # Remove istio-injection label from namespaces we labeled so unrelated namespaces are unaffected.
+  kubectl label namespace default istio-injection- 2>/dev/null || true
+  kubectl label namespace demo istio-injection- 2>/dev/null || true
+
   echo "Cleanup complete."
   echo
 }
 
-# Return whether a TCP port is in LISTEN state (uses lsof if available).
+# Return whether a TCP port is in LISTEN state (tries lsof, ss, netstat).
+# Portable: macOS and Linux (e.g. Ubuntu). Uses lsof (both), ss (Linux), netstat (both).
 # Args: $1 - Port number. Returns: 0 if listening, 1 otherwise.
 is_port_listening() {
   local port="$1"
   if command -v lsof >/dev/null 2>&1; then
     lsof -nP -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1
-  else
+    return
+  fi
+  if command -v ss >/dev/null 2>&1; then
+    if ss -tln 2>/dev/null | grep -qE ":${port}[[:space:]]"; then
+      return 0
+    fi
     return 1
   fi
+  if command -v netstat >/dev/null 2>&1; then
+    if netstat -an 2>/dev/null | grep -E '^(tcp|tcp4|tcp6)' | grep LISTEN | grep -qE "[:.]${port}[[:space:]]"; then
+      return 0
+    fi
+    return 1
+  fi
+  return 1
 }
 
 # Stop port-forwards and traffic generator started by this script (using saved PIDs).
@@ -93,7 +110,7 @@ stop_previous_port_forwards() {
         kill "${pid}" 2>/dev/null || true
       fi
     done <"$PF_PID_FILE"
-    rm -f "$PF_PID_FILE"
+    rm -f "$PF_PID_FILE" >/dev/null 2>&1 || true
   fi
 
   rm -f "$RUNTIME_DIR"/port-forward-*.log >/dev/null 2>&1 || true
@@ -106,6 +123,10 @@ start_port_forward() {
   local svc="$2"
   local local_port="$3"
   local remote_port="$4"
+  if ! mkdir -p "$RUNTIME_DIR" 2>/dev/null; then
+    echo "Error: Cannot create runtime directory $RUNTIME_DIR" >&2
+    return 1
+  fi
   local log_file="$RUNTIME_DIR/port-forward-${namespace}-${svc}-${local_port}.log"
 
   if is_port_listening "${local_port}"; then
@@ -141,7 +162,7 @@ start_traffic_generator() {
   if [ -f "$TRAFFIC_PID_FILE" ] && kill -0 "$(cat "$TRAFFIC_PID_FILE" 2>/dev/null)" 2>/dev/null; then
     return 0
   fi
-  nohup bash -lc 'while true; do curl -fsS http://127.0.0.1:8080/productpage >/dev/null; curl -fsS http://127.0.0.1:8080/api/v1/products/0/reviews >/dev/null; sleep 1; done' >"$TRAFFIC_LOG_FILE" 2>&1 &
+  nohup bash -c 'while true; do curl -fsS http://127.0.0.1:8080/productpage >/dev/null; curl -fsS http://127.0.0.1:8080/api/v1/products/0/reviews >/dev/null; sleep 1; done' >"$TRAFFIC_LOG_FILE" 2>&1 &
   echo $! >"$TRAFFIC_PID_FILE"
 }
 
@@ -222,14 +243,10 @@ echo "Step 04: Verifying Kiali installation..."
 kubectl get pods -n istio-system
 echo
 
-# Step 05: Enable Istio Injection
-echo "Step 05: Enabling Istio injection in all non-system namespaces..."
-
-for ns in $(kubectl get namespaces -o jsonpath='{.items[*].metadata.name}'); do
-  case "$ns" in kube-system | kube-public | kube-node-lease | istio-system) continue ;; esac
-  kubectl label namespace "$ns" istio-injection=enabled --overwrite
-done
-
+# Step 05: Enable Istio Injection (only namespaces used by this demo)
+echo "Step 05: Enabling Istio injection in default and demo namespaces..."
+kubectl label namespace default istio-injection=enabled --overwrite
+kubectl label namespace demo istio-injection=enabled --overwrite 2>/dev/null || true
 echo "Injection enabled."
 echo
 
@@ -262,32 +279,33 @@ kubectl apply -f "$ISTIO_HOME/samples/bookinfo/networking/destination-rule-all.y
 echo "Destination rules applied."
 echo
 
-# Step 11: Create VirtualService Demo
-echo "Step 11: Creating demo VirtualService for reviews service (route to v2)..."
+# Step 10: Create VirtualService Demo
+echo "Step 10: Creating demo VirtualService for reviews service (route to v2)..."
 kubectl apply -f "$WORK_DIR/reviews-vs.yaml"
 echo "VirtualService created."
 echo
 
-# Step 14: Create Demo Namespace
-echo "Step 14: Creating demo namespace..."
+# Step 11: Create Demo Namespace
+echo "Step 11: Creating demo namespace..."
 kubectl apply -f "$WORK_DIR/demo-namespace.yaml"
+kubectl label namespace demo istio-injection=enabled --overwrite
 echo "Demo namespace created."
 echo
 
-# Step 15: Deploy Nginx
-echo "Step 15: Deploying Nginx with curl loop..."
+# Step 12: Deploy Nginx
+echo "Step 12: Deploying Nginx with curl loop..."
 kubectl apply -f "$WORK_DIR/nginx-demo.yaml"
 echo "Nginx deployed."
 echo
 
-# Step 16: Deploy HTTPD
-echo "Step 16: Deploying HTTPD with curl loop..."
+# Step 13: Deploy HTTPD
+echo "Step 13: Deploying HTTPD with curl loop..."
 kubectl apply -f "$WORK_DIR/httpd-demo.yaml"
 echo "HTTPD deployed."
 echo
 
-# Step 17: Verify Demo
-echo "Step 17: Verifying demo deployment..."
+# Step 14: Verify Demo
+echo "Step 14: Verifying demo deployment..."
 kubectl get pods -n demo
 kubectl wait --for=condition=available --timeout=180s deployment/nginx -n demo
 kubectl wait --for=condition=available --timeout=180s deployment/httpd -n demo
@@ -320,7 +338,10 @@ echo "5. To verify the VirtualService routing:"
 echo "   Refresh the productpage multiple times and check the reviews section"
 echo "   (reviews v1: no stars, v2: black stars, v3: red stars)"
 echo
-echo "Cleanup: Run 'istioctl uninstall --purge -y' and 'kubectl delete ns istio-system demo' when done."
+echo "Cleanup: Remove istio-injection labels (so pods stop getting sidecars after uninstall):"
+echo "   kubectl label namespace default istio-injection-"
+echo "   kubectl label namespace demo istio-injection-"
+echo "   Then: istioctl uninstall --purge -y and kubectl delete ns istio-system demo"
 
 echo
 echo "========================================"
@@ -340,8 +361,8 @@ start_traffic_generator
 sleep 2
 
 if command -v curl >/dev/null 2>&1; then
-  curl -fsSI http://127.0.0.1:20001/kiali/ >/dev/null 2>&1 && echo "Kiali: reachable on http://localhost:20001/kiali/" || echo "Kiali: not reachable yet (check .port-forward-istio-system-kiali-20001.log)"
-  curl -fsS http://127.0.0.1:8080/productpage >/dev/null 2>&1 && echo "Bookinfo: reachable on http://localhost:8080/productpage" || echo "Bookinfo: not reachable yet (check .port-forward-istio-system-istio-ingressgateway-8080.log)"
+  curl -fsSI http://127.0.0.1:20001/kiali/ >/dev/null 2>&1 && echo "Kiali: reachable on http://localhost:20001/kiali/" || echo "Kiali: not reachable yet (check ${RUNTIME_DIR}/port-forward-istio-system-kiali-20001.log)"
+  curl -fsS http://127.0.0.1:8080/productpage >/dev/null 2>&1 && echo "Bookinfo: reachable on http://localhost:8080/productpage" || echo "Bookinfo: not reachable yet (check ${RUNTIME_DIR}/port-forward-istio-system-istio-ingressgateway-8080.log)"
 fi
 
 open_url "http://localhost:20001/kiali/"

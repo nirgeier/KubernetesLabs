@@ -16,7 +16,7 @@ verify_deployment() {
 
   # Check Istio control plane
   print_step "Checking Istio control plane..."
-  ISTIOD_STATUS=$(kubectl get pods -n istio-system -l app=istiod -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+  ISTIOD_STATUS=$(kubectl get pods -n istio-system -l app=istiod -o jsonpath='{.items[0].status.phase}' 2>/dev/null) || true
   if [ "$ISTIOD_STATUS" = "Running" ]; then
     print_success "Istiod: Running"
   else
@@ -25,12 +25,12 @@ verify_deployment() {
   fi
 
   # Check Ingress Gateway
-  GW_STATUS=$(kubectl get pods -n istio-system -l app=istio-ingressgateway -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+  GW_STATUS=$(kubectl get pods -n istio-system -l app=istio-ingressgateway -o jsonpath='{.items[0].status.phase}' 2>/dev/null) || true
   if [ "$GW_STATUS" = "Running" ]; then
     print_success "Ingress Gateway: Running"
   else
     # Try the Helm chart label
-    GW_STATUS=$(kubectl get pods -n istio-system -l istio=ingressgateway -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+    GW_STATUS=$(kubectl get pods -n istio-system -l istio=ingressgateway -o jsonpath='{.items[0].status.phase}' 2>/dev/null) || true
     if [ "$GW_STATUS" = "Running" ]; then
       print_success "Ingress Gateway: Running"
     else
@@ -42,7 +42,7 @@ verify_deployment() {
   # Check addons
   print_step "Checking observability addons..."
   for addon in prometheus grafana kiali jaeger; do
-    STATUS=$(kubectl get pods -n istio-system -l app=$addon -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+    STATUS=$(kubectl get pods -n istio-system -l app=$addon -o jsonpath='{.items[0].status.phase}' 2>/dev/null) || true
     if [ "$STATUS" = "Running" ]; then
       print_success "$addon: Running"
     else
@@ -54,10 +54,10 @@ verify_deployment() {
   # Check Bookinfo
   print_step "Checking Bookinfo application..."
   for app in productpage details reviews ratings; do
-    STATUS=$(kubectl get pods -n bookinfo -l app=$app -o jsonpath='{.items[0].status.phase}' 2>/dev/null)
+    STATUS=$(kubectl get pods -n bookinfo -l app=$app -o jsonpath='{.items[0].status.phase}' 2>/dev/null) || true
     if [ "$STATUS" = "Running" ]; then
       # Check sidecar injection
-      CONTAINERS=$(kubectl get pods -n bookinfo -l app=$app -o jsonpath='{.items[0].spec.containers[*].name}' 2>/dev/null)
+      CONTAINERS=$(kubectl get pods -n bookinfo -l app=$app -o jsonpath='{.items[0].spec.containers[*].name}' 2>/dev/null) || true
       if echo "$CONTAINERS" | grep -q "istio-proxy"; then
         print_success "$app: Running (sidecar injected)"
       else
@@ -71,7 +71,7 @@ verify_deployment() {
 
   # Check traffic generator
   print_step "Checking traffic generator..."
-  CRONJOB=$(kubectl get cronjob -n traffic-gen traffic-generator -o jsonpath='{.metadata.name}' 2>/dev/null)
+  CRONJOB=$(kubectl get cronjob -n traffic-gen traffic-generator -o jsonpath='{.metadata.name}' 2>/dev/null) || true
   if [ -n "$CRONJOB" ]; then
     print_success "Traffic generator CronJob: Active"
   else
@@ -80,10 +80,10 @@ verify_deployment() {
 
   # Check Istio metrics in Prometheus
   print_step "Checking Istio metrics..."
-  PROM_POD=$(kubectl get pods -n istio-system -l app=prometheus -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+  PROM_POD=$(kubectl get pods -n istio-system -l app=prometheus -o jsonpath='{.items[0].metadata.name}' 2>/dev/null) || true
   if [ -n "$PROM_POD" ]; then
-    METRIC_COUNT=$(kubectl exec -n istio-system "$PROM_POD" -- wget -qO- 'http://localhost:9090/api/v1/query?query=count(istio_requests_total)' 2>/dev/null | grep -o '"value"' | wc -l | tr -d ' ')
-    if [ "$METRIC_COUNT" -gt 0 ]; then
+    METRIC_COUNT=$(kubectl exec -n istio-system "$PROM_POD" -- wget -qO- 'http://localhost:9090/api/v1/query?query=count(istio_requests_total)' 2>/dev/null | grep -o '"value"' | wc -l | tr -d ' ') || true
+    if [ "${METRIC_COUNT:-0}" -gt 0 ]; then
       print_success "Istio metrics available in Prometheus"
     else
       print_warning "No Istio metrics yet (traffic may need more time)"
