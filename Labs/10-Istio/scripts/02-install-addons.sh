@@ -1,13 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 # =============================================================================
-# Install Istio Observability Addons (Kiali, Prometheus, Grafana, Jaeger)
+# Install Istio Observability Addons (Kiali, Prometheus, Grafana, Jaeger, Loki)
 # =============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_DIR="$(dirname "$SCRIPT_DIR")"
 source "${SCRIPT_DIR}/common.sh"
 
+# Install Istio observability addons (Prometheus, Grafana, Jaeger, Kiali, Loki)
+# and apply gateway routes. Waits for addon pods to be ready.
 install_addons() {
   print_header "Installing Istio Observability Addons"
 
@@ -31,28 +33,35 @@ install_addons() {
   kubectl apply -f "${LAB_DIR}/manifests/addons/kiali.yaml"
   print_success "Kiali manifest applied"
 
+  # Install Loki
+  print_step "Installing Loki..."
+  kubectl apply -f "${LAB_DIR}/manifests/addons/loki.yaml"
+  print_success "Loki manifest applied"
+
   # Wait for addons to be ready
   print_step "Waiting for addons to be ready..."
   wait_for_pods "app=prometheus" "istio-system" 180
   wait_for_pods "app=grafana" "istio-system" 180
   wait_for_pods "app=jaeger" "istio-system" 180
   wait_for_pods "app=kiali" "istio-system" 180
+  wait_for_pods "app.kubernetes.io/name=loki" "istio-system" 180
 
-  # Install Ingress for all services
-  print_step "Installing Ingress resources for all services..."
-  kubectl apply -f "${LAB_DIR}/manifests/ingress.yaml"
-  print_success "Ingress resources applied"
+  # Route addons and Bookinfo through Istio Ingress Gateway (no nginx)
+  print_step "Configuring Istio Gateway routes for all services..."
+  kubectl apply -f "${LAB_DIR}/manifests/observability-routes.yaml"
+  print_success "Istio Gateway routes applied"
 
   echo ""
   print_success "All observability addons installed!"
   echo ""
   kubectl get pods -n istio-system
   echo ""
-  print_info "Ingress URLs:"
+  print_info "Access via Istio Ingress Gateway (add these hosts to /etc/hosts with gateway IP):"
   echo "  - http://kiali.local"
   echo "  - http://grafana.local"
   echo "  - http://jaeger.local"
   echo "  - http://prometheus.local"
+  echo "  - http://loki.local"
   echo "  - http://bookinfo.local/productpage"
 }
 

@@ -1,5 +1,3 @@
----
-
 # Istio Service Mesh & Kiali
 
 - `Istio` is an open-source service mesh that provides a uniform way to manage microservices communication.
@@ -11,7 +9,7 @@
 ## What will we learn?
 
 - Install and configure Istio service mesh using Helm
-- Deploy Kiali, Prometheus, Grafana, and Jaeger as observability addons
+- Deploy Kiali, Prometheus, Grafana, Jaeger, and Loki as observability addons
 - Deploy a microservices demo application with sidecar injection
 - Generate live traffic and observe it in Kiali's topology graph
 - Configure traffic management: routing, canary deployments, fault injection
@@ -39,17 +37,18 @@
 | **Prometheus**   | Metrics collection and storage for Istio telemetry                        | `9090`       |
 | **Grafana**      | Dashboards for mesh, service, and workload metrics                        | `3000`       |
 | **Jaeger**       | Distributed tracing backend and UI                                        | `16686`      |
+| **Loki**         | Log aggregation (used with Grafana for logs)                              | `3100`       |
 
 ### Istio Key CRDs
 
 | CRD                   | Purpose                                                                           |
 | --------------------- | --------------------------------------------------------------------------------- |
 | `VirtualService`      | Define routing rules: traffic shifting, fault injection, timeouts                 |
-| `DestinationRule`     | Define policies after routing: load balancing, circuit breaker, mTLS             |
+| `DestinationRule`     | Define policies after routing: load balancing, circuit breaker, mTLS              |
 | `Gateway`             | Configure load balancer at mesh edge for HTTP/TCP traffic                         |
-| `PeerAuthentication`  | Configure mTLS mode: `STRICT`, `PERMISSIVE`, `DISABLE`                           |
+| `PeerAuthentication`  | Configure mTLS mode: `STRICT`, `PERMISSIVE`, `DISABLE`                            |
 | `AuthorizationPolicy` | Access control policies for workloads                                             |
-| `ServiceEntry`        | Add external services (outside the mesh) to Istio's service registry             |
+| `ServiceEntry`        | Add external services (outside the mesh) to Istio's service registry              |
 
 ---
 
@@ -67,6 +66,7 @@ graph TB
             grafana["Grafana"]
             jaeger["Jaeger"]
             kiali["Kiali"]
+            loki["Loki"]
         end
 
         subgraph bookinfo["bookinfo namespace  (istio-injection=enabled)"]
@@ -104,6 +104,7 @@ graph TB
         jaeger --> kiali
         istiod --> kiali
         prometheus --> grafana
+        loki -. logs .-> grafana
     end
 ```
 
@@ -111,7 +112,7 @@ graph TB
 
 ## Directory Structure
 
-```
+```bash
 10-Istio/
 ├── README.md                          # This file
 ├── demo.sh                            # Main deployment script (deploy/cleanup)
@@ -120,7 +121,7 @@ graph TB
 ├── scripts/
 │   ├── common.sh                      # Shared functions & colors
 │   ├── 01-install-istio.sh            # Install Istio via Helm
-│   ├── 02-install-addons.sh           # Install Kiali, Prometheus, Grafana, Jaeger
+│   ├── 02-install-addons.sh           # Install observability addons + gateway routes
 │   ├── 03-deploy-bookinfo.sh          # Deploy Bookinfo sample application
 │   ├── 04-traffic-generator.sh        # Deploy live traffic generator
 │   └── 05-verify.sh                   # Verify all components
@@ -130,12 +131,14 @@ graph TB
 │   ├── bookinfo.yaml                  # Bookinfo application manifests
 │   ├── bookinfo-gateway.yaml          # Istio Gateway + VirtualService for ingress
 │   ├── destination-rules.yaml         # DestinationRules for all service versions
+│   ├── observability-routes.yaml      # VirtualServices (addons + Bookinfo via gateway)
 │   ├── traffic-generator.yaml         # CronJob for continuous traffic generation
 │   └── addons/                        # Observability addon manifests
 │       ├── prometheus.yaml
 │       ├── grafana.yaml
 │       ├── jaeger.yaml
-│       └── kiali.yaml
+│       ├── kiali.yaml
+│       └── loki.yaml
 │
 └── istio-features/
     ├── 01-traffic-shifting.yaml       # Canary: route % of traffic to v2/v3
@@ -155,8 +158,10 @@ graph TB
 - Kubernetes cluster (v1.24+) with at least 8 GB RAM available
 - `kubectl` configured to access your cluster
 - `Helm 3.x` installed
-- Nginx Ingress Controller (required for Ingress-based access to dashboards and Bookinfo)
 - (Optional) `istioctl` for debugging
+
+Access to dashboards and Bookinfo is via the Istio Ingress Gateway
+(port-forward or hosts file); no Nginx Ingress Controller is required.
 
 ```bash
 # Install kubectl (macOS)
@@ -175,7 +180,7 @@ helm version
 
 ---
 
-# Lab
+## Lab
 
 ## Part 01 - Deploy Istio Service Mesh
 
@@ -193,7 +198,8 @@ The script will:
 
 - Check prerequisites: `kubectl`, `helm`, cluster connectivity
 - Install Istio CRDs and control plane via Helm
-- Install Kiali, Prometheus, Grafana, and Jaeger
+- Install observability addons (Kiali, Prometheus, Grafana, Jaeger, Loki) and
+  Istio Gateway routes for them
 - Create the `bookinfo` namespace with sidecar injection enabled
 - Deploy the Bookinfo sample application (4 microservices, multiple versions)
 - Configure the Istio Ingress Gateway and DestinationRules
@@ -543,11 +549,14 @@ kubectl logs -n istio-system -l app=kiali --tail=50
 This will remove:
 
 - `traffic-gen` namespace and all traffic generator resources
-- `bookinfo` namespace and all application resources
-- Kiali, Prometheus, Grafana, and Jaeger Helm releases
-- Istio control plane Helm release
-- All Istio CRDs
-- All remaining namespaces created by this lab
+- `bookinfo` namespace and all application resources (including Istio gateway
+  routes)
+- Observability addons (Kiali, Prometheus, Grafana, Jaeger, Loki) and their
+  Istio VirtualService routes; Loki PVCs (e.g. `storage-loki-0`) are deleted
+  so persistent volumes are not left behind
+- Istio Ingress Gateway, Istiod, and base Helm releases
+- `istio-system` namespace
+- All Istio CRDs and cluster-wide addon RBAC (e.g. Prometheus, Kiali, Loki)
 
 ### Partial Cleanup
 
@@ -561,6 +570,8 @@ kubectl delete namespace traffic-gen
 
 # Remove only observability addons (keep Istio + app running)
 kubectl delete -f manifests/addons/ -n istio-system
+# If you removed addons manually, delete Loki PVCs to free storage (e.g. storage-loki-0):
+kubectl delete pvc -n istio-system storage-loki-0 --ignore-not-found
 ```
 
 ---

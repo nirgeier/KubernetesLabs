@@ -1,0 +1,90 @@
+##################################################################################################
+# Istio VirtualServices for observability addons (Kiali, Grafana, Jaeger, Prometheus, Loki)
+# Uses the same Istio Ingress Gateway as Bookinfo (no nginx ingress).
+# Add kiali.local, grafana.local, etc. to /etc/hosts pointing at the gateway's external IP.
+##################################################################################################
+
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: kiali
+  namespace: istio-system
+spec:
+  hosts:
+    - "kiali.local"
+  gateways:
+    - bookinfo/bookinfo-gateway
+  http:
+    - route:
+        - destination:
+            host: kiali
+            port:
+              number: 20001
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: grafana
+  namespace: istio-system
+spec:
+  hosts:
+    - "grafana.local"
+  gateways:
+    - bookinfo/bookinfo-gateway
+  http:
+    - route:
+        - destination:
+            host: grafana
+            port:
+              number: 3000
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: jaeger
+  namespace: istio-system
+spec:
+  hosts:
+    - "jaeger.local"
+  gateways:
+    - bookinfo/bookinfo-gateway
+  http:
+    - route:
+        - destination:
+            host: tracing
+            port:
+              number: 80
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: prometheus
+  namespace: istio-system
+spec:
+  hosts:
+    - "prometheus.local"
+  gateways:
+    - bookinfo/bookinfo-gateway
+  http:
+    - route:
+        - destination:
+            host: prometheus
+            port:
+              number: 9090
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: loki
+  namespace: istio-system
+spec:
+  hosts:
+    - "loki.local"
+  gateways:
+    - bookinfo/bookinfo-gateway
+  http:
+    - route:
+        - destination:
+            host: loki
+            port:
+              number: 3100

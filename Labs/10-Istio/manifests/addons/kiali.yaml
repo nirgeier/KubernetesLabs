@@ -141,17 +141,31 @@ spec:
     metadata:
       labels:
         app: kiali
+        sidecar.istio.io/inject: "true"
       annotations:
-        sidecar.istio.io/inject: "false"
+        sidecar.istio.io/inject: "true"
         prometheus.io/scrape: "true"
         prometheus.io/port: "9090"
     spec:
       serviceAccountName: kiali
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
       containers:
         - name: kiali
           image: quay.io/kiali/kiali:v1.86
           command: ["/opt/kiali/kiali"]
           args: ["-config", "/kiali-configuration/config.yaml"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           env:
             - name: ACTIVE_NAMESPACE
               valueFrom:

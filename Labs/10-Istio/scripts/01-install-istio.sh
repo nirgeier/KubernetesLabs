@@ -7,6 +7,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+# Install Istio service mesh via Helm: base CRDs, istiod, and ingress gateway.
+# Cleans conflicting resources from prior istioctl/Helm installs. Exits on failure.
 install_istio() {
   print_header "Installing Istio Service Mesh via Helm"
 
@@ -14,6 +16,38 @@ install_istio() {
   print_step "Adding Istio Helm repository..."
   helm repo add istio https://istio-release.storage.googleapis.com/charts
   helm repo update
+
+  # Remove existing Istio resources not managed by Helm (istio-base) to avoid
+  # "invalid ownership metadata" when a prior install used istioctl or left
+  # resources without Helm annotations
+  print_step "Checking for conflicting Istio resources..."
+
+  for crd in $(kubectl get crd -o name 2>/dev/null | grep istio.io || true); do
+    release=$(kubectl get "$crd" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
+    [ -n "$release" ] || continue
+    if [ "$release" != "istio-base" ]; then
+      print_info "Removing $crd (not managed by Helm istio-base)"
+      kubectl delete "$crd" --ignore-not-found 2>/dev/null || true
+    fi
+  done
+
+  for webhook in $(kubectl get validatingwebhookconfiguration -o name 2>/dev/null | grep -i istio || true); do
+    release=$(kubectl get "$webhook" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
+    [ -n "$release" ] || continue
+    if [ "$release" != "istio-base" ]; then
+      print_info "Removing $webhook (not managed by Helm istio-base)"
+      kubectl delete "$webhook" --ignore-not-found 2>/dev/null || true
+    fi
+  done
+
+  for webhook in $(kubectl get mutatingwebhookconfiguration -o name 2>/dev/null | grep -i istio || true); do
+    release=$(kubectl get "$webhook" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
+    [ -n "$release" ] || continue
+    if [ "$release" != "istio-base" ]; then
+      print_info "Removing $webhook (not managed by Helm istio-base)"
+      kubectl delete "$webhook" --ignore-not-found 2>/dev/null || true
+    fi
+  done
 
   # Install Istio base (CRDs)
   print_step "Installing Istio base (CRDs)..."
@@ -29,6 +63,27 @@ install_istio() {
     exit 1
   fi
   print_success "Istio CRDs installed"
+
+  # Remove cluster-scoped resources that istiod would manage but exist without
+  # Helm ownership (e.g. from a previous istioctl install)
+  print_step "Checking for conflicting Istiod cluster resources..."
+  for role in $(kubectl get clusterrole -o name 2>/dev/null | grep -i istio || true); do
+    release=$(kubectl get "$role" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
+    [ -n "$release" ] || continue
+    if [ "$release" != "istiod" ] && [ "$release" != "istio-base" ]; then
+      print_info "Removing $role (not managed by Helm istiod)"
+      kubectl delete "$role" --ignore-not-found 2>/dev/null || true
+    fi
+  done
+  for binding in $(kubectl get clusterrolebinding -o name 2>/dev/null | grep -i istio || true); do
+    release=$(kubectl get "$binding" -o jsonpath='{.metadata.annotations["meta.helm.sh/release-name"]}' 2>/dev/null || true)
+    [ -n "$release" ] || continue
+    if [ "$release" != "istiod" ] && [ "$release" != "istio-base" ]; then
+      print_info "Removing $binding (not managed by Helm istiod)"
+      kubectl delete "$binding" --ignore-not-found 2>/dev/null || true
+    fi
+  done
+  sleep 2
 
   # Install Istiod (control plane)
   print_step "Installing Istiod (control plane)..."

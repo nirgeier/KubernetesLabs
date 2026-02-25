@@ -25,7 +25,8 @@ metadata:
   namespace: bookinfo
 spec:
   hosts:
-    - "*"
+    - "bookinfo.local"
+    - "istio-ingressgateway.istio-system.svc.cluster.local"
   gateways:
     - bookinfo-gateway
   http:

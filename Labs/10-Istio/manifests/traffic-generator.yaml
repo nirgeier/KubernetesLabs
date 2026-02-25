@@ -6,6 +6,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: traffic-gen
+  labels:
+    istio-injection: enabled
 ---
 # Immediate seed job - runs right away to populate dashboards with data
 apiVersion: batch/v1

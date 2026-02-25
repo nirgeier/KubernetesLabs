@@ -8,37 +8,39 @@ set -euo pipefail
 # =============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/scripts/common.sh"
+LAB_DIR="${SCRIPT_DIR}"
+source "${LAB_DIR}/scripts/common.sh"
 
-# Deploy all components
+# Run full lab deployment: Istio, addons, Bookinfo, traffic generator, and verify.
+# Prints access info at the end.
 deploy() {
   print_header "Istio + Kiali Lab Deployment"
 
   check_prerequisites
   echo ""
 
-  # Step 1: Install Istio
-  source "${SCRIPT_DIR}/scripts/01-install-istio.sh"
+  # Step 1: Install Istio (sourced script may overwrite SCRIPT_DIR, so use LAB_DIR)
+  source "${LAB_DIR}/scripts/01-install-istio.sh"
   install_istio
   echo ""
 
   # Step 2: Install observability addons
-  source "${SCRIPT_DIR}/scripts/02-install-addons.sh"
+  source "${LAB_DIR}/scripts/02-install-addons.sh"
   install_addons
   echo ""
 
   # Step 3: Deploy Bookinfo application
-  source "${SCRIPT_DIR}/scripts/03-deploy-bookinfo.sh"
+  source "${LAB_DIR}/scripts/03-deploy-bookinfo.sh"
   deploy_bookinfo
   echo ""
 
   # Step 4: Deploy traffic generator
-  source "${SCRIPT_DIR}/scripts/04-traffic-generator.sh"
+  source "${LAB_DIR}/scripts/04-traffic-generator.sh"
   deploy_traffic_generator
   echo ""
 
   # Step 5: Verify
-  source "${SCRIPT_DIR}/scripts/05-verify.sh"
+  source "${LAB_DIR}/scripts/05-verify.sh"
   verify_deployment
   echo ""
 
@@ -46,7 +48,7 @@ deploy() {
   display_access_info
 }
 
-# Display access information
+# Print gateway URLs, /etc/hosts hints, port-forward commands, and demo usage.
 display_access_info() {
   echo ""
   echo "=========================================="
@@ -54,21 +56,25 @@ display_access_info() {
   echo "=========================================="
   echo ""
 
-  # Get ingress IP
-  INGRESS_IP=$(kubectl get ingress -n istio-system kiali -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+  # Get Istio Ingress Gateway external IP (or hostname for LoadBalancer)
+  GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null) || true
+  if [ -z "$GATEWAY_IP" ]; then
+    GATEWAY_IP=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null) || true
+  fi
 
-  print_info "Access via Ingress (recommended):"
+  print_info "Access via Istio Ingress Gateway:"
   echo ""
   echo -e "  Kiali:       ${GREEN}http://kiali.local${NC}"
   echo -e "  Grafana:     ${GREEN}http://grafana.local${NC}"
   echo -e "  Jaeger:      ${GREEN}http://jaeger.local${NC}"
   echo -e "  Prometheus:  ${GREEN}http://prometheus.local${NC}"
+  echo -e "  Loki:        ${GREEN}http://loki.local${NC}"
   echo -e "  Bookinfo:    ${GREEN}http://bookinfo.local/productpage${NC}"
   echo ""
 
   # Check /etc/hosts
   HOSTS_NEEDED=""
-  for host in kiali.local grafana.local jaeger.local prometheus.local bookinfo.local; do
+  for host in kiali.local grafana.local jaeger.local prometheus.local loki.local bookinfo.local; do
     if ! grep -q "$host" /etc/hosts 2>/dev/null; then
       HOSTS_NEEDED="$HOSTS_NEEDED $host"
     fi
@@ -76,7 +82,12 @@ display_access_info() {
 
   if [ -n "$HOSTS_NEEDED" ]; then
     print_warning "Add these hosts to /etc/hosts:"
-    echo "  echo \"${INGRESS_IP:-192.168.139.2}${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    if [ -n "$GATEWAY_IP" ]; then
+      echo "  echo \"${GATEWAY_IP}${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    else
+      echo "  # Get gateway IP: kubectl get svc istio-ingressgateway -n istio-system"
+      echo "  echo \"<GATEWAY_IP>${HOSTS_NEEDED}\" | sudo tee -a /etc/hosts"
+    fi
     echo ""
   else
     print_success "/etc/hosts already configured"
@@ -87,6 +98,7 @@ display_access_info() {
   echo ""
   echo "  kubectl port-forward svc/kiali -n istio-system 20001:20001 &"
   echo "  kubectl port-forward svc/grafana -n istio-system 3000:3000 &"
+  echo "  kubectl port-forward svc/loki -n istio-system 3100:3100 &"
   echo "  kubectl port-forward svc/tracing -n istio-system 16686:80 &"
   echo "  kubectl port-forward svc/prometheus -n istio-system 9090:9090 &"
   echo "  kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &"
@@ -116,59 +128,66 @@ display_access_info() {
   echo ""
 }
 
-# Cleanup all components
+# Remove all lab resources: traffic-gen, Bookinfo, addons, Istio Helm releases,
+# istio-system namespace, CRDs, and related cluster roles/bindings.
 cleanup() {
   print_header "Cleaning Up Istio + Kiali Lab"
 
   # Remove traffic generator
   print_step "Removing traffic generator..."
-  kubectl delete namespace traffic-gen 2>/dev/null
+  kubectl delete namespace traffic-gen 2>/dev/null || true
   print_success "Traffic generator removed"
 
   # Remove Bookinfo
   print_step "Removing Bookinfo application..."
-  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo-gateway.yaml" -n bookinfo 2>/dev/null
-  kubectl delete -f "${SCRIPT_DIR}/manifests/destination-rules.yaml" -n bookinfo 2>/dev/null
-  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo.yaml" -n bookinfo 2>/dev/null
-  kubectl delete namespace bookinfo 2>/dev/null
+  kubectl delete -f "${LAB_DIR}/manifests/bookinfo-gateway.yaml" -n bookinfo 2>/dev/null || true
+  kubectl delete -f "${LAB_DIR}/manifests/destination-rules.yaml" -n bookinfo 2>/dev/null || true
+  kubectl delete -f "${LAB_DIR}/manifests/bookinfo.yaml" -n bookinfo 2>/dev/null || true
+  kubectl delete namespace bookinfo 2>/dev/null || true
   print_success "Bookinfo removed"
 
   # Remove Istio feature demos (if any applied)
   print_step "Cleaning up Istio feature demos..."
-  kubectl delete peerauthentication --all -n bookinfo 2>/dev/null
-  kubectl delete peerauthentication --all -n istio-system 2>/dev/null
+  kubectl delete peerauthentication --all -n bookinfo 2>/dev/null || true
+  kubectl delete peerauthentication --all -n istio-system 2>/dev/null || true
 
-  # Remove addons and ingress
-  print_step "Removing observability addons and ingress..."
-  kubectl delete -f "${SCRIPT_DIR}/manifests/ingress.yaml" 2>/dev/null
-  kubectl delete -f "${SCRIPT_DIR}/manifests/addons/" -n istio-system 2>/dev/null
-  print_success "Addons and ingress removed"
+  # Remove addons and Istio gateway routes
+  print_step "Removing observability addons and gateway routes..."
+  kubectl delete -f "${LAB_DIR}/manifests/observability-routes.yaml" 2>/dev/null || true
+  kubectl delete -f "${LAB_DIR}/manifests/addons/" 2>/dev/null || true
+  # Delete Loki PVCs from StatefulSet volumeClaimTemplates (e.g. storage-loki-0)
+  for pvc in $(kubectl get pvc -n istio-system -o name 2>/dev/null | sed 's|persistentvolumeclaim/||' | grep -E '^storage-loki-' || true); do
+    kubectl delete pvc -n istio-system "$pvc" --ignore-not-found 2>/dev/null || true
+  done
+  print_success "Addons and gateway routes removed"
 
   # Remove Istio
   print_step "Removing Istio..."
-  helm uninstall istio-ingressgateway -n istio-system 2>/dev/null
-  helm uninstall istiod -n istio-system 2>/dev/null
-  helm uninstall istio-base -n istio-system 2>/dev/null
+  helm uninstall istio-ingressgateway -n istio-system 2>/dev/null || true
+  helm uninstall istiod -n istio-system 2>/dev/null || true
+  helm uninstall istio-base -n istio-system 2>/dev/null || true
   print_success "Istio Helm releases removed"
 
   # Clean up namespace
   print_step "Removing istio-system namespace..."
-  kubectl delete namespace istio-system 2>/dev/null
+  kubectl delete namespace istio-system 2>/dev/null || true
 
   # Clean up Istio CRDs
   print_step "Removing Istio CRDs..."
-  kubectl get crd -o name | grep 'istio.io' | xargs -r kubectl delete 2>/dev/null
+  for crd in $(kubectl get crd -o name 2>/dev/null | grep 'istio.io' || true); do
+    kubectl delete "$crd" --ignore-not-found 2>/dev/null || true
+  done
 
-  # Clean up cluster-wide resources
-  kubectl delete clusterrole istio-prometheus kiali 2>/dev/null
-  kubectl delete clusterrolebinding istio-prometheus kiali 2>/dev/null
+  # Clean up cluster-wide resources (addon ClusterRoles/ClusterRoleBindings)
+  kubectl delete clusterrole istio-prometheus kiali loki-clusterrole 2>/dev/null || true
+  kubectl delete clusterrolebinding istio-prometheus kiali loki-clusterrolebinding 2>/dev/null || true
 
   echo ""
   print_success "Cleanup complete! All Istio + Kiali resources removed."
 }
 
 # Parse command line arguments
-case "${1}" in
+case "${1:-}" in
 deploy)
   deploy
   ;;
