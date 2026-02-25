@@ -354,7 +354,7 @@ Create a ScaledJob that spawns one Job per batch of 5 items in a Redis list.
 #### Scenario:
 
   ◦ Each batch task (e.g., video transcoding, report generation) runs as a short-lived Job.
-  ◦ ScaledJob creates new Jobs (not replica scaling) — one per event batch.
+  ◦ ScaledJob creates new Jobs (not replica scaling) - one per event batch.
 
 **Hint:** Use `kind: ScaledJob` with `jobTargetRef` instead of `scaleTargetRef`.
 
@@ -415,7 +415,7 @@ Configure a ScaledObject with custom HPA behavior: fast scale-up, slow scale-dow
 
 #### Scenario:
 
-  ◦ Your service is latency-sensitive — scale up fast, but avoid flapping by scaling down slowly.
+  ◦ Your service is latency-sensitive - scale up fast, but avoid flapping by scaling down slowly.
   ◦ KEDA supports the same `behavior` config as native HPA.
 
 **Hint:** Use `spec.advanced.horizontalPodAutoscalerConfig.behavior`.

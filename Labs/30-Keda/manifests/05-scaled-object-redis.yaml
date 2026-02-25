@@ -1,5 +1,5 @@
 ---
-# ScaledObject: Redis List scaler — scale-to-zero demo
+# ScaledObject: Redis List scaler - scale-to-zero demo
 #
 # Monitors the "jobs:queue" Redis list length and scales the redis-worker
 # Deployment based on queue depth.

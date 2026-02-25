@@ -1,6 +1,6 @@
 ---
 
-# kubeadm — Bootstrap a Kubernetes Cluster from Scratch
+# kubeadm - Bootstrap a Kubernetes Cluster from Scratch
 
 - In this lab we will learn how to use **kubeadm** to bootstrap a fully functional Kubernetes cluster. We will set up a control-plane node, join worker nodes, install a CNI plugin, and verify the cluster is operational.
 
@@ -38,7 +38,7 @@
 
 ## Prerequisites
 
-- **Two or more Linux machines** (physical or virtual) — one for the control-plane and one or more for workers
+- **Two or more Linux machines** (physical or virtual) - one for the control-plane and one or more for workers
 - Each machine must have at least **2 CPUs** and **2 GB RAM** (recommended)
 - Full network connectivity between all machines
 - Unique hostname, MAC address, and `product_uuid` for each node
@@ -174,7 +174,7 @@ sudo systemctl enable containerd
 
     * Since Kubernetes 1.24, **dockershim** was removed from `kubelet`.
     * The recommended container runtimes are **containerd** or **CRI-O**.
-    * If you need Docker CLI tools, install Docker separately — it will use containerd under the hood.
+    * If you need Docker CLI tools, install Docker separately - it will use containerd under the hood.
 
 ### 01.05 Install kubeadm, kubelet, and kubectl
 
@@ -230,7 +230,7 @@ sudo systemctl enable --now kubelet
 
 !!! note
 
-    At this point the kubelet will crash-loop every few seconds — this is **expected**. It is waiting for `kubeadm init` or `kubeadm join` to provide its configuration.
+    At this point the kubelet will crash-loop every few seconds - this is **expected**. It is waiting for `kubeadm init` or `kubeadm join` to provide its configuration.
 
 ---
 
@@ -688,7 +688,7 @@ sudo apt-get purge -y kubelet kubeadm kubectl
 | ---------------------------- | ------------------------------------------------------------------------- |
 | **kubeadm init**             | Bootstraps a control-plane node with all required components              |
 | **kubeadm join**             | Adds worker (or HA control-plane) nodes to the cluster                    |
-| **CNI plugin**               | Required for pod networking — install immediately after `kubeadm init`    |
+| **CNI plugin**               | Required for pod networking - install immediately after `kubeadm init`    |
 | **kubeadm upgrade**          | Safely upgrades cluster version one minor release at a time               |
 | **kubeadm reset**            | Cleanly tears down cluster state on a node                                |
 | **kubeadm token**            | Manages tokens for joining nodes (default 24h TTL)                        |
@@ -743,15 +743,15 @@ The original join token from `kubeadm init` has expired. Generate a new one and 
   <summary>Solution</summary>
 
 ```bash
-# On the control-plane node — generate a new token with the full join command
+# On the control-plane node - generate a new token with the full join command
 kubeadm token create --print-join-command
 
-# On the worker node — run the printed command, e.g.:
+# On the worker node - run the printed command, e.g.:
 sudo kubeadm join 192.168.1.100:6443 \
     --token abc123.abcdefghijklmnop \
     --discovery-token-ca-cert-hash sha256:abc123...
 
-# On the control-plane — verify the worker joined
+# On the control-plane - verify the worker joined
 kubectl get nodes
 ```
 
@@ -922,9 +922,9 @@ kubectl get nodes
 
 ## Next Steps
 
-- Set up a **highly available (HA) control-plane** with multiple control-plane nodes and an external load balancer — see [HA topology](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/)
-- Add **etcd encryption at rest** for secrets — see [Encrypting Secret Data](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
+- Set up a **highly available (HA) control-plane** with multiple control-plane nodes and an external load balancer - see [HA topology](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/)
+- Add **etcd encryption at rest** for secrets - see [Encrypting Secret Data](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
 - Configure **audit logging** to track API server requests
-- Set up **RBAC** (see [Lab 31 — RBAC](../31-RBAC/README.md)) for fine-grained access control
+- Set up **RBAC** (see [Lab 31 - RBAC](../31-RBAC/README.md)) for fine-grained access control
 - Explore **kubeadm phases** (`kubeadm init phase`) for granular control over cluster bootstrapping
 - Consider managed alternatives for production: **EKS**, **GKE**, or **AKS** if cluster management overhead is too high

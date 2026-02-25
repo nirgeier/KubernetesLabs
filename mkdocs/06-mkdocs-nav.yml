@@ -58,3 +58,4 @@ nav:
                   - Scheduling Tasks: Tasks/Kubernetes-Scheduling-Tasks/README.md
                   - Kubebuilder Tasks: Tasks/Kubernetes-Kubebuilder-Tasks/README.md
                   - KEDA Tasks: Tasks/Kubernetes-KEDA-Tasks/README.md
+                  - Harbor + ArgoCD Airgap Tasks: Tasks/Kubernetes-Harbor-ArgoCD-Airgap-Tasks/README.md

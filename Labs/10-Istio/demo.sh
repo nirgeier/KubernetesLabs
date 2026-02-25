@@ -7,8 +7,9 @@ set -euo pipefail
 #   ./demo.sh cleanup  - Remove everything
 # =============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/scripts/common.sh"
+LAB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$LAB_DIR"
+source "${LAB_DIR}/scripts/common.sh"
 
 # Deploy all components
 deploy() {
@@ -18,27 +19,32 @@ deploy() {
   echo ""
 
   # Step 1: Install Istio
-  source "${SCRIPT_DIR}/scripts/01-install-istio.sh"
+  source "${LAB_DIR}/scripts/01-install-istio.sh"
+  SCRIPT_DIR="$LAB_DIR"
   install_istio
   echo ""
 
   # Step 2: Install observability addons
-  source "${SCRIPT_DIR}/scripts/02-install-addons.sh"
+  source "${LAB_DIR}/scripts/02-install-addons.sh"
+  SCRIPT_DIR="$LAB_DIR"
   install_addons
   echo ""
 
   # Step 3: Deploy Bookinfo application
-  source "${SCRIPT_DIR}/scripts/03-deploy-bookinfo.sh"
+  source "${LAB_DIR}/scripts/03-deploy-bookinfo.sh"
+  SCRIPT_DIR="$LAB_DIR"
   deploy_bookinfo
   echo ""
 
   # Step 4: Deploy traffic generator
-  source "${SCRIPT_DIR}/scripts/04-traffic-generator.sh"
+  source "${LAB_DIR}/scripts/04-traffic-generator.sh"
+  SCRIPT_DIR="$LAB_DIR"
   deploy_traffic_generator
   echo ""
 
   # Step 5: Verify
-  source "${SCRIPT_DIR}/scripts/05-verify.sh"
+  source "${LAB_DIR}/scripts/05-verify.sh"
+  SCRIPT_DIR="$LAB_DIR"
   verify_deployment
   echo ""
 
@@ -54,8 +60,8 @@ display_access_info() {
   echo "=========================================="
   echo ""
 
-  # Get ingress IP
-  INGRESS_IP=$(kubectl get ingress -n istio-system kiali -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+  # Get ingress IP from the nginx ingress controller service
+  INGRESS_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
 
   print_info "Access via Ingress (recommended):"
   echo ""
@@ -122,53 +128,61 @@ cleanup() {
 
   # Remove traffic generator
   print_step "Removing traffic generator..."
-  kubectl delete namespace traffic-gen 2>/dev/null
+  kubectl delete namespace traffic-gen 2>/dev/null || true
   print_success "Traffic generator removed"
 
   # Remove Bookinfo
   print_step "Removing Bookinfo application..."
-  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo-gateway.yaml" -n bookinfo 2>/dev/null
-  kubectl delete -f "${SCRIPT_DIR}/manifests/destination-rules.yaml" -n bookinfo 2>/dev/null
-  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo.yaml" -n bookinfo 2>/dev/null
-  kubectl delete namespace bookinfo 2>/dev/null
+  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo-gateway.yaml" -n bookinfo 2>/dev/null || true
+  kubectl delete -f "${SCRIPT_DIR}/manifests/destination-rules.yaml" -n bookinfo 2>/dev/null || true
+  kubectl delete -f "${SCRIPT_DIR}/manifests/bookinfo.yaml" -n bookinfo 2>/dev/null || true
+  kubectl delete namespace bookinfo 2>/dev/null || true
   print_success "Bookinfo removed"
 
   # Remove Istio feature demos (if any applied)
   print_step "Cleaning up Istio feature demos..."
-  kubectl delete peerauthentication --all -n bookinfo 2>/dev/null
-  kubectl delete peerauthentication --all -n istio-system 2>/dev/null
+  kubectl delete peerauthentication --all -n bookinfo 2>/dev/null || true
+  kubectl delete peerauthentication --all -n istio-system 2>/dev/null || true
 
   # Remove addons and ingress
   print_step "Removing observability addons and ingress..."
-  kubectl delete -f "${SCRIPT_DIR}/manifests/ingress.yaml" 2>/dev/null
-  kubectl delete -f "${SCRIPT_DIR}/manifests/addons/" -n istio-system 2>/dev/null
+  kubectl delete -f "${SCRIPT_DIR}/manifests/ingress.yaml" 2>/dev/null || true
+  kubectl delete -f "${SCRIPT_DIR}/manifests/addons/" -n istio-system 2>/dev/null || true
   print_success "Addons and ingress removed"
 
   # Remove Istio
   print_step "Removing Istio..."
-  helm uninstall istio-ingressgateway -n istio-system 2>/dev/null
-  helm uninstall istiod -n istio-system 2>/dev/null
-  helm uninstall istio-base -n istio-system 2>/dev/null
+  helm uninstall istio-ingressgateway -n istio-system 2>/dev/null || true
+  helm uninstall istiod -n istio-system 2>/dev/null || true
+  helm uninstall istio-base -n istio-system 2>/dev/null || true
   print_success "Istio Helm releases removed"
 
   # Clean up namespace
   print_step "Removing istio-system namespace..."
-  kubectl delete namespace istio-system 2>/dev/null
+  kubectl delete namespace istio-system 2>/dev/null || true
 
   # Clean up Istio CRDs
   print_step "Removing Istio CRDs..."
-  kubectl get crd -o name | grep 'istio.io' | xargs -r kubectl delete 2>/dev/null
+  ISTIO_CRDS=$(kubectl get crd -o name 2>/dev/null | grep 'istio.io' || true)
+  if [ -n "$ISTIO_CRDS" ]; then
+    echo "$ISTIO_CRDS" | xargs kubectl delete 2>/dev/null || true
+  fi
 
-  # Clean up cluster-wide resources
-  kubectl delete clusterrole istio-prometheus kiali 2>/dev/null
-  kubectl delete clusterrolebinding istio-prometheus kiali 2>/dev/null
+  # Clean up all cluster-scoped Istio resources (webhooks, RBAC) left by istioctl or Helm
+  print_step "Removing cluster-scoped Istio resources (webhooks, RBAC)..."
+  kubectl get validatingwebhookconfiguration -o name 2>/dev/null | grep 'istio' | xargs kubectl delete 2>/dev/null || true
+  kubectl get mutatingwebhookconfiguration -o name 2>/dev/null | grep 'istio' | xargs kubectl delete 2>/dev/null || true
+  kubectl get clusterrole -o name 2>/dev/null | grep 'istio' | xargs kubectl delete 2>/dev/null || true
+  kubectl get clusterrolebinding -o name 2>/dev/null | grep 'istio' | xargs kubectl delete 2>/dev/null || true
+  kubectl delete clusterrole kiali 2>/dev/null || true
+  kubectl delete clusterrolebinding kiali 2>/dev/null || true
 
   echo ""
   print_success "Cleanup complete! All Istio + Kiali resources removed."
 }
 
 # Parse command line arguments
-case "${1}" in
+case "${1:-}" in
 deploy)
   deploy
   ;;

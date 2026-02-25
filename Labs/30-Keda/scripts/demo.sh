@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# demo.sh — KEDA interactive demo script
+# demo.sh - KEDA interactive demo script
 #
 # Runs all KEDA lab examples in order with clear explanations.
 #
@@ -137,7 +137,7 @@ redis_demo() {
   echo ""
   _info "Watching pods scale up (KEDA polls every 5s)..."
   _info "Expected: 50 / 5 = 10 replicas"
-  echo "  (Press Ctrl+C to stop watching — jobs will continue)"
+  echo "  (Press Ctrl+C to stop watching - jobs will continue)"
   echo ""
 
   for i in $(seq 1 24); do
@@ -195,7 +195,7 @@ job_demo() {
 # ── Full demo ─────────────────────────────────────────────────────────────
 full_demo() {
   preflight
-  _step "KEDA Lab 30 — Full Demo"
+  _step "KEDA Lab 30 - Full Demo"
   echo ""
   echo "This demo will:"
   echo "  1. Deploy base workloads (nginx-demo, Redis)"

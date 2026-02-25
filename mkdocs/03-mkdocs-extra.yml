@@ -48,6 +48,7 @@ extra:
       class: social-class__email
 
 extra_css:
-  - ./assets/stylesheets/codewizard.css?v=1771902661
+  - ./assets/stylesheets/codewizard.css?v=1772199666
 extra_javascript:
-  - https://buttons.github.io/buttons.js?v=1771902661
+  - https://buttons.github.io/buttons.js?v=1772199666
+  - https://unpkg.com/mermaid@11/dist/mermaid.esm.min.mjs

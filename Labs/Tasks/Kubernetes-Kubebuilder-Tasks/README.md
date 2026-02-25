@@ -102,7 +102,7 @@ Add fields to the CRD spec with Kubebuilder validation markers for min/max, enum
 ??? example "Solution"
 
     ```go
-    // Edit api/v1/myapp_types.go — replace MyAppSpec:
+    // Edit api/v1/myapp_types.go - replace MyAppSpec:
 
     type MyAppSpec struct {
         // Replicas is the desired number of pods.
@@ -185,7 +185,7 @@ Write a reconciler that creates a Deployment when a CR is created.
 ??? example "Solution"
 
     ```go
-    // In internal/controller/myapp_controller.go — Reconcile method:
+    // In internal/controller/myapp_controller.go - Reconcile method:
 
     func (r *MyAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
         logger := log.FromContext(ctx)
@@ -290,7 +290,7 @@ Set owner references on child resources so they are automatically deleted when t
     # Verify owner reference is set
     kubectl get deployment <name> -o jsonpath='{.metadata.ownerReferences}' | jq
 
-    # Delete the CR — children should be garbage-collected
+    # Delete the CR - children should be garbage-collected
     kubectl delete myapp my-myapp
     kubectl get deployments  # Should be gone
     ```
@@ -371,7 +371,7 @@ Implement a finalizer that runs custom cleanup logic before the CR is deleted.
     ```
 
     ```bash
-    # Create and then delete — observe cleanup in operator logs
+    # Create and then delete - observe cleanup in operator logs
     kubectl apply -f config/samples/apps_v1_myapp.yaml
     kubectl delete myapp my-myapp
 

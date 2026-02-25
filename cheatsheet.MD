@@ -3,7 +3,7 @@
 # Short resource names
 
 | Full Resource Name         | Short Resource Name |
-| -------------------------- | ------------------- |
+|----------------------------|---------------------|
 | certificates               | cert, certs         |
 | certificatesigningrequests | csr                 |
 | certificiaterequests       | cr, crs             |

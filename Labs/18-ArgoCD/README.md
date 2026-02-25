@@ -631,7 +631,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ```
 
 !!! note
-    Save this password — you'll need it to log in to the ArgoCD UI and CLI.
+    Save this password - you'll need it to log in to the ArgoCD UI and CLI.
 
 ---
 
@@ -1060,7 +1060,7 @@ argocd: v2.x.x
 
 ### Step 02 - Create a Helm Chart from Scratch
 
-We will build the `my-webserver` chart — a simple nginx-based web server.
+We will build the `my-webserver` chart - a simple nginx-based web server.
 
 #### 02.01 Scaffold the chart
 
@@ -1114,7 +1114,7 @@ appVersion: "1.25.3"
 ```
 
 !!! note "version vs appVersion"
-    - `version` is the **chart** version — bump it every time you release a new chart.
+    - `version` is the **chart** version - bump it every time you release a new chart.
     - `appVersion` is the version of the **application** (nginx image tag) shipped inside the chart.
 
 #### 02.04 Rewrite `values.yaml`
@@ -1303,7 +1303,7 @@ kubectl delete namespace my-webserver
 
 ### Step 05 - Commit the Chart to Git
 
-ArgoCD is a **pull-based** GitOps tool — it watches a Git repository and deploys whatever is there.
+ArgoCD is a **pull-based** GitOps tool - it watches a Git repository and deploys whatever is there.
 Your chart must live in a Git repository that ArgoCD can reach.
 
 #### 05.01 Recommended directory layout inside the repo
@@ -1388,14 +1388,14 @@ argocd-server-xxxx                                 1/1     Running
 
 Choose **one** of the methods below depending on your environment.
 
-#### Option A — Port-Forward (simplest, no Ingress needed)
+#### Option A - Port-Forward (simplest, no Ingress needed)
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:80 &
 echo "ArgoCD UI → http://localhost:8080"
 ```
 
-#### Option B — Nginx Ingress (persistent URL)
+#### Option B - Nginx Ingress (persistent URL)
 
 !!! warning "Requires Nginx Ingress Controller"
     Install it first if not present:
@@ -1485,7 +1485,7 @@ argocd account get-user-info
 There are three equivalent ways to create an ArgoCD Application.
 We will cover all three so you understand what each does.
 
-#### Method A — ArgoCD CLI
+#### Method A - ArgoCD CLI
 
 ```bash
 argocd app create my-webserver \
@@ -1511,7 +1511,7 @@ argocd app create my-webserver \
 | `--self-heal` | Restore any manual cluster changes back to Git state |
 | `--sync-option CreateNamespace=true` | Create the namespace if it does not exist |
 
-#### Method B — Kubernetes Manifest
+#### Method B - Kubernetes Manifest
 
 !!! tip "Prefer this method"
     Manifests are version-controlled, repeatable, and fit perfectly into the App of Apps pattern.
@@ -1555,7 +1555,7 @@ Apply it:
 kubectl apply -f argocd/my-webserver-app.yaml
 ```
 
-#### Method C — ArgoCD Web UI
+#### Method C - ArgoCD Web UI
 
 1. Click **"+ NEW APP"** in the top-left of the UI.
 2. Fill in:
@@ -1634,7 +1634,7 @@ kill %1
 
 ### Step 12 - GitOps in Action: Make a Change via Git
 
-This is the key GitOps moment — **you never run `kubectl` or `helm upgrade`**.
+This is the key GitOps moment - **you never run `kubectl` or `helm upgrade`**.
 Instead, you push a change to Git and ArgoCD applies it automatically.
 
 #### 12.01 Update the chart values in Git
@@ -1913,7 +1913,7 @@ git commit -m "feat: add App of Apps with my-webserver and my-api"
 git push
 ```
 
-Apply only the **root** application — ArgoCD takes care of the rest:
+Apply only the **root** application - ArgoCD takes care of the rest:
 
 ```bash
 kubectl apply -f argocd/app-of-apps.yaml
@@ -1934,7 +1934,7 @@ my-api         in-cluster  my-api        Synced  Healthy  Auto-Prune
 my-webserver   in-cluster  my-webserver  Synced  Healthy  Auto-Prune
 ```
 
-#### 15.06 Add a new application — zero extra operators needed
+#### 15.06 Add a new application - zero extra operators needed
 
 From now on, adding any new Helm chart is just:
 

@@ -3,7 +3,7 @@
 # Kubebuilder - Building Kubernetes Operators
 
 - `Kubebuilder` is an SDK for building production-grade Kubernetes APIs and controllers (Operators) using Go and the `controller-runtime` library.
-- Instead of writing low-level machinery by hand, `Kubebuilder` scaffolds everything — CRD types, RBAC manifests, Makefile targets, and the reconcile loop — so you can focus on business logic.
+- Instead of writing low-level machinery by hand, `Kubebuilder` scaffolds everything - CRD types, RBAC manifests, Makefile targets, and the reconcile loop - so you can focus on business logic.
 - In this lab we build a real **WebApp Operator** that manages a `WebApp` custom resource and automatically provisions the correct `Deployment`, `Service`, and `ConfigMap` in the cluster.
 
 ---
@@ -47,8 +47,8 @@
 - Kubernetes manages built-in resources (Pods, Deployments, Services) with built-in controllers that run a **reconciliation loop**.
 - A **Kubernetes Operator** extends this pattern to **your own domain-specific resources**.
 - An operator is a combination of:
-  - A **Custom Resource Definition (CRD)** — defines the new resource type and its schema in the Kubernetes API
-  - A **Controller** — watches for changes to the custom resource and reconciles the cluster state towards the desired state
+  - A **Custom Resource Definition (CRD)** - defines the new resource type and its schema in the Kubernetes API
+  - A **Controller** - watches for changes to the custom resource and reconciles the cluster state towards the desired state
 
 ```mermaid
 flowchart LR
@@ -87,8 +87,8 @@ flowchart LR
 
 | Term                   | Description                                                                                     |
 |------------------------|-------------------------------------------------------------------------------------------------|
-| **CRD**                | Custom Resource Definition — registers a new resource type with the Kubernetes API              |
-| **CR**                 | Custom Resource — an instance of a CRD (like a Pod is an instance of the Pod resource)          |
+| **CRD**                | Custom Resource Definition - registers a new resource type with the Kubernetes API              |
+| **CR**                 | Custom Resource - an instance of a CRD (like a Pod is an instance of the Pod resource)          |
 | **Operator**           | A controller that implements domain-specific logic for a custom resource                        |
 | **Reconciler**         | The Go struct that implements the `Reconcile(ctx, req)` method                                  |
 | **Reconcile Loop**     | Watch → Diff → Act cycle that continuously drives the cluster toward desired state              |
@@ -346,7 +346,7 @@ webapp-operator/
 
     **Syntax:** `make test`
 
-    **Description:** Runs the full test suite using `envtest`, which starts a real `kube-apiserver` and `etcd` binary locally — no cluster required.
+    **Description:** Runs the full test suite using `envtest`, which starts a real `kube-apiserver` and `etcd` binary locally - no cluster required.
 
         ```bash
         # Run all tests
@@ -485,7 +485,7 @@ kubectl get nodes
 ## Part 02 - Initialize the Project
 
 We will build a **WebApp Operator** that manages a `WebApp` custom resource.
-A `WebApp` CR creates a `Deployment` (nginx), a `Service` (ClusterIP), and a `ConfigMap` (HTML content) — all owned and reconciled by our controller.
+A `WebApp` CR creates a `Deployment` (nginx), a `Service` (ClusterIP), and a `ConfigMap` (HTML content) - all owned and reconciled by our controller.
 
 ### 02.01 Create and enter the project directory
 
@@ -531,7 +531,7 @@ cat cmd/main.go
 make help
 ```
 
-The `cmd/main.go` sets up the manager — it starts the controller, serves metrics, and manages leader election. You rarely need to edit this file by hand.
+The `cmd/main.go` sets up the manager - it starts the controller, serves metrics, and manages leader election. You rarely need to edit this file by hand.
 
 ---
 
@@ -706,7 +706,7 @@ After every change to `*_types.go` run:
 make generate
 ```
 
-This auto-generates `api/v1/zz_generated.deepcopy.go` which implements `DeepCopyObject()` — required by the Kubernetes runtime for garbage collection and caching.
+This auto-generates `api/v1/zz_generated.deepcopy.go` which implements `DeepCopyObject()` - required by the Kubernetes runtime for garbage collection and caching.
 
 ### 04.02 Generate CRD manifest
 
@@ -720,7 +720,7 @@ Inspect the generated CRD YAML:
 cat config/crd/bases/apps.codewizard.io_webapps.yaml
 ```
 
-You will see the full OpenAPI v3 schema, validation rules, printer columns, and status subresource settings — all derived from the Go markers.
+You will see the full OpenAPI v3 schema, validation rules, printer columns, and status subresource settings - all derived from the Go markers.
 
 ---
 
@@ -756,7 +756,7 @@ type WebAppReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// RBAC markers — these generate config/rbac/role.yaml when `make manifests` is run.
+// RBAC markers - these generate config/rbac/role.yaml when `make manifests` is run.
 //
 //+kubebuilder:rbac:groups=apps.codewizard.io,resources=webapps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps.codewizard.io,resources=webapps/status,verbs=get;update;patch
@@ -775,7 +775,7 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	webapp := &webappv1.WebApp{}
 	if err := r.Get(ctx, req.NamespacedName, webapp); err != nil {
 		if errors.IsNotFound(err) {
-			// Object was deleted before we could reconcile — nothing to do.
+			// Object was deleted before we could reconcile - nothing to do.
 			logger.Info("WebApp not found, likely deleted", "name", req.Name)
 			return ctrl.Result{}, nil
 		}
@@ -1014,7 +1014,7 @@ func (r *WebAppReconciler) reconcileService(ctx context.Context, webapp *webappv
 		return err
 	}
 
-	// Reconcile Service type (immutable field — recreate required)
+	// Reconcile Service type (immutable field - recreate required)
 	if existing.Spec.Type != svcType {
 		logger.Info("Recreating Service due to type change", "old", existing.Spec.Type, "new", svcType)
 		if err := r.Delete(ctx, existing); err != nil {
@@ -1082,7 +1082,7 @@ func (r *WebAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		// Primary watch: WebApp CRs
 		For(&webappv1.WebApp{}).
-		// Secondary watches: owned resources — any change triggers reconciliation
+		// Secondary watches: owned resources - any change triggers reconciliation
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
 		Owns(&corev1.ConfigMap{}).
@@ -1370,7 +1370,7 @@ Insert this block at the **beginning** of the `Reconcile()` function, after fetc
 ```go
 // ── Finalizer handling ────────────────────────────────────────────────────────
 if webapp.DeletionTimestamp.IsZero() {
-    // Not being deleted — ensure finalizer is present
+    // Not being deleted - ensure finalizer is present
     if !controllerutil.ContainsFinalizer(webapp, webappFinalizer) {
         controllerutil.AddFinalizer(webapp, webappFinalizer)
         if err := r.Update(ctx, webapp); err != nil {
@@ -1379,12 +1379,12 @@ if webapp.DeletionTimestamp.IsZero() {
         return ctrl.Result{}, nil  // re-queue after update
     }
 } else {
-    // Being deleted — run cleanup before allowing deletion
+    // Being deleted - run cleanup before allowing deletion
     if controllerutil.ContainsFinalizer(webapp, webappFinalizer) {
         logger.Info("Running finalizer cleanup", "name", webapp.Name)
         // (perform any external cleanup here, e.g. cloud resources, DNS records)
 
-        // Remove finalizer — Kubernetes will then delete the object
+        // Remove finalizer - Kubernetes will then delete the object
         controllerutil.RemoveFinalizer(webapp, webappFinalizer)
         if err := r.Update(ctx, webapp); err != nil {
             return ctrl.Result{}, err
@@ -1510,7 +1510,7 @@ func (r *WebApp) validateWebApp() (admission.Warnings, error) {
 ### 11.04 Test webhook validation
 
 ```bash
-# This should fail — replicas = 15 exceeds maximum of 10
+# This should fail - replicas = 15 exceeds maximum of 10
 kubectl apply -f - <<EOF
 apiVersion: apps.codewizard.io/v1
 kind: WebApp
@@ -1532,7 +1532,7 @@ EOF
 
 ## Part 12 - Writing Controller Tests
 
-Kubebuilder sets up `envtest` which runs a real `kube-apiserver` and `etcd` — no cluster needed.
+Kubebuilder sets up `envtest` which runs a real `kube-apiserver` and `etcd` - no cluster needed.
 
 ### 12.01 Inspect the test suite setup
 
@@ -1700,7 +1700,7 @@ COPY internal/  internal/
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} \
     go build -a -o manager cmd/main.go
 
-# Runtime stage — distroless for minimal attack surface
+# Runtime stage - distroless for minimal attack surface
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
@@ -1846,7 +1846,7 @@ if err := r.Get(ctx, types.NamespacedName{Name: webapp.Name, Namespace: webapp.N
 Add a `Paused bool` field to `WebAppSpec`. When `true`, the controller exits the reconcile loop early with a log message, leaving all resources unchanged.
 
 - Add `// +kubebuilder:default=false` and `Paused bool` to `WebAppSpec`
-- In `Reconcile()`, check early: `if webapp.Spec.Paused { logger.Info("Skipping — paused"); return ctrl.Result{}, nil }`
+- In `Reconcile()`, check early: `if webapp.Spec.Paused { logger.Info("Skipping - paused"); return ctrl.Result{}, nil }`
 - Test: `kubectl patch wa my-webapp --type=merge -p '{"spec":{"paused":true}}'`
   Then scale down manually and confirm the operator does **not** restore it.
 

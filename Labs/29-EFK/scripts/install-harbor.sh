@@ -35,7 +35,7 @@ if [[ -f "$INFRA_TAR" ]]; then
   docker load -i "$INFRA_TAR"
   print_success "Infrastructure images loaded from tar"
 else
-  print_warning "No infra images tar found at $INFRA_TAR — PVC creation may fail in airgap"
+  print_warning "No infra images tar found at $INFRA_TAR - PVC creation may fail in airgap"
 fi
 
 if [[ -f "${HARBOR_CHARTS_DIR}/harbor-images.tar" ]]; then
@@ -234,7 +234,7 @@ if [[ -n "$NODE_IP" ]]; then
     elif echo "${NODE_IP} ${HOST}" | sudo tee -a /etc/hosts >/dev/null 2>&1; then
       print_success "Added ${NODE_IP} ${HOST} to /etc/hosts"
     else
-      print_warning "Could not write to /etc/hosts for ${HOST} — add manually: ${NODE_IP} ${HOST}"
+      print_warning "Could not write to /etc/hosts for ${HOST} - add manually: ${NODE_IP} ${HOST}"
     fi
   done
 fi

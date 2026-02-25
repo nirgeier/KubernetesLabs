@@ -1,22 +1,13 @@
 # -----------------------------------------------------------------------------
-# GitHub Actions Workflow: Build & Push devlab Image to GHCR
+# GitHub Actions Workflow: Build & Push KubernetesLabs Docker Image to GHCR
 #
-# This workflow builds the standalone devlab Docker image and pushes it to
-# GitHub Container Registry as a multi-arch image (amd64 + arm64).
+# Builds a standalone Docker image containing all tools (Kind, kubectl, Helm,
+# k9s, kubewall) and lab content, then pushes to GHCR as multi-arch.
 #
-# Main Steps:
-#   1. Checkout the repository.
-#   2. Set up QEMU for cross-platform builds.
-#   3. Set up Docker Buildx.
-#   4. Login to GitHub Container Registry.
-#   5. Extract image metadata (tags, labels).
-#   6. Build and push the multi-arch image.
-#
-# The image is published to ghcr.io/<owner>/kubernetes-labs-devlab with `latest` and
-# `sha-<short>` tags so users can pull a ready-to-use environment.
+# Published to ghcr.io/<owner>/kubernetes-labs with `latest` and `sha-<short>` tags.
 # -----------------------------------------------------------------------------
 
-name: Build devlab Image
+name: Build Docker Image
 
 # Event triggers for the workflow
 on:
@@ -25,8 +16,8 @@ on:
       - main
       - master
     paths:
-      - "scripts/Dockerfile.devlab"
-      - "scripts/entrypoint-devlab.sh"
+      - "docker/**"
+      - "Labs/**"
   workflow_dispatch:
 
 # Workflow permissions
@@ -37,7 +28,7 @@ permissions:
 # Concurrency settings
 concurrency:
   cancel-in-progress: true
-  group: "devlab-build"
+  group: "docker-build"
 
 # The build job
 jobs:
@@ -64,7 +55,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/kubernetes-labs-devlab
+          images: ghcr.io/${{ github.repository_owner }}/kubernetes-labs
           tags: |
             type=raw,value=latest
             type=sha,prefix=sha-,format=short
@@ -72,8 +63,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: scripts/
-          file: scripts/Dockerfile.devlab
+          context: .
+          file: docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}

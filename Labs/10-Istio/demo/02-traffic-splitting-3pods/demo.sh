@@ -104,16 +104,37 @@ echo "========================================"
 
 touch "$PF_PID_FILE"
 start_port_forward istio-system kiali 20001 20001
-start_port_forward istio-system istio-ingressgateway 8080 80
 
 sleep 2
 
-echo "Ingress URL: http://localhost:8080/"
-open_url "http://localhost:8080/" || true
+# Check if nginx ingress is available and echo.local resolves
+INGRESS_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)
+
+echo
+echo "========================================"
+echo "Access URLs"
+echo "========================================"
+echo
+echo "Via Ingress (recommended):"
+echo "  Echo app:   http://echo.local/"
+echo "  Kiali:      http://localhost:20001/kiali/"
+echo
+if [ -n "$INGRESS_IP" ]; then
+  if ! grep -q "echo.local" /etc/hosts 2>/dev/null; then
+    echo "Add to /etc/hosts for ingress access:"
+    echo "  echo \"${INGRESS_IP} echo.local\" | sudo tee -a /etc/hosts"
+    echo
+  fi
+fi
+
+echo "Via port-forward (fallback):"
+start_port_forward istio-system istio-ingressgateway 8080 80
+sleep 1
+echo "  Echo app:   http://localhost:8080/"
+echo
+open_url "http://echo.local/" || open_url "http://localhost:8080/" || true
 
 if kubectl -n istio-system get svc kiali >/dev/null 2>&1; then
-  echo "Kiali URL: http://localhost:20001/kiali/"
-  open_url "http://localhost:20001/kiali/" || true
   open_url "http://localhost:20001/kiali/console/graph/namespaces?namespaces=istio02" || true
 fi
 

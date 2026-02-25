@@ -1,6 +1,6 @@
 ---
 
-# ResourceQuotas & LimitRanges — Multi-Tenant Resource Control
+# ResourceQuotas & LimitRanges - Multi-Tenant Resource Control
 
 - In this lab we will learn how to use **ResourceQuotas** and **LimitRanges** to control and limit resource consumption per namespace, ensuring fair sharing in multi-tenant Kubernetes clusters.
 
@@ -173,7 +173,7 @@ spec:
 ```sh
 kubectl apply -f manifests/pod-with-resources.yaml
 
-# Check quota usage — resources are now counted
+# Check quota usage - resources are now counted
 kubectl describe resourcequota compute-quota -n quota-lab
 ```
 
@@ -229,7 +229,7 @@ kubectl apply -f manifests/deployment-exceeds-quota.yaml
 
 # Check how many pods were actually created
 kubectl get pods -n quota-lab -l app=hungry
-# Only some pods will be created — the rest are blocked by quota
+# Only some pods will be created - the rest are blocked by quota
 
 # Check events for the ReplicaSet to see the quota error
 kubectl get events -n quota-lab --field-selector reason=FailedCreate --sort-by='.lastTimestamp'
@@ -240,7 +240,7 @@ kubectl get events -n quota-lab --field-selector reason=FailedCreate --sort-by='
 
 ## 06. Create a LimitRange
 
-A LimitRange sets **per-container** defaults and constraints — so pods without explicit resources still get reasonable limits:
+A LimitRange sets **per-container** defaults and constraints - so pods without explicit resources still get reasonable limits:
 
 ```yaml
 # manifests/limit-range.yaml
@@ -292,7 +292,7 @@ kubectl run auto-limited --image=nginx:alpine -n quota-lab
 # Wait for it
 kubectl wait --for=condition=Ready pod/auto-limited -n quota-lab --timeout=60s
 
-# Check the pod — it has resources injected automatically
+# Check the pod - it has resources injected automatically
 kubectl get pod auto-limited -n quota-lab -o jsonpath='{.spec.containers[0].resources}' | python3 -m json.tool
 ```
 
@@ -421,7 +421,7 @@ Try to solve each exercise on your own before revealing the solution.
 
 #### 01. Create a Quota That Limits Only Object Counts
 
-Create a ResourceQuota named `object-count-quota` that limits the namespace to a maximum of 3 pods, 2 services, and 2 configmaps — without any CPU or memory restrictions.
+Create a ResourceQuota named `object-count-quota` that limits the namespace to a maximum of 3 pods, 2 services, and 2 configmaps - without any CPU or memory restrictions.
 
 #### Scenario:
 
@@ -634,7 +634,7 @@ EOF
 ## The monitoring script
 cat <<'SCRIPT'
 #!/bin/bash
-## quota-monitor.sh — Check ResourceQuota usage across all namespaces
+## quota-monitor.sh - Check ResourceQuota usage across all namespaces
 THRESHOLD=80
 
 echo "=== ResourceQuota Usage Report ==="
@@ -656,7 +656,7 @@ for item in data.get('items', []):
         h = hard[resource]
         u = used.get(resource, '0')
 
-        # Parse values (simplified — handles integers and 'Mi/Gi' suffixes)
+        # Parse values (simplified - handles integers and 'Mi/Gi' suffixes)
         def parse_val(v):
             v = str(v)
             if v.endswith('Gi'): return float(v[:-2]) * 1024
@@ -822,7 +822,7 @@ kubectl run naked-pod --image=nginx:alpine -n defaults-test
 ## Wait for it
 kubectl wait --for=condition=Ready pod/naked-pod -n defaults-test --timeout=60s
 
-## Inspect the pod — LimitRange should have injected defaults
+## Inspect the pod - LimitRange should have injected defaults
 kubectl get pod naked-pod -n defaults-test -o jsonpath='{.spec.containers[0].resources}' | python3 -m json.tool
 
 ## Expected output:
@@ -879,7 +879,7 @@ EOF
 
 <br>
 
-- **Deployment stuck — ReplicaSet cannot create pods:**
+- **Deployment stuck - ReplicaSet cannot create pods:**
 
 Check the ReplicaSet events for quota errors:
 

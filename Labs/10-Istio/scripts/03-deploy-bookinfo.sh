@@ -48,7 +48,7 @@ deploy_bookinfo() {
   print_step "Verifying application connectivity..."
   sleep 5
   PRODUCTPAGE_POD=$(kubectl get pod -n bookinfo -l app=productpage -o jsonpath='{.items[0].metadata.name}')
-  RESULT=$(kubectl exec -n bookinfo "$PRODUCTPAGE_POD" -c productpage -- curl -s -o /dev/null -w "%{http_code}" http://productpage:9080/productpage 2>/dev/null)
+  RESULT=$(kubectl exec -n bookinfo "$PRODUCTPAGE_POD" -c istio-proxy -- curl -s -o /dev/null -w "%{http_code}" http://productpage:9080/productpage 2>/dev/null)
   if [ "$RESULT" = "200" ]; then
     print_success "Bookinfo productpage is responding (HTTP 200)"
   else

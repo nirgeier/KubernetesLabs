@@ -1,3 +1,28 @@
+##################################################################################################
+# Nginx Ingress for the echo traffic-splitting demo
+# Routes echo.local → istio-ingressgateway → Istio Gateway → echo VirtualService
+##################################################################################################
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: echo
+  namespace: istio-system
+  labels:
+    app: echo
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: echo.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: istio-ingressgateway
+                port:
+                  number: 80
+---
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:

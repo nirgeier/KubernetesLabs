@@ -25,8 +25,8 @@
 
 | Component        | Role                                                                     |
 | ---------------- | ------------------------------------------------------------------------ |
-| **Elasticsearch**| Search and analytics engine — stores and indexes log data                |
-| **Filebeat**     | Lightweight log shipper (DaemonSet) — collects container logs            |
+| **Elasticsearch**| Search and analytics engine - stores and indexes log data                |
+| **Filebeat**     | Lightweight log shipper (DaemonSet) - collects container logs            |
 | **Kibana**       | Web UI for searching, visualizing, and dashboarding log data             |
 
 ### Why File-Based Processing?
@@ -372,9 +372,9 @@ kubectl apply -f ../18-ArgoCD/apps/app-of-apps.yaml
 
 ArgoCD will discover `Labs/33-EFK/argocd-apps/` and deploy each component with proper sync waves:
 
-- **Wave 0** — Elasticsearch (deployed first)
-- **Wave 1** — Filebeat, Kibana (deployed after Elasticsearch is healthy)
-- **Wave 2** — Log Generator, Log Processor (deployed last)
+- **Wave 0** - Elasticsearch (deployed first)
+- **Wave 1** - Filebeat, Kibana (deployed after Elasticsearch is healthy)
+- **Wave 2** - Log Generator, Log Processor (deployed last)
 
 ### Deploy EFK App of Apps Directly
 

@@ -60,61 +60,62 @@ theme:
 ###
 
 nav:
-  - Start Here: welcome.md
-  - Getting Started:
-      - index.md
-      - 00 Verify Cluster: 00-VerifyCluster/README.md
-      - 01 Namespace: 01-Namespace/README.md
-      - 02 Deployments Imperative: 02-Deployments-Imperative/README.md
-      - 03 Deployments Declarative: 03-Deployments-Declarative/README.md
-      - 04 Rollout: 04-Rollout/README.md
-      - 20 CronJob: 20-CronJob/README.md
-  - Networking:
-      - 05 Services: 05-Services/README.md
-      - 07 Nginx Ingress: 07-nginx-Ingress/README.md
-      - 10 Istio: 10-Istio/README.md
-      - 33 NetworkPolicies: 33-NetworkPolicies/README.md
-  - Security:
-      - 31 RBAC: 31-RBAC/README.md
-      - 32 Secrets: 32-Secrets/README.md
-      - 33 NetworkPolicies: 33-NetworkPolicies/README.md
-      - 37 ResourceQuotas & LimitRanges: 37-ResourceQuotas/README.md
-  - Storage & Config:
-      - 06 DataStore & Secret Management: 06-DataStore/README.md
-      - 08 Kustomization: 08-Kustomization/README.md
-      - 09 StatefulSet: 09-StatefulSet/README.md
-      - 12 Wordpress MySQL PVC: 12-Wordpress-MySQL-PVC/README.md
-  - Observability:
-      - 14 Logging: 14-Logging/README.md
-      - 15 Prometheus Grafana: 15-Prometheus-Grafana/README.md
-      - 29 EFK Stack: 29-EFK/README.md
-  - GitOps & CI/CD:
-      - 13 HelmChart: 13-HelmChart/README.md
-      - 18 ArgoCD: 18-ArgoCD/README.md
-      - 23 HelmOperator: 23-HelmOperator/README.md
-      - 26 Kubeapps: 26-kubeapps/README.md
-  - Advanced:
-      - 11 CRD Custom Resource Definition: 11-CRD-Custom-Resource-Definition/README.md
-      - 16 Affinity Taint Toleration: 16-Affinity-Taint-Tolleration/README.md
-      - 17 PodDisruptionBudgets PDB: 17-PodDisruptionBudgets-PDB/README.md
-      - 19 CustomScheduler: 19-CustomScheduler/README.md
-      - 21 KubeAPI: 21-KubeAPI/README.md
-      - 24 Kubebuilder: 24-kubebuilder/README.md
-      - 25 Krew: 25-krew/README.md
-      - 27 kubeadm: 27-kubeadm/README.md
-      - 28 Telepresence: 28-Telepresence/README.md
-      - 30 KEDA: 30-Keda/README.md
-      - 34 crictl: 34-crictl/README.md
-      - 36 kubectl Deep Dive: 36-kubectl-Deep-Dive/README.md
-  - Tasks:
-      - Overview: Tasks/index.md
-      - CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
-      - Service Tasks: Tasks/Kubernetes-Service-Tasks/README.md
-      - Helm Tasks: Tasks/Kubernetes-Helm-Tasks/README.md
-      - ArgoCD Tasks: Tasks/Kubernetes-ArgoCD-Tasks/README.md
-      - Scheduling Tasks: Tasks/Kubernetes-Scheduling-Tasks/README.md
-      - Kubebuilder Tasks: Tasks/Kubernetes-Kubebuilder-Tasks/README.md
-      - KEDA Tasks: Tasks/Kubernetes-KEDA-Tasks/README.md
+        - Start Here: welcome.md
+        - Getting Started:
+                  - index.md
+                  - 00 Verify Cluster: 00-VerifyCluster/README.md
+                  - 01 Namespace: 01-Namespace/README.md
+                  - 02 Deployments Imperative: 02-Deployments-Imperative/README.md
+                  - 03 Deployments Declarative: 03-Deployments-Declarative/README.md
+                  - 04 Rollout: 04-Rollout/README.md
+                  - 20 CronJob: 20-CronJob/README.md
+        - Networking:
+                  - 05 Services: 05-Services/README.md
+                  - 07 Nginx Ingress: 07-nginx-Ingress/README.md
+                  - 10 Istio: 10-Istio/README.md
+                  - 37 NetworkPolicies: 37-NetworkPolicies/README.md
+        - Security:
+                  - 31 RBAC: 31-RBAC/README.md
+                  - 32 Secrets: 32-Secrets/README.md
+                  - 33 NetworkPolicies: 33-NetworkPolicies/README.md
+                  - 37 ResourceQuotas & LimitRanges: 37-ResourceQuotas/README.md
+        - Storage & Config:
+                  - 06 DataStore & Secret Management: 06-DataStore/README.md
+                  - 08 Kustomization: 08-Kustomization/README.md
+                  - 09 StatefulSet: 09-StatefulSet/README.md
+                  - 12 Wordpress MySQL PVC: 12-Wordpress-MySQL-PVC/README.md
+        - Observability:
+                  - 14 Logging: 14-Logging/README.md
+                  - 15 Prometheus Grafana: 15-Prometheus-Grafana/README.md
+                  - 29 EFK Stack: 29-EFK/README.md
+        - GitOps & CI/CD:
+                  - 13 HelmChart: 13-HelmChart/README.md
+                  - 18 ArgoCD: 18-ArgoCD/README.md
+                  - 23 HelmOperator: 23-HelmOperator/README.md
+                  - 26 Kubeapps: 26-kubeapps/README.md
+        - Advanced:
+                  - 11 CRD Custom Resource Definition: 11-CRD-Custom-Resource-Definition/README.md
+                  - 16 Affinity Taint Toleration: 16-Affinity-Taint-Tolleration/README.md
+                  - 17 PodDisruptionBudgets PDB: 17-PodDisruptionBudgets-PDB/README.md
+                  - 19 CustomScheduler: 19-CustomScheduler/README.md
+                  - 21 KubeAPI: 21-KubeAPI/README.md
+                  - 24 Kubebuilder: 24-kubebuilder/README.md
+                  - 25 Krew: 25-krew/README.md
+                  - 27 kubeadm: 27-kubeadm/README.md
+                  - 28 Telepresence: 28-Telepresence/README.md
+                  - 30 KEDA: 30-Keda/README.md
+                  - 34 crictl: 34-crictl/README.md
+                  - 36 kubectl Deep Dive: 36-kubectl-Deep-Dive/README.md
+        - Tasks:
+                  - Overview: Tasks/index.md
+                  - CLI Tasks: Tasks/Kubernetes-CLI-Tasks/README.md
+                  - Service Tasks: Tasks/Kubernetes-Service-Tasks/README.md
+                  - Helm Tasks: Tasks/Kubernetes-Helm-Tasks/README.md
+                  - ArgoCD Tasks: Tasks/Kubernetes-ArgoCD-Tasks/README.md
+                  - Scheduling Tasks: Tasks/Kubernetes-Scheduling-Tasks/README.md
+                  - Kubebuilder Tasks: Tasks/Kubernetes-Kubebuilder-Tasks/README.md
+                  - KEDA Tasks: Tasks/Kubernetes-KEDA-Tasks/README.md
+                  - Harbor + ArgoCD Airgap Tasks: Tasks/Kubernetes-Harbor-ArgoCD-Airgap-Tasks/README.md
 ###
 ### mkdocs-site.yml
 ###
@@ -177,84 +178,84 @@ extra:
       class: social-class__email
 
 extra_css:
-  - ./assets/stylesheets/codewizard.css?v=1771902661
+  - ./assets/stylesheets/codewizard.css?v=1772199666
 extra_javascript:
-  - https://buttons.github.io/buttons.js?v=1771902661
+  - https://buttons.github.io/buttons.js?v=1772199666
+  - https://unpkg.com/mermaid@11/dist/mermaid.esm.min.mjs
 ###
 ### mkdocs-extensions.yml
 ###
 
 markdown_extensions:
-  - toc:
-      permalink: true
-      baselevel: 1
-      toc_depth: 3
-  - abbr
-  - tables
-  - admonition # For callouts/notes
-  - footnotes # Footnotes support
-  - attr_list # Attribute lists for elements
-  - def_list # Definition lists
-  - md_in_html # Markdown inside HTML blocks
-  - smarty # Smart punctuation
-  - meta
-  - codehilite:
-      guess_lang: true # Fallback code highlighting
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.details # Collapsible details
-  - pymdownx.inlinehilite # Inline code highlighting
-  - pymdownx.keys # Keyboard key formatting
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - pymdownx.betterem:
-      smart_enable: all
-  - pymdownx.tilde # Subscript/superscript
-  - pymdownx.snippets # Snippet includes
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-        ###
-        ### mkdocs-plugins.yml
-        ###
-
+    - toc:
+          permalink: true
+          baselevel: 1
+          toc_depth: 3
+    - abbr
+    - tables
+    - admonition # For callouts/notes
+    - footnotes # Footnotes support
+    - attr_list # Attribute lists for elements
+    - def_list # Definition lists
+    - md_in_html # Markdown inside HTML blocks
+    - smarty # Smart punctuation
+    - meta
+    - codehilite:
+          guess_lang: true # Fallback code highlighting
+    - pymdownx.tabbed:
+          alternate_style: true
+    - pymdownx.details # Collapsible details
+    - pymdownx.inlinehilite # Inline code highlighting
+    - pymdownx.keys # Keyboard key formatting
+    - pymdownx.tasklist:
+          custom_checkbox: true
+    - pymdownx.betterem:
+          smart_enable: all
+    - pymdownx.tilde # Subscript/superscript
+    - pymdownx.snippets # Snippet includes
+    - pymdownx.highlight:
+          anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
+    - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
+###
+### mkdocs-plugins.yml
+###
 
 plugins:
-  - awesome-pages
-  - meta
-  # - pdf-export:
-  #     combined: true # all pages in one PDF
-  #     combined_output_path: docs/Full-Documentation.pdf
-  #     media_type: print
-  #     verbose: true
-  # Git
-  #- git-authors
-  - git-committers:
-      branch: main
-      docs_path: Labs # set if your docs folder is not root
-      enabled: true
-      repository: nirgeier/KubernetesLabs
-  - git-revision-date-localized:
-      enable_creation_date: true
-      enable_git_follow: false
-      fallback_to_build_date: true
-      locale: en
-      timezone: UTC
-      type: date
-  - search:
-      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - minify:
-      minify_html: true
+    - awesome-pages
+    - meta
+    # - pdf-export:
+    #     combined: true # all pages in one PDF
+    #     combined_output_path: docs/Full-Documentation.pdf
+    #     media_type: print
+    #     verbose: true
+    # Git
+    #- git-authors
+    - git-committers:
+          branch: main
+          docs_path: Labs # set if your docs folder is not root
+          enabled: true
+          repository: nirgeier/KubernetesLabs
+    - git-revision-date-localized:
+          enable_creation_date: true
+          enable_git_follow: false
+          fallback_to_build_date: true
+          locale: en
+          timezone: UTC
+          type: date
+    - search:
+          separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+    - minify:
+          minify_html: true
 
-  # Leave this one as the last one in the list
-  - print-site
-  - include-markdown
+    # Leave this one as the last one in the list
+    - print-site
+    - include-markdown

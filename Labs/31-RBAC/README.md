@@ -1,6 +1,6 @@
 ---
 
-# RBAC — Role-Based Access Control
+# RBAC - Role-Based Access Control
 
 - In this lab we will learn how Kubernetes **Role-Based Access Control (RBAC)** works and how to use **Roles**, **ClusterRoles**, **RoleBindings**, **ClusterRoleBindings**, and **ServiceAccounts** to control who can do what inside a cluster.
 
@@ -111,7 +111,7 @@ kubectl apply -f manifests/role-pod-reader.yaml
 
     - **apiGroups**: `""` is the core API group (pods, services, configmaps). Use `"apps"` for deployments, `"batch"` for jobs, etc.
     - **resources**: Kubernetes resource types (pods, services, deployments, secrets, etc.)
-    - **verbs**: Actions — `get`, `list`, `watch`, `create`, `update`, `patch`, `delete`
+    - **verbs**: Actions - `get`, `list`, `watch`, `create`, `update`, `patch`, `delete`
 
 ---
 
@@ -207,13 +207,13 @@ Now exec into the pod and test the API access:
 # Exec into the pod
 kubectl exec -it api-explorer -n rbac-lab -- bash
 
-# Inside the pod — list pods (should work)
+# Inside the pod - list pods (should work)
 kubectl get pods -n rbac-lab
 
-# Inside the pod — try to delete a pod (should fail with Forbidden)
+# Inside the pod - try to delete a pod (should fail with Forbidden)
 kubectl delete pod api-explorer -n rbac-lab
 
-# Inside the pod — try to list services (should fail — not in our Role)
+# Inside the pod - try to list services (should fail - not in our Role)
 kubectl get services -n rbac-lab
 
 # Exit the pod
@@ -272,7 +272,7 @@ kubectl auth can-i list namespaces \
 
 ## 08. Aggregate ClusterRoles
 
-Kubernetes supports **aggregation** — automatically combining ClusterRoles via labels. The built-in `view`, `edit`, and `admin` ClusterRoles use this pattern:
+Kubernetes supports **aggregation** - automatically combining ClusterRoles via labels. The built-in `view`, `edit`, and `admin` ClusterRoles use this pattern:
 
 ```yaml
 # manifests/clusterrole-custom-view.yaml
@@ -328,7 +328,7 @@ kubectl describe clusterrole cluster-admin
 
 !!! warning "Security Best Practice"
 
-    **Never bind `cluster-admin` to application ServiceAccounts.** Follow the principle of least privilege — grant only the minimum permissions required.
+    **Never bind `cluster-admin` to application ServiceAccounts.** Follow the principle of least privilege - grant only the minimum permissions required.
 
 ---
 
@@ -350,7 +350,7 @@ kubectl delete clusterrolebinding view-namespaces --ignore-not-found
 | **ClusterRole**                | Cluster-scoped permissions (or reusable across NS)      |
 | **RoleBinding**                | Assigns Role/ClusterRole within a namespace             |
 | **ClusterRoleBinding**         | Assigns ClusterRole cluster-wide                        |
-| **ServiceAccount**             | Pod identity — attach Roles to pods via ServiceAccounts |
+| **ServiceAccount**             | Pod identity - attach Roles to pods via ServiceAccounts |
 | **`kubectl auth can-i`**       | Test permissions without trial-and-error                |
 | **Principle of Least Privilege** | Always grant the minimum permissions required          |
 
@@ -542,7 +542,7 @@ Create a Role that grants only `create` access on the `pods/exec` subresource, a
 #### Scenario:
 
 ◦ A debugging tool needs to exec into running pods for troubleshooting.
-◦ It should not be able to list, delete, or modify pods — only exec into them.
+◦ It should not be able to list, delete, or modify pods - only exec into them.
 
 **Hint:** Use two rules in the Role: one for `pods` with `get`, and one for `pods/exec` with `create`.
 

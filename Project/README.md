@@ -11,7 +11,7 @@
   - Git
   - Jenkins
 
-- The outcome of this project should be a sxcript which run all the required parts
+- The outcome of this project should be a script which run all the required parts
 
 ---
 

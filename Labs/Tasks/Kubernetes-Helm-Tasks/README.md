@@ -92,7 +92,7 @@ Inspect `Chart.yaml` and `values.yaml` to understand how Helm charts are configu
     # Key fields:
     # - apiVersion: v2       (Helm 3 chart)
     # - name: my-nginx-app
-    # - version: 0.1.0       (chart version — bump this on changes)
+    # - version: 0.1.0       (chart version - bump this on changes)
     # - appVersion: "1.16.0" (the app version being deployed)
 
     # 2. Inspect values.yaml
@@ -225,7 +225,7 @@ Create a ConfigMap that generates a custom HTML welcome page showing the current
 
     #### Step 3: Update the deployment template to mount the ConfigMap
 
-    Edit `my-nginx-app/templates/deployment.yaml` — add the `volumeMounts` and `volumes`:
+    Edit `my-nginx-app/templates/deployment.yaml` - add the `volumeMounts` and `volumes`:
 
     ```bash
     # Add volumeMounts under the container spec and volumes under the pod spec.
@@ -358,7 +358,7 @@ Verify the Service template supports ClusterIP, NodePort, and LoadBalancer types
 
   ◦ You want to expose your application with different service types depending on the environment (e.g., ClusterIP for dev, NodePort for minikube, LoadBalancer for cloud).
   ◦ You need your chart to be flexible enough to deploy with different service types depending on the environment.
-  ◦ The default `helm create` already includes a service template — you need to understand and test it.
+  ◦ The default `helm create` already includes a service template - you need to understand and test it.
 
 **Hint:** `--set service.type=NodePort`, `helm upgrade`
 
@@ -496,7 +496,7 @@ Create two Ingress resources: one serving the main app at `/` and another servin
     # Add ingress values to values.yaml
     cat >> my-nginx-app/values.yaml << 'EOF'
 
-    # Ingress configuration — two separate Ingress resources
+    # Ingress configuration - two separate Ingress resources
     ingress:
       main:
         enabled: true
@@ -581,7 +581,7 @@ Add a second Service of type `ExternalName` that maps a Kubernetes service name 
     ```bash
     cat >> my-nginx-app/values.yaml << 'EOF'
 
-    # ExternalName service — maps a local name to an external DNS
+    # ExternalName service - maps a local name to an external DNS
     externalService:
       enabled: true
       host: api.example.com
@@ -658,7 +658,7 @@ Use multiple values files to manage different environments (dev, staging, produc
         memory: 256Mi
     welcomePage:
       title: "PRODUCTION"
-      message: "Production instance — handle with care"
+      message: "Production instance - handle with care"
     service:
       type: LoadBalancer
     EOF
@@ -713,7 +713,7 @@ Create a custom named template in `_helpers.tpl` and use it across multiple temp
     # {{- define "my-nginx-app.labels" -}}       → Standard labels
     # {{- define "my-nginx-app.selectorLabels" -}} → Selector labels
 
-    # 2. Add a custom helper — e.g., environment label
+    # 2. Add a custom helper - e.g., environment label
     cat >> my-nginx-app/templates/_helpers.tpl << 'EOF'
 
     {{/*
@@ -859,20 +859,20 @@ Use Helm's built-in tools to validate, debug, and troubleshoot your chart before
 ??? example "Solution"
 
     ```bash
-    # 1. Lint — checks for common errors and best practices
+    # 1. Lint - checks for common errors and best practices
     helm lint my-nginx-app/
 
     # With values overrides
     helm lint my-nginx-app/ -f values-dev.yaml
 
-    # 2. Template — render manifests locally (no cluster needed)
+    # 2. Template - render manifests locally (no cluster needed)
     helm template my-release my-nginx-app/ > rendered.yaml
     cat rendered.yaml
 
-    # 3. Dry-run — simulates install against the cluster (validates with API server)
+    # 3. Dry-run - simulates install against the cluster (validates with API server)
     helm install my-nginx my-nginx-app/ --dry-run
 
-    # 4. Dry-run + Debug — shows rendered templates AND computed values
+    # 4. Dry-run + Debug - shows rendered templates AND computed values
     helm install my-nginx my-nginx-app/ --dry-run --debug
 
     # 5. Get rendered templates for a deployed release

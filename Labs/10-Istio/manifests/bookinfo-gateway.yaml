@@ -31,6 +31,11 @@ spec:
   http:
     - match:
         - uri:
+            exact: /
+      redirect:
+        uri: /productpage
+    - match:
+        - uri:
             exact: /productpage
         - uri:
             prefix: /static

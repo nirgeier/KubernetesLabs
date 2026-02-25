@@ -7,7 +7,7 @@
 
 # ☸️ Kubernetes Hands-on Labs
 
-**A comprehensive collection of 33+ hands-on labs designed to help you learn and master Kubernetes — from basic deployments to advanced topics like Istio, ArgoCD and custom schedulers.**
+**A comprehensive collection of 33+ hands-on labs designed to help you learn and master Kubernetes - from basic deployments to advanced topics like Istio, ArgoCD and custom schedulers.**
 
 <br>
 
@@ -207,11 +207,11 @@ Before starting these labs, you should have:
 
 ## 💡 Tips for Success
 
-- **Take your time** — Don't rush through the labs
-- **Practice regularly** — Repetition builds muscle memory
-- **Experiment** — Try variations of the examples
-- **Read the docs** — [Kubernetes documentation](https://kubernetes.io/docs/) is excellent
-- **Join the community** — Engage with other learners
+- **Take your time** - Don't rush through the labs
+- **Practice regularly** - Repetition builds muscle memory
+- **Experiment** - Try variations of the examples
+- **Read the docs** - [Kubernetes documentation](https://kubernetes.io/docs/) is excellent
+- **Join the community** - Engage with other learners
 
 ---
 

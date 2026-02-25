@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# install.sh — Install KEDA via Helm
+# install.sh - Install KEDA via Helm
 #
 # Usage:
 #   ./scripts/install.sh            # Install KEDA
@@ -36,7 +36,7 @@ check_prerequisites() {
     exit 1
   fi
 
-  _info "Prerequisites OK — kubectl and helm are available."
+  _info "Prerequisites OK - kubectl and helm are available."
 }
 
 # ── Install KEDA ───────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ install_keda() {
   echo ""
   _info "Verifying Metrics API registration..."
   kubectl get apiservice | grep external.metrics ||
-    _warn "Metrics API not yet registered — wait a few seconds and retry."
+    _warn "Metrics API not yet registered - wait a few seconds and retry."
 
   echo ""
   _info "=== KEDA is ready ==="

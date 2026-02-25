@@ -128,7 +128,7 @@ start_traffic_generator() {
   if [ -f "$TRAFFIC_PID_FILE" ] && kill -0 "$(cat "$TRAFFIC_PID_FILE" 2>/dev/null)" 2>/dev/null; then
     return 0
   fi
-  nohup bash -lc 'while true; do curl -fsS http://127.0.0.1:8080/productpage >/dev/null; curl -fsS http://127.0.0.1:8080/api/v1/products/0/reviews >/dev/null; sleep 1; done' >"$TRAFFIC_LOG_FILE" 2>&1 &
+  nohup bash -lc 'while true; do curl -fsS http://127.0.0.1:8080/productpage >/dev/null; sleep 1; done' >"$TRAFFIC_LOG_FILE" 2>&1 &
   echo $! >"$TRAFFIC_PID_FILE"
 }
 
@@ -327,8 +327,8 @@ start_traffic_generator
 sleep 2
 
 if command -v curl >/dev/null 2>&1; then
-  curl -fsSI http://127.0.0.1:20001/kiali/ >/dev/null 2>&1 && echo "Kiali: reachable on http://localhost:20001/kiali/" || echo "Kiali: not reachable yet (check .port-forward-istio-system-kiali-20001.log)"
-  curl -fsS http://127.0.0.1:8080/productpage >/dev/null 2>&1 && echo "Bookinfo: reachable on http://localhost:8080/productpage" || echo "Bookinfo: not reachable yet (check .port-forward-istio-system-istio-ingressgateway-8080.log)"
+  curl -fsSI http://127.0.0.1:20001/kiali/ >/dev/null 2>&1 && echo "Kiali: reachable on http://localhost:20001/kiali/" || echo "Kiali: not reachable yet (check $RUNTIME_DIR/port-forward-istio-system-kiali-20001.log)"
+  curl -fsS http://127.0.0.1:8080/productpage >/dev/null 2>&1 && echo "Bookinfo: reachable on http://localhost:8080/productpage" || echo "Bookinfo: not reachable yet (check $RUNTIME_DIR/port-forward-istio-system-istio-ingressgateway-8080.log)"
 fi
 
 open_url "http://localhost:20001/kiali/"

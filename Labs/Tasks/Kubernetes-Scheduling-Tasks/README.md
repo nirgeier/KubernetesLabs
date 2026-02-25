@@ -120,7 +120,7 @@ Deploy a Pod that strongly prefers production nodes (weight 80) and weakly prefe
 
 #### Scenario:
 
-  ◦ You want soft scheduling preferences — the Pod should schedule even if neither preference is met.
+  ◦ You want soft scheduling preferences - the Pod should schedule even if neither preference is met.
   ◦ Weights (1–100) let you prioritize multiple preferences.
 
 **Hint:** Use `preferredDuringSchedulingIgnoredDuringExecution` with two entries at different weights.
@@ -365,7 +365,7 @@ Deploy a Pod with a `NoExecute` toleration and `tolerationSeconds: 60`. Apply th
     # 3. Taint the node with NoExecute
     kubectl taint nodes $NODE maintenance=true:NoExecute
 
-    # 4. Watch the Pod — it survives ~60s then is evicted
+    # 4. Watch the Pod - it survives ~60s then is evicted
     kubectl get pod graceful-pod -w
 
     # Cleanup

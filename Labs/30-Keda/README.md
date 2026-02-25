@@ -3,7 +3,7 @@
 # KEDA - Kubernetes Event-Driven Autoscaling
 
 - `KEDA` is a **Kubernetes-based Event Driven Autoscaler** that extends the native Kubernetes `HorizontalPodAutoscaler` (HPA).
-- It allows you to scale any container in Kubernetes based on the number of events from virtually **any event source** — queues, streams, databases, HTTP traffic, cron schedules, and more.
+- It allows you to scale any container in Kubernetes based on the number of events from virtually **any event source** - queues, streams, databases, HTTP traffic, cron schedules, and more.
 - `KEDA` is a **CNCF Graduated project** (since 2023), widely adopted and production-proven.
 
 ---
@@ -165,7 +165,7 @@ sequenceDiagram
 | Term | Kind | Description |
 |------|------|-------------|
 | **ScaledObject** | CRD | Links a Deployment/StatefulSet/custom workload to one or more scalers. KEDA creates a managed HPA for it. |
-| **ScaledJob** | CRD | Like ScaledObject but for Kubernetes `Jobs` — creates one Job per event (or batches) instead of scaling pods |
+| **ScaledJob** | CRD | Like ScaledObject but for Kubernetes `Jobs` - creates one Job per event (or batches) instead of scaling pods |
 | **TriggerAuthentication** | CRD | Stores authentication configs (secrets, pod identity) for scalers that need credentials |
 | **ClusterTriggerAuthentication** | CRD | Same as TriggerAuthentication but cluster-scoped (reusable across namespaces) |
 | **Scaler** | Built-in | A plugin inside KEDA that knows how to query a specific event/metric source |
@@ -321,7 +321,7 @@ kubectl apply --server-side \
 
 ## Part 03 - Your First ScaledObject (CPU Scaler)
 
-The `CPU` scaler is the simplest way to start with KEDA — it works like HPA but lets you combine it with other KEDA scalers.
+The `CPU` scaler is the simplest way to start with KEDA - it works like HPA but lets you combine it with other KEDA scalers.
 
 ### Understanding the ScaledObject
 
@@ -351,7 +351,7 @@ spec:
 
 ### Lab: Deploy a workload and scale it on CPU
 
-**Step 01** — Create the namespace and a demo deployment:
+**Step 01** - Create the namespace and a demo deployment:
 
 ```bash
 kubectl apply -f manifests/00-namespace.yaml
@@ -363,13 +363,13 @@ Verify:
 kubectl get deployment -n keda-demo
 ```
 
-**Step 02** — Apply the CPU ScaledObject:
+**Step 02** - Apply the CPU ScaledObject:
 
 ```bash
 kubectl apply -f manifests/02-scaled-object-cpu.yaml
 ```
 
-**Step 03** — Verify KEDA created an HPA:
+**Step 03** - Verify KEDA created an HPA:
 
 ```bash
 # KEDA creates and manages an HPA automatically
@@ -382,7 +382,7 @@ NAME                          REFERENCE              TARGETS      MINPODS   MAXP
 keda-hpa-demo-cpu-scaler      Deployment/nginx-demo  5%/60%       1         10
 ```
 
-**Step 04** — Generate CPU load and watch scaling:
+**Step 04** - Generate CPU load and watch scaling:
 
 ```bash
 # Terminal 1: Watch pods
@@ -396,7 +396,7 @@ kubectl run -it --rm load-generator \
     -- /bin/sh -c "while true; do wget -q -O- http://nginx-demo:80; done"
 ```
 
-**Step 05** — Inspect the ScaledObject status:
+**Step 05** - Inspect the ScaledObject status:
 
 ```bash
 kubectl get scaledobject -n keda-demo
@@ -407,7 +407,7 @@ kubectl describe scaledobject demo-cpu-scaler -n keda-demo
 
 ## Part 04 - Cron Scaler (Scheduled Scaling)
 
-The **Cron scaler** lets you define time windows with specific replica counts. This is ideal for predictable traffic patterns — e.g., pre-warm your API servers every weekday morning.
+The **Cron scaler** lets you define time windows with specific replica counts. This is ideal for predictable traffic patterns - e.g., pre-warm your API servers every weekday morning.
 
 ### ScaledObject with Cron Trigger
 
@@ -481,7 +481,7 @@ kubectl describe scaledobject nginx-cron-scaler -n keda-demo
 
 ## Part 05 - Scale to Zero with Redis Queue Scaler
 
-The **Redis List scaler** monitors a Redis list length and scales the consumer Deployment up (or from 0) when there are items in the queue — and back down to zero when the queue is empty.
+The **Redis List scaler** monitors a Redis list length and scales the consumer Deployment up (or from 0) when there are items in the queue - and back down to zero when the queue is empty.
 
 This is the classic "worker pool" autoscaling pattern:
 
@@ -494,7 +494,7 @@ graph LR
     workers -- "LPOP jobs" --> redis_list
 ```
 
-### Step 01 — Deploy Redis
+### Step 01 - Deploy Redis
 
 ```bash
 kubectl apply -f manifests/04-redis-stack.yaml
@@ -503,9 +503,9 @@ kubectl apply -f manifests/04-redis-stack.yaml
 kubectl rollout status deployment/redis -n keda-demo
 ```
 
-### Step 02 — Deploy a Worker Deployment (starts at 0 replicas)
+### Step 02 - Deploy a Worker Deployment (starts at 0 replicas)
 
-The worker deployment starts at 0 replicas — KEDA will scale it up when jobs arrive:
+The worker deployment starts at 0 replicas - KEDA will scale it up when jobs arrive:
 
 ```yaml
 # Part of manifests/04-redis-stack.yaml
@@ -542,7 +542,7 @@ spec:
               done
 ```
 
-### Step 03 — Apply the Redis ScaledObject
+### Step 03 - Apply the Redis ScaledObject
 
 ```bash
 kubectl apply -f manifests/05-scaled-object-redis.yaml
@@ -571,7 +571,7 @@ spec:
         listLength: "5"       # One replica per 5 items in the queue
 ```
 
-### Step 04 — Verify scale-to-zero
+### Step 04 - Verify scale-to-zero
 
 ```bash
 # Should show 0 pods (no jobs in queue yet)
@@ -579,7 +579,7 @@ kubectl get pods -n keda-demo -l app=redis-worker
 kubectl get scaledobject redis-worker-scaler -n keda-demo
 ```
 
-### Step 05 — Enqueue jobs and watch scale-up
+### Step 05 - Enqueue jobs and watch scale-up
 
 ```bash
 # Terminal 1: Watch pods
@@ -625,7 +625,7 @@ graph LR
     keda_op -- "Reads credentials\nfrom Secret" --> redis_ext["Redis with\npassword auth"]
 ```
 
-**Step 01** — Create a Secret:
+**Step 01** - Create a Secret:
 
 ```bash
 kubectl create secret generic redis-auth-secret \
@@ -633,7 +633,7 @@ kubectl create secret generic redis-auth-secret \
     --from-literal=redis-password='super-secret-password'
 ```
 
-**Step 02** — Create the TriggerAuthentication (references the Secret):
+**Step 02** - Create the TriggerAuthentication (references the Secret):
 
 ```yaml
 # manifests/06-trigger-auth.yaml
@@ -649,7 +649,7 @@ spec:
       key: redis-password          # Key within the Secret
 ```
 
-**Step 03** — Reference it in the ScaledObject:
+**Step 03** - Reference it in the ScaledObject:
 
 ```yaml
 # manifests/07-scaled-object-redis-auth.yaml
@@ -706,7 +706,7 @@ authenticationRef:
 
 ## Part 07 - Prometheus Scaler
 
-The **Prometheus scaler** lets you scale based on any Prometheus metric — custom application metrics, business metrics, or infrastructure metrics.
+The **Prometheus scaler** lets you scale based on any Prometheus metric - custom application metrics, business metrics, or infrastructure metrics.
 
 ```yaml
 # manifests/08-prometheus-scaler.yaml
@@ -912,7 +912,7 @@ spec:
 
 | Pattern | Config | Use Case |
 |---------|--------|---------|
-| Aggressive scale-up, slow scale-down | `scaleUp.stabilizationWindowSeconds: 0`, `scaleDown.stabilizationWindowSeconds: 300` | Spiky traffic — respond fast, avoid flapping |
+| Aggressive scale-up, slow scale-down | `scaleUp.stabilizationWindowSeconds: 0`, `scaleDown.stabilizationWindowSeconds: 300` | Spiky traffic - respond fast, avoid flapping |
 | Gradual scale-up | `scaleUp.policies: [{type: Pods, value: 2, periodSeconds: 60}]` | Expensive pods, avoid overwhelming downstreams |
 | No downscale | `scaleDown: {selectPolicy: Disabled}` | Stateful workloads, long-lived connections |
 | Fast scale-down | `scaleDown.stabilizationWindowSeconds: 0` | Short-lived jobs, cost optimization |
@@ -921,7 +921,7 @@ spec:
 
 ## Part 10 - Kafka Scaler
 
-The **Kafka scaler** scales Consumers based on consumer group lag — the number of messages in a topic that haven't been processed yet.
+The **Kafka scaler** scales Consumers based on consumer group lag - the number of messages in a topic that haven't been processed yet.
 
 ```yaml
 apiVersion: keda.sh/v1alpha1
@@ -1051,7 +1051,7 @@ spec:
 ```
 
 !!! info "Multiple Trigger Evaluation"
-    KEDA evaluates ALL triggers simultaneously and scales to whichever trigger demands the most replicas. If CPU wants 3, cron wants 5, and Redis wants 8 — KEDA scales to **8**.
+    KEDA evaluates ALL triggers simultaneously and scales to whichever trigger demands the most replicas. If CPU wants 3, cron wants 5, and Redis wants 8 - KEDA scales to **8**.
 
 ---
 
@@ -1086,7 +1086,7 @@ spec:
       - CreateNamespace=true
 ```
 
-When you push a new or updated `ScaledObject` manifest to Git, ArgoCD automatically applies it and KEDA starts the new scaling behavior — **no manual kubectl needed**.
+When you push a new or updated `ScaledObject` manifest to Git, ArgoCD automatically applies it and KEDA starts the new scaling behavior - **no manual kubectl needed**.
 
 ### Workflow
 
@@ -1702,7 +1702,7 @@ kubectl delete crd \
 
 ## Next Steps
 
-- Explore the full [KEDA Scalers catalog](https://keda.sh/docs/latest/scalers/) — 60+ event sources including AWS SQS, GCP Pub/Sub, and Azure Service Bus.
+- Explore the full [KEDA Scalers catalog](https://keda.sh/docs/latest/scalers/) - 60+ event sources including AWS SQS, GCP Pub/Sub, and Azure Service Bus.
 - Try the [KEDA HTTP Add-on](https://github.com/kedacore/http-add-on) for HTTP-based scale-to-zero.
 - Combine KEDA with [ArgoCD (Lab 18)](../18-ArgoCD/README.md) for GitOps-managed autoscaling configurations.
 - Learn about [Prometheus & Grafana (Lab 15)](../15-Prometheus-Grafana/README.md) for monitoring KEDA metrics.

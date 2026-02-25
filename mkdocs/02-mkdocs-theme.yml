@@ -37,9 +37,9 @@ theme:
     - toc.follow
     - toc.integrate
     - toc.sticky
-    
+
     #- header.autohide  # Disabled to keep top nav always visible
-    
+
   # 👈 enables avatar display
   palette:
     # Dark mode only

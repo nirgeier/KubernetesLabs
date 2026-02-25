@@ -2465,7 +2465,7 @@ flowchart TD
 
 - **Pod stuck in Pending:**
 
-Check the pod events for scheduling failures — the event message tells you exactly which constraint was violated:
+Check the pod events for scheduling failures - the event message tells you exactly which constraint was violated:
 
 ```bash
 kubectl describe pod <pod-name> | grep -A10 "Events:"

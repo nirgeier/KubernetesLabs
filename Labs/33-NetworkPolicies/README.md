@@ -1,8 +1,8 @@
 ---
 
-# NetworkPolicies — Pod-Level Firewall Rules
+# NetworkPolicies - Pod-Level Firewall Rules
 
-- In this lab we will learn how to use Kubernetes **NetworkPolicies** to control traffic flow between pods, namespaces, and external endpoints — effectively creating firewall rules at the pod level.
+- In this lab we will learn how to use Kubernetes **NetworkPolicies** to control traffic flow between pods, namespaces, and external endpoints - effectively creating firewall rules at the pod level.
 
 ---
 
@@ -202,7 +202,7 @@ kubectl exec rogue -n netpol-frontend -- \
 
 ## 03. Default Deny All Ingress
 
-Apply a **default deny** policy — blocks ALL incoming traffic to pods in `netpol-backend`:
+Apply a **default deny** policy - blocks ALL incoming traffic to pods in `netpol-backend`:
 
 ```yaml
 # manifests/default-deny-ingress.yaml
@@ -221,7 +221,7 @@ spec:
 kubectl apply -f manifests/default-deny-ingress.yaml
 ```
 
-Test — both pods should now be blocked:
+Test - both pods should now be blocked:
 
 ```sh
 # Both should time out
@@ -272,7 +272,7 @@ kubectl apply -f manifests/allow-client-ingress.yaml
 
 !!! note "AND vs OR in NetworkPolicy selectors"
 
-    When `namespaceSelector` and `podSelector` are in the **same `from` entry** (no dash between them), they are combined with **AND** — both must match. If they were separate entries (each with its own dash), they would be **OR**.
+    When `namespaceSelector` and `podSelector` are in the **same `from` entry** (no dash between them), they are combined with **AND** - both must match. If they were separate entries (each with its own dash), they would be **OR**.
 
 Test:
 
@@ -290,7 +290,7 @@ kubectl exec rogue -n netpol-frontend -- \
 
 ---
 
-## 05. Egress policy — Restrict outgoing traffic
+## 05. Egress policy - Restrict outgoing traffic
 
 Restrict pods in `netpol-backend` to only communicate with DNS and internal cluster IPs:
 
@@ -330,7 +330,7 @@ kubectl apply -f manifests/restrict-egress.yaml
 
 ## 06. Default Deny All (Ingress + Egress)
 
-The most restrictive baseline — deny everything, then allowlist:
+The most restrictive baseline - deny everything, then allowlist:
 
 ```yaml
 # manifests/default-deny-all.yaml
@@ -358,7 +358,7 @@ kubectl apply -f manifests/default-deny-all.yaml
 
     1. Start with a **default-deny-all** policy in each namespace
     2. Add specific **allow** policies for each required communication path
-    3. This is a "whitelist" approach — explicit is better than implicit
+    3. This is a "whitelist" approach - explicit is better than implicit
 
 ---
 
@@ -922,7 +922,7 @@ ingress:
       - namespaceSelector:
           matchLabels:
             role: frontend
-        podSelector:            # No dash — same entry = AND
+        podSelector:            # No dash - same entry = AND
           matchLabels:
             app: client
 
@@ -932,7 +932,7 @@ ingress:
       - namespaceSelector:
           matchLabels:
             role: frontend
-      - podSelector:            # Dash — separate entry = OR
+      - podSelector:            # Dash - separate entry = OR
           matchLabels:
             app: client
 ```
@@ -960,6 +960,6 @@ kubectl exec <pod> -n <namespace> -- nc -zv -w 3 <service> <port>
 
 - Explore [Cilium NetworkPolicies](https://docs.cilium.io/en/stable/security/policy/) for advanced L7 (HTTP, gRPC) filtering and DNS-aware policies.
 - Learn about [Calico NetworkPolicies](https://docs.tigera.io/calico/latest/network-policy/) for enterprise-grade network security with global policies and FQDN-based rules.
-- Try [Network Policy Editor](https://editor.networkpolicy.io/) — a visual tool for building and visualizing NetworkPolicies.
+- Try [Network Policy Editor](https://editor.networkpolicy.io/) - a visual tool for building and visualizing NetworkPolicies.
 - Implement [Kubernetes Security Best Practices](https://kubernetes.io/docs/concepts/security/) combining NetworkPolicies with RBAC, Pod Security Standards, and Secrets management.
 - Explore service mesh solutions (Istio, Linkerd) for mTLS and L7 traffic management on top of NetworkPolicies.

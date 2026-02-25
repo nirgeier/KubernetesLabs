@@ -27,15 +27,15 @@
 
 - `Istio` extends Kubernetes to establish a programmable, application-aware network using the Envoy service proxy.
 - Istio provides a **control plane** (Istiod) and a **data plane** (Envoy sidecars injected into every pod).
-- It requires **zero application code changes** — all features are handled transparently by the mesh.
+- It requires **zero application code changes** - all features are handled transparently by the mesh.
 
 ### Core Components
 
 | Component        | Role                                                                      | Default Port |
 | ---------------- | ------------------------------------------------------------------------- | ------------ |
-| **Istiod**       | Control plane — manages configuration, certificates, service discovery    | N/A          |
-| **Envoy**        | Sidecar proxy injected into each pod — intercepts all pod network traffic | N/A          |
-| **Kiali**        | Service mesh observability console — topology, health, config validation  | `20001`      |
+| **Istiod**       | Control plane - manages configuration, certificates, service discovery    | N/A          |
+| **Envoy**        | Sidecar proxy injected into each pod - intercepts all pod network traffic | N/A          |
+| **Kiali**        | Service mesh observability console - topology, health, config validation  | `20001`      |
 | **Prometheus**   | Metrics collection and storage for Istio telemetry                        | `9090`       |
 | **Grafana**      | Dashboards for mesh, service, and workload metrics                        | `3000`       |
 | **Jaeger**       | Distributed tracing backend and UI                                        | `16686`      |
@@ -242,7 +242,7 @@ The Bookinfo application consists of four microservices demonstrating multiple s
 
 | Service         | Versions   | Description                                                 |
 | --------------- | ---------- | ----------------------------------------------------------- |
-| **productpage** | v1         | Main frontend — calls details and reviews                   |
+| **productpage** | v1         | Main frontend - calls details and reviews                   |
 | **details**     | v1         | Book details information                                    |
 | **reviews**     | v1, v2, v3 | Book reviews (v1: no stars, v2: black stars, v3: red stars) |
 | **ratings**     | v1         | Star ratings (called by reviews v2 and v3 only)             |

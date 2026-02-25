@@ -29,7 +29,7 @@ type WebAppReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// RBAC markers — controller-gen turns these into config/rbac/role.yaml
+// RBAC markers - controller-gen turns these into config/rbac/role.yaml
 //
 //+kubebuilder:rbac:groups=apps.codewizard.io,resources=webapps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps.codewizard.io,resources=webapps/status,verbs=get;update;patch
@@ -48,7 +48,7 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	webapp := &webappv1.WebApp{}
 	if err := r.Get(ctx, req.NamespacedName, webapp); err != nil {
 		if errors.IsNotFound(err) {
-			// Object was deleted before we could reconcile — nothing to do.
+			// Object was deleted before we could reconcile - nothing to do.
 			logger.Info("WebApp not found, likely deleted", "name", req.Name)
 			return ctrl.Result{}, nil
 		}
@@ -57,7 +57,7 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	// ── Step 2: Finalizer handling ─────────────────────────────────────────────
 	if webapp.DeletionTimestamp.IsZero() {
-		// Object is NOT being deleted — ensure finalizer is registered
+		// Object is NOT being deleted - ensure finalizer is registered
 		if !controllerutil.ContainsFinalizer(webapp, webappFinalizer) {
 			controllerutil.AddFinalizer(webapp, webappFinalizer)
 			if err := r.Update(ctx, webapp); err != nil {
@@ -67,12 +67,12 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			return ctrl.Result{}, nil
 		}
 	} else {
-		// Object IS being deleted — run cleanup before Kubernetes removes it
+		// Object IS being deleted - run cleanup before Kubernetes removes it
 		if controllerutil.ContainsFinalizer(webapp, webappFinalizer) {
 			logger.Info("Running finalizer cleanup", "name", webapp.Name)
 			// Add any external resource cleanup here (e.g., cloud DNS, certificates)
 
-			// Remove finalizer — Kubernetes will then delete the object
+			// Remove finalizer - Kubernetes will then delete the object
 			controllerutil.RemoveFinalizer(webapp, webappFinalizer)
 			if err := r.Update(ctx, webapp); err != nil {
 				return ctrl.Result{}, err
@@ -339,7 +339,7 @@ func (r *WebAppReconciler) reconcileService(ctx context.Context, webapp *webappv
 		return err
 	}
 
-	// ServiceType is effectively immutable — recreate if changed
+	// ServiceType is effectively immutable - recreate if changed
 	if existing.Spec.Type != svcType {
 		logger.Info("Recreating Service due to type change",
 			"old", existing.Spec.Type, "new", svcType)

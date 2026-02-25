@@ -70,7 +70,7 @@ Install ArgoCD on a Kubernetes cluster using the official Argo Helm chart.
     kubectl -n argocd get secret argocd-initial-admin-secret \
         -o jsonpath="{.data.password}" | base64 -d; echo
 
-    # Save this password — you'll need it for the CLI and Web UI
+    # Save this password - you'll need it for the CLI and Web UI
 
     # 5. Verify the ArgoCD CRDs were installed
     kubectl get crd | grep argoproj
@@ -336,19 +336,19 @@ Practice manually triggering a sync and understand all the sync options availabl
 ??? example "Solution"
 
     ```bash
-    # 1. Basic sync — apply the Git state to the cluster
+    # 1. Basic sync - apply the Git state to the cluster
     argocd app sync guestbook
 
     # 2. Sync and wait for completion with a timeout
     argocd app sync guestbook --timeout 120
 
-    # 3. Dry-run — preview what would change without applying
+    # 3. Dry-run - preview what would change without applying
     argocd app sync guestbook --dry-run
 
-    # 4. Force sync — replace resources even if spec is unchanged
+    # 4. Force sync - replace resources even if spec is unchanged
     argocd app sync guestbook --force
 
-    # 5. Sync with pruning — delete resources removed from Git
+    # 5. Sync with pruning - delete resources removed from Git
     argocd app sync guestbook --prune
 
     # 6. Sync a specific resource only (avoids re-applying unchanged resources)
@@ -385,7 +385,7 @@ Use `argocd app diff` to see exactly what has drifted between the live cluster s
 ??? example "Solution"
 
     ```bash
-    # 1. Deliberately introduce drift — manually scale the deployment
+    # 1. Deliberately introduce drift - manually scale the deployment
     kubectl scale deployment guestbook-ui --replicas=5 -n guestbook
 
     # 2. Wait for ArgoCD to detect the drift
@@ -393,7 +393,7 @@ Use `argocd app diff` to see exactly what has drifted between the live cluster s
     argocd app get guestbook | grep -E "Sync|Health"
     # Sync Status: OutOfSync
 
-    # 3. Show the diff — what changed in live vs Git
+    # 3. Show the diff - what changed in live vs Git
     argocd app diff guestbook
 
     # Output highlights the replica count change:
@@ -408,9 +408,9 @@ Use `argocd app diff` to see exactly what has drifted between the live cluster s
     argocd app diff guestbook \
       --resource apps:Deployment:guestbook-ui
 
-    # 6. Use in CI — exit non-zero if drift is detected
+    # 6. Use in CI - exit non-zero if drift is detected
     if ! argocd app diff guestbook --exit-code; then
-      echo "DRIFT DETECTED — syncing..."
+      echo "DRIFT DETECTED - syncing..."
       argocd app sync guestbook
     fi
 
@@ -622,7 +622,7 @@ Rollback an application to a previously deployed revision using the ArgoCD CLI.
     # 5. Verify the Kubernetes resources reflect the rolled-back state
     kubectl get all -n guestbook
 
-    # 6. Check history — rollback is recorded as a new entry
+    # 6. Check history - rollback is recorded as a new entry
     argocd app history guestbook
 
     # 7. Re-enable auto-sync after the incident is resolved
@@ -1132,7 +1132,7 @@ Create an ArgoCD Project to restrict what repositories, clusters, and namespaces
 
 #### 18. Use Resource Hooks (PreSync / PostSync)
 
-Use ArgoCD resource hooks to run Jobs before or after a sync operation — e.g., database migrations or smoke tests.
+Use ArgoCD resource hooks to run Jobs before or after a sync operation - e.g., database migrations or smoke tests.
 
 #### Scenario:
 
@@ -1297,7 +1297,7 @@ Diagnose and fix a sync failure using CLI commands and `kubectl`.
     argocd app set <app-name> --sync-option CreateNamespace=true
     argocd app sync <app-name>
 
-    # ── Step 9: App of Apps — child apps not created ──
+    # ── Step 9: App of Apps - child apps not created ──
 
     argocd app get app-of-apps            # Check root is Synced
     argocd repo list                      # Confirm repo is accessible
@@ -1428,7 +1428,7 @@ Practice common multi-step ArgoCD CLI workflows for day-to-day GitOps operations
 
     argocd app sync guestbook --timeout 120 && \
     argocd app wait guestbook --health --timeout 60 || \
-    ( echo "Deployment failed — rolling back." && argocd app rollback guestbook 0 )
+    ( echo "Deployment failed - rolling back." && argocd app rollback guestbook 0 )
 
     # ── Workflow 4: Check all apps and alert on degraded ──
 

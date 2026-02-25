@@ -47,7 +47,7 @@
 ### What is Krew?
 
 - `Krew` is a **plugin manager** for `kubectl`, the Kubernetes command-line tool.
-- It works similarly to `apt` for Debian, `brew` for macOS, or `npm` for Node.js — but specifically for `kubectl` plugins.
+- It works similarly to `apt` for Debian, `brew` for macOS, or `npm` for Node.js - but specifically for `kubectl` plugins.
 - `Krew` helps you discover, install, and manage plugins that extend `kubectl` with additional commands and capabilities.
 
 ### Why use Krew?

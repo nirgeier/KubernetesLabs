@@ -32,7 +32,7 @@ In this lab we will learn how to manage application configuration in Kubernetes 
 
 ## What will we learn?
 
-### Part 1 — Secrets & ConfigMaps Basics
+### Part 1 - Secrets & ConfigMaps Basics
 
 - How to create Secrets and ConfigMaps (imperative & declarative)
 - How to inject configuration into pods via **environment variables**
@@ -41,7 +41,7 @@ In this lab we will learn how to manage application configuration in Kubernetes 
 - Key differences between Secrets and ConfigMaps
 - Best practices for managing configuration in Kubernetes
 
-### Part 2 — Advanced Secrets Management
+### Part 2 - Advanced Secrets Management
 
 - Why base64-encoded Secrets are **not encryption** (the problem)
 - How **Sealed Secrets** (Bitnami) encrypts secrets for safe Git storage
@@ -55,8 +55,8 @@ In this lab we will learn how to manage application configuration in Kubernetes 
 
 - A running Kubernetes cluster (`kubectl cluster-info` should work)
 - `kubectl` configured against the cluster
-- Helm installed (`helm version`) — needed for Part 2
-- Docker installed (optional — only needed if you want to build the demo image yourself)
+- Helm installed (`helm version`) - needed for Part 2
+- Docker installed (optional - only needed if you want to build the demo image yourself)
 
 ---
 
@@ -147,7 +147,7 @@ docker build -t nirgeier/k8s-secrets-sample ./resources/
 # Run the container
 docker run -d -p 5000:5000 --name server nirgeier/k8s-secrets-sample
 
-# Get the response — values should come from the Dockerfile ENVs
+# Get the response - values should come from the Dockerfile ENVs
 curl 127.0.0.1:5000
 
 # Expected response:
@@ -171,7 +171,7 @@ docker push nirgeier/k8s-secrets-sample
 
 ## 03. Deploy with hardcoded environment variables
 
-In this step we will deploy the container with environment variables defined **directly in the YAML** — no Secrets or ConfigMaps yet.
+In this step we will deploy the container with environment variables defined **directly in the YAML** - no Secrets or ConfigMaps yet.
 
 ##### 1. Review the deployment & service file
 
@@ -324,7 +324,7 @@ kubectl get secret token -n codewizard -o jsonpath='{.data.TOKEN}' | base64 -d
 ##### 1. Update the deployment to reference Secret & ConfigMap
 
 - Source file: [resources/variables-from-secrets.yaml](resources/variables-from-secrets.yaml)
-- The key change is in the `env` section — instead of hardcoded values, we reference the ConfigMap and Secret:
+- The key change is in the `env` section - instead of hardcoded values, we reference the ConfigMap and Secret:
 
 ```yaml
   env:
@@ -390,7 +390,7 @@ data:
 type: Opaque
 ```
 
-##### 2. Using `stringData` (plain text — recommended for readability)
+##### 2. Using `stringData` (plain text - recommended for readability)
 
 You can also use `stringData` to avoid manual Base64 encoding. Kubernetes will encode it for you:
 
@@ -548,7 +548,7 @@ kubectl create secret generic token \
 ##### 2. Restart the pods to pick up the changes
 
 ```sh
-# Rolling restart — zero downtime
+# Rolling restart - zero downtime
 kubectl rollout restart deployment/codewizard-secrets -n codewizard
 
 # Wait for rollout to complete
@@ -611,17 +611,17 @@ kubectl delete namespace codewizard --ignore-not-found
 |--------------------------|-----------------------------------------------------------------------|
 | **Secret**               | Stores sensitive data as Base64-encoded key-value pairs               |
 | **ConfigMap**            | Stores non-sensitive configuration as plain key-value pairs           |
-| **Imperative creation**  | `kubectl create secret/configmap` — quick for testing                 |
-| **Declarative creation** | YAML files with `data:` / `stringData:` — version-controlled          |
+| **Imperative creation**  | `kubectl create secret/configmap` - quick for testing                 |
+| **Declarative creation** | YAML files with `data:` / `stringData:` - version-controlled          |
 | **Env injection**        | `valueFrom.secretKeyRef` / `valueFrom.configMapKeyRef`                |
-| **Volume mount**         | Mount as files inside the pod — auto-updates for volume mounts        |
-| **Immutable**            | `immutable: true` — prevents changes, improves performance            |
+| **Volume mount**         | Mount as files inside the pod - auto-updates for volume mounts        |
+| **Immutable**            | `immutable: true` - prevents changes, improves performance            |
 | **Updating**             | Use `dry-run=client` + `replace`, then `rollout restart` for env vars |
 
 ### Key Takeaways
 
 1. **Never** hardcode sensitive values in Deployment YAML files
-2. **Secrets are not encrypted** by default — they are only Base64-encoded
+2. **Secrets are not encrypted** by default - they are only Base64-encoded
 3. **ConfigMaps** are for non-sensitive data; **Secrets** are for sensitive data
 4. **Volume-mounted** ConfigMaps/Secrets auto-update; **env vars** require pod restart
 5. Use **immutable** resources when values should never change after deployment
@@ -630,7 +630,7 @@ kubectl delete namespace codewizard --ignore-not-found
 ---
 ---
 
-# Part 2: Advanced Secrets Management — Sealed Secrets & External Secrets Operator
+# Part 2: Advanced Secrets Management - Sealed Secrets & External Secrets Operator
 
 ---
 
@@ -685,7 +685,7 @@ sequenceDiagram
     KS->>Ctrl: Fetch public key
     KS->>Dev: Encrypted SealedSecret YAML
     Dev->>Dev: Commit SealedSecret to Git ✅
-    Note over Dev: Safe — only the controller<br/>can decrypt
+    Note over Dev: Safe - only the controller<br/>can decrypt
     Dev->>K8S: kubectl apply SealedSecret
     K8S->>Ctrl: SealedSecret created
     Ctrl->>K8S: Decrypts → creates real Secret
@@ -880,7 +880,7 @@ kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=external-secret
 
 ### 14. Use ESO with a Kubernetes Secret Store (for learning)
 
-For this lab, we'll use the **Kubernetes provider** — ESO reads from a Secret in one namespace and syncs it to another. In production, you'd replace this with Vault, AWS, etc.
+For this lab, we'll use the **Kubernetes provider** - ESO reads from a Secret in one namespace and syncs it to another. In production, you'd replace this with Vault, AWS, etc.
 
 ```sh
 # Create a "source" secret in a secured namespace (simulating an external provider)
@@ -1002,8 +1002,8 @@ kubectl delete namespace secrets-lab secret-store external-secrets --ignore-not-
 | Approach                  | Best For                                    | Git-Safe? | External Provider? |
 | ------------------------- | ------------------------------------------- | --------- | ------------------ |
 | **Plain K8S Secrets**     | Development/testing only                    | ❌ No     | No                 |
-| **Sealed Secrets**        | GitOps — encrypt secrets for Git storage    | ✅ Yes    | No                 |
-| **External Secrets (ESO)**| Production — centralized secret management  | ✅ Yes    | Yes (Vault, AWS…)  |
+| **Sealed Secrets**        | GitOps - encrypt secrets for Git storage    | ✅ Yes    | No                 |
+| **External Secrets (ESO)**| Production - centralized secret management  | ✅ Yes    | Yes (Vault, AWS…)  |
 
 | Concept                     | Key Takeaway                                          |
 | --------------------------- | ----------------------------------------------------- |
@@ -1013,7 +1013,7 @@ kubectl delete namespace secrets-lab secret-store external-secrets --ignore-not-
 | **External Secrets Operator** | Syncs secrets from external vaults into K8S         |
 | **SecretStore**             | Defines connection to external provider               |
 | **ExternalSecret**          | Declares what to fetch and where to put it            |
-| **refreshInterval**         | ESO periodically re-syncs — secrets stay up-to-date   |
+| **refreshInterval**         | ESO periodically re-syncs - secrets stay up-to-date   |
 
 ---
 
@@ -1031,7 +1031,7 @@ Create a regular Secret, seal it with `kubeseal`, and then inspect the SealedSec
 #### Scenario:
 
 ◦ You want to store credentials in Git but need to prove the encryption is real.
-◦ You need to show that the SealedSecret is not just base64 — it's truly encrypted.
+◦ You need to show that the SealedSecret is not just base64 - it's truly encrypted.
 
 **Hint:** Create a Secret with `--dry-run=client -o yaml`, pipe to `kubeseal --format yaml`, then try to base64-decode the `encryptedData` values.
 
@@ -1048,7 +1048,7 @@ kubectl create secret generic test-sealed \
   --from-literal=api-key=my-secret-api-key-123 \
   --dry-run=client -o yaml > /tmp/test-secret.yaml
 
-## View the regular Secret — base64 encoded but easily decoded
+## View the regular Secret - base64 encoded but easily decoded
 cat /tmp/test-secret.yaml
 kubectl create secret generic test-sealed \
   --from-literal=api-key=my-secret-api-key-123 \
@@ -1058,11 +1058,11 @@ echo  ## Output: my-secret-api-key-123
 ## Seal it
 kubeseal --format yaml < /tmp/test-secret.yaml > /tmp/sealed-test.yaml
 
-## View the SealedSecret — encrypted data
+## View the SealedSecret - encrypted data
 cat /tmp/sealed-test.yaml
 
 ## Try to base64-decode the encryptedData (will produce binary garbage, not readable)
-grep "api-key:" /tmp/sealed-test.yaml | awk '{print $2}' | base64 -d 2>&1 || echo "Cannot decode — it's encrypted, not just encoded!"
+grep "api-key:" /tmp/sealed-test.yaml | awk '{print $2}' | base64 -d 2>&1 || echo "Cannot decode - it's encrypted, not just encoded!"
 
 ## Clean up
 rm /tmp/test-secret.yaml /tmp/sealed-test.yaml
@@ -1235,7 +1235,7 @@ kubectl get secret -n kube-system \
   -l sealedsecrets.bitnami.com/sealed-secrets-key \
   -o yaml > /tmp/sealed-secrets-backup.yaml
 
-## The backup contains the private key — treat it with extreme care
+## The backup contains the private key - treat it with extreme care
 echo "Backup saved. This file contains the private key and must be stored securely."
 echo "Without this key, existing SealedSecrets cannot be decrypted after controller reinstall."
 

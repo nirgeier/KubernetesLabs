@@ -4,16 +4,16 @@
 # This CRD maps Kubernetes Secret keys to scaler parameters,
 # keeping credentials out of ScaledObject manifests.
 #
-# Step 1 — Create the Secret (run this command first):
+# Step 1 - Create the Secret (run this command first):
 #
 #   kubectl create secret generic redis-auth-secret \
 #       --namespace keda-demo \
 #       --from-literal=redis-password='super-secret-password'
 #
-# Step 2 — Apply this file:
+# Step 2 - Apply this file:
 #   kubectl apply -f 06-trigger-auth.yaml
 #
-# Step 3 — Reference it in a ScaledObject via authenticationRef:
+# Step 3 - Reference it in a ScaledObject via authenticationRef:
 #   see 07-scaled-object-redis-auth.yaml
 
 apiVersion: keda.sh/v1alpha1

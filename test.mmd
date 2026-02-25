@@ -1,0 +1,6 @@
+graph LR
+    subgraph Airgap GitOps Architecture
+        subgraph Online["Online Machine"]
+            OPS["docker pull\ndocker tag\ndocker push"]
+        end
+    end
