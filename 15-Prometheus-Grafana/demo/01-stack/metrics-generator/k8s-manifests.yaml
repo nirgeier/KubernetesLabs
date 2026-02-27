@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-metrics
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-metrics
+  namespace: demo-metrics
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: demo-metrics
+  template:
+    metadata:
+      labels:
+        app: demo-metrics
+    spec:
+      containers:
+        - name: metrics
+          image: python:3.11-slim
+          command:
+            [
+              "sh",
+              "-c",
+              "pip install prometheus-client >/dev/null 2>&1 || true; python -u /opt/app/app.py",
+            ]
+          volumeMounts:
+            - name: app
+              mountPath: /opt/app
+          ports:
+            - containerPort: 8000
+      volumes:
+        - name: app
+          configMap:
+            name: demo-metrics-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-metrics
+  namespace: demo-metrics
+  labels:
+    app: demo-metrics
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http-metrics
+  selector:
+    app: demo-metrics
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-metrics-app
+  namespace: demo-metrics
+data:
+  app.py: |
+    from prometheus_client import start_http_server, Counter, Gauge
+    import random
+    import time
+
+    REQUESTS = Counter('demo_http_requests_total', 'Total HTTP requests', ['pod'])
+    CPU_USAGE = Gauge('demo_container_cpu_usage_seconds_total', 'Synthetic CPU seconds', ['pod'])
+    MEM_USAGE = Gauge('demo_container_memory_bytes', 'Synthetic memory usage bytes', ['pod'])
+
+    PODS = ['demo-pod-1', 'demo-pod-2', 'demo-pod-3']
+
+    def main():
+        start_http_server(8000)
+        while True:
+            for p in PODS:
+                REQUESTS.labels(pod=p).inc(random.randint(0, 5))
+                CPU_USAGE.labels(pod=p).set(random.random() * 0.5)
+                MEM_USAGE.labels(pod=p).set(random.randint(10*1024*1024, 120*1024*1024))
+            time.sleep(5)
+
+    if __name__ == '__main__':
+        main()
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: demo-metrics-sm
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: demo-metrics
+  namespaceSelector:
+    matchNames:
+      - demo-metrics
+  endpoints:
+    - port: http-metrics
+      interval: 10s

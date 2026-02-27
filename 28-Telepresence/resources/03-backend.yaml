@@ -1,0 +1,202 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: telepresence-demo
+  labels:
+    app: backend
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: backend
+    spec:
+      containers:
+        - name: backend
+          image: python:3.11-slim
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              pip install Flask==3.0.0 flask-cors==4.0.0 requests==2.31.0 gunicorn==21.2.0 && \
+              cat > /app/app.py << 'EOF'
+              from flask import Flask, jsonify, request
+              from flask_cors import CORS
+              import requests
+              import os
+              from datetime import datetime
+
+              app = Flask(__name__)
+              CORS(app)
+
+              DATASERVICE_URL = os.getenv('DATASERVICE_URL', 'http://dataservice:5001')
+              SERVICE_NAME = os.getenv('SERVICE_NAME', 'backend')
+              ENVIRONMENT = os.getenv('ENVIRONMENT', 'cluster')
+
+              @app.route('/')
+              def home():
+                  return jsonify({
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'message': '🚀 Backend API Service is running!',
+                      'timestamp': datetime.utcnow().isoformat(),
+                      'version': '1.0.0',
+                      'endpoints': {
+                          'health': '/api/health',
+                          'info': '/api/info',
+                          'data': '/api/data',
+                          'users': '/api/users',
+                          'status': '/api/status'
+                      }
+                  })
+
+              @app.route('/api/health')
+              def health():
+                  return jsonify({
+                      'status': 'healthy',
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'timestamp': datetime.utcnow().isoformat()
+                  })
+
+              @app.route('/api/info')
+              def info():
+                  return jsonify({
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'version': '1.0.0',
+                      'hostname': os.getenv('HOSTNAME', 'localhost'),
+                      'pod_ip': os.getenv('POD_IP', '127.0.0.1'),
+                      'node_name': os.getenv('NODE_NAME', 'unknown'),
+                      'timestamp': datetime.utcnow().isoformat()
+                  })
+
+              @app.route('/api/data')
+              def get_data():
+                  try:
+                      response = requests.get(f"{DATASERVICE_URL}/data", timeout=5)
+                      response.raise_for_status()
+                      data = response.json()
+                      return jsonify({
+                          'status': 'success',
+                          'source': 'dataservice',
+                          'backend_service': SERVICE_NAME,
+                          'backend_environment': ENVIRONMENT,
+                          'data': data,
+                          'timestamp': datetime.utcnow().isoformat()
+                      })
+                  except Exception as e:
+                      return jsonify({
+                          'status': 'error',
+                          'message': f'Failed to fetch data: {str(e)}',
+                          'backend_service': SERVICE_NAME,
+                          'timestamp': datetime.utcnow().isoformat()
+                      }), 500
+
+              @app.route('/api/users')
+              def get_users():
+                  users = [
+                      {'id': 1, 'name': 'Alice Johnson', 'email': 'alice@example.com', 'role': 'Developer'},
+                      {'id': 2, 'name': 'Bob Smith', 'email': 'bob@example.com', 'role': 'DevOps Engineer'},
+                      {'id': 3, 'name': 'Charlie Brown', 'email': 'charlie@example.com', 'role': 'Architect'},
+                      {'id': 4, 'name': 'Diana Prince', 'email': 'diana@example.com', 'role': 'Product Manager'}
+                  ]
+                  return jsonify({
+                      'status': 'success',
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'count': len(users),
+                      'users': users,
+                      'timestamp': datetime.utcnow().isoformat()
+                  })
+
+              @app.route('/api/status')
+              def get_status():
+                  status = {
+                      'service': SERVICE_NAME,
+                      'environment': ENVIRONMENT,
+                      'status': 'running',
+                      'timestamp': datetime.utcnow().isoformat()
+                  }
+                  try:
+                      response = requests.get(f"{DATASERVICE_URL}/health", timeout=2)
+                      status['dataservice'] = {
+                          'status': 'connected',
+                          'url': DATASERVICE_URL,
+                          'response_code': response.status_code
+                      }
+                  except Exception as e:
+                      status['dataservice'] = {
+                          'status': 'disconnected',
+                          'url': DATASERVICE_URL,
+                          'error': str(e)
+                      }
+                  return jsonify(status)
+
+              if __name__ == '__main__':
+                  app.run(host='0.0.0.0', port=5000, debug=False)
+              EOF
+              cd /app && python app.py
+          ports:
+            - containerPort: 5000
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "backend"
+            - name: ENVIRONMENT
+              value: "cluster"
+            - name: PORT
+              value: "5000"
+            - name: DATASERVICE_URL
+              value: "http://dataservice:5001"
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: telepresence-demo
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+  type: ClusterIP

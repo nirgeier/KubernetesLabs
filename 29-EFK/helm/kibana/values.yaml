@@ -1,0 +1,60 @@
+replicaCount: 1
+
+image:
+  repository: docker.elastic.co/kibana/kibana
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5601
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+
+elasticsearch:
+  host: "elasticsearch.efk.svc.cluster.local"
+  port: 9200
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: kibana.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+env:
+  - name: ELASTICSEARCH_HOSTS
+    value: "http://elasticsearch.efk.svc.cluster.local:9200"
+  - name: SERVER_NAME
+    value: "kibana"
+  - name: SERVER_HOST
+    value: "0.0.0.0"
+
+dashboards:
+  enabled: true
+  job:
+    image: curlimages/curl:8.5.0
+    restartPolicy: OnFailure
+    backoffLimit: 3
+    activeDeadlineSeconds: 600
+  files:
+    - error-dashboard.ndjson
+    - general-dashboard.ndjson
+    - warning-dashboard.ndjson
+    - component-dashboard.ndjson
+    - performance-dashboard.ndjson
+    - http-access-dashboard.ndjson
+    - k8s-monitoring-dashboard.ndjson
+    - apm-dashboard.ndjson
+
+namespace: efk

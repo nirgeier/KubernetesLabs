@@ -1,0 +1,25 @@
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: ClusterConfiguration
+kubernetesVersion: v1.31.0
+controlPlaneEndpoint: "control-plane:6443"
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+  dnsDomain: "cluster.local"
+apiServer:
+  extraArgs:
+    - name: audit-log-path
+      value: /var/log/kubernetes/audit.log
+    - name: audit-log-maxage
+      value: "30"
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  taints:
+    - key: "node-role.kubernetes.io/control-plane"
+      effect: "NoSchedule"

@@ -1,0 +1,19 @@
+replicaCount: 3
+
+image:
+  repository: busybox
+  tag: "1.36.1"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "100m"
+
+namespace: efk
+
+# Log generation settings
+logInterval: 5 # seconds between log messages

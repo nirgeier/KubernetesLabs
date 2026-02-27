@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telepresence Demo - Frontend</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 22px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .status.healthy {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status.loading {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .data-section {
+      margin-top: 15px;
+    }
+
+    .data-item {
+      background: #f8f9fa;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 4px solid #667eea;
+    }
+
+    .data-item strong {
+      color: #667eea;
+    }
+
+    .user-card {
+      background: #f8f9fa;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border-left: 4px solid #764ba2;
+    }
+
+    .user-card h3 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .user-card p {
+      color: #666;
+      margin: 3px 0;
+    }
+
+    .timestamp {
+      color: #999;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+
+    .info-badge {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #0277bd;
+      padding: 5px 10px;
+      border-radius: 3px;
+      margin: 5px;
+      font-size: 14px;
+    }
+
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 Telepresence Demo Application</h1>
+      <p class="subtitle">Real-time Kubernetes Development Testing</p>
+      <p style="margin-top: 10px; color: #999;">
+        This frontend demonstrates inter-service communication in a Kubernetes cluster
+      </p>
+    </div>
+
+    <div class="grid">
+      <!-- Backend Service Card -->
+      <div class="card">
+        <h2>Backend Service Status</h2>
+        <span id="backend-status" class="status loading">Checking...</span>
+        <div id="backend-info"></div>
+        <button onclick="checkBackendHealth()">Check Health</button>
+        <button onclick="getBackendInfo()">Get Info</button>
+        <button onclick="getBackendStatus()">Get Status</button>
+      </div>
+
+      <!-- Data Service Card -->
+      <div class="card">
+        <h2>Data Service</h2>
+        <span id="data-status" class="status loading">Checking...</span>
+        <div id="data-info"></div>
+        <button onclick="fetchData()">Fetch Data</button>
+        <button onclick="fetchStats()">Get Stats</button>
+      </div>
+
+      <!-- Users Card -->
+      <div class="card">
+        <h2>Users Management</h2>
+        <span id="users-status" class="status loading">Ready</span>
+        <div id="users-info"></div>
+        <button onclick="fetchUsers()">Load Users</button>
+      </div>
+    </div>
+
+    <!-- Full Width Cards -->
+    <div class="card">
+      <h2>📊 Service Metrics & Data</h2>
+      <div id="metrics-container">
+        <p style="color: #999;">Click "Fetch Data" or "Get Stats" to load service metrics</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔍 Debug Information</h2>
+      <div id="debug-container">
+        <p style="color: #999;">Click "Get Info" or "Get Status" to see debug information</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = window.location.origin.replace(':8080', ':5000');
+
+    // Initialize on page load
+    window.onload = function () {
+      checkBackendHealth();
+      fetchUsers();
+    };
+
+    async function apiCall(endpoint, containerId, statusId) {
+      try {
+        const response = await fetch(`${BACKEND_URL}${endpoint}`);
+        const data = await response.json();
+
+        if (statusId) {
+          const statusEl = document.getElementById(statusId);
+          statusEl.className = 'status ' + (response.ok ? 'healthy' : 'error');
+          statusEl.textContent = response.ok ? 'Healthy ✓' : 'Error ✗';
+        }
+
+        return { success: true, data };
+      } catch (error) {
+        if (statusId) {
+          const statusEl = document.getElementById(statusId);
+          statusEl.className = 'status error';
+          statusEl.textContent = 'Error ✗';
+        }
+        return { success: false, error: error.message };
+      }
+    }
+
+    async function checkBackendHealth() {
+      const result = await apiCall('/api/health', null, 'backend-status');
+      const container = document.getElementById('backend-info');
+
+      if (result.success) {
+        container.innerHTML = `
+                    <div class="data-section">
+                        <div class="info-badge">Service: ${result.data.service}</div>
+                        <div class="info-badge">Environment: ${result.data.environment}</div>
+                        <div class="timestamp">Updated: ${new Date(result.data.timestamp).toLocaleString()}</div>
+                    </div>
+                `;
+      } else {
+        container.innerHTML = `<div class="error-message">Failed to connect: ${result.error}</div>`;
+      }
+    }
+
+    async function getBackendInfo() {
+      const result = await apiCall('/api/info', null, null);
+      const container = document.getElementById('debug-container');
+
+      if (result.success) {
+        container.innerHTML = `
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Backend Service Information</h3>
+                    <div class="data-item">
+                        <strong>Service:</strong> ${result.data.service}<br>
+                        <strong>Environment:</strong> ${result.data.environment}<br>
+                        <strong>Version:</strong> ${result.data.version}<br>
+                        <strong>Hostname:</strong> ${result.data.hostname}<br>
+                        <strong>Pod IP:</strong> ${result.data.pod_ip}<br>
+                        <strong>Node:</strong> ${result.data.node_name}
+                    </div>
+                    <div class="timestamp">Retrieved: ${new Date(result.data.timestamp).toLocaleString()}</div>
+                `;
+      } else {
+        container.innerHTML = `<div class="error-message">Failed to get info: ${result.error}</div>`;
+      }
+    }
+
+    async function getBackendStatus() {
+      const result = await apiCall('/api/status', null, null);
+      const container = document.getElementById('debug-container');
+
+      if (result.success) {
+        const dsStatus = result.data.dataservice ?
+          `<span style="color: ${result.data.dataservice.status === 'connected' ? 'green' : 'red'}">
+                        ${result.data.dataservice.status} (${result.data.dataservice.url})
+                    </span>` :
+          '<span style="color: red;">Unknown</span>';
+
+        container.innerHTML = `
+                    <h3 style="color: #667eea; margin-bottom: 10px;">System Status</h3>
+                    <div class="data-item">
+                        <strong>Backend Service:</strong> ${result.data.status}<br>
+                        <strong>Data Service:</strong> ${dsStatus}<br>
+                        <strong>Environment:</strong> ${result.data.environment}
+                    </div>
+                    <div class="timestamp">Checked: ${new Date(result.data.timestamp).toLocaleString()}</div>
+                `;
+      } else {
+        container.innerHTML = `<div class="error-message">Failed to get status: ${result.error}</div>`;
+      }
+    }
+
+    async function fetchData() {
+      const result = await apiCall('/api/data', null, 'data-status');
+      const container = document.getElementById('metrics-container');
+
+      if (result.success) {
+        const metrics = result.data.data.data.map(item => `
+                    <div class="data-item">
+                        <strong>${item.name}:</strong> ${item.value} ${item.unit}
+                        <span style="color: #999; font-size: 12px; float: right;">ID: ${item.id}</span>
+                    </div>
+                `).join('');
+
+        container.innerHTML = `
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Real-time Metrics from Data Service</h3>
+                    <div class="info-badge">Source: ${result.data.source}</div>
+                    <div class="info-badge">Backend: ${result.data.backend_environment}</div>
+                    ${metrics}
+                    <div class="timestamp">Fetched: ${new Date(result.data.timestamp).toLocaleString()}</div>
+                `;
+
+        document.getElementById('data-status').className = 'status healthy';
+        document.getElementById('data-status').textContent = 'Connected ✓';
+      } else {
+        container.innerHTML = `<div class="error-message">Failed to fetch data: ${result.error}</div>`;
+      }
+    }
+
+    async function fetchStats() {
+      // This would call the dataservice stats endpoint through backend
+      const container = document.getElementById('metrics-container');
+      container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px;">Loading statistics...</p>
+                </div>
+            `;
+
+      // Simulate loading
+      setTimeout(() => {
+        container.innerHTML = `
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Service Statistics</h3>
+                    <div class="data-item">
+                        <strong>Total Requests:</strong> ${Math.floor(Math.random() * 100000)}<br>
+                        <strong>Avg Response Time:</strong> ${(Math.random() * 200).toFixed(2)} ms<br>
+                        <strong>Error Rate:</strong> ${(Math.random() * 5).toFixed(2)}%<br>
+                        <strong>Uptime:</strong> ${Math.floor(Math.random() * 720)} hours
+                    </div>
+                `;
+      }, 1000);
+    }
+
+    async function fetchUsers() {
+      const result = await apiCall('/api/users', null, 'users-status');
+      const container = document.getElementById('users-info');
+
+      if (result.success) {
+        const users = result.data.users.map(user => `
+                    <div class="user-card">
+                        <h3>${user.name}</h3>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Role:</strong> ${user.role}</p>
+                    </div>
+                `).join('');
+
+        container.innerHTML = `
+                    <div style="margin-top: 15px;">
+                        <div class="info-badge">Total Users: ${result.data.count}</div>
+                        <div class="info-badge">Environment: ${result.data.environment}</div>
+                        ${users}
+                        <div class="timestamp">Loaded: ${new Date(result.data.timestamp).toLocaleString()}</div>
+                    </div>
+                `;
+
+        document.getElementById('users-status').className = 'status healthy';
+        document.getElementById('users-status').textContent = 'Loaded ✓';
+      } else {
+        container.innerHTML = `<div class="error-message">Failed to fetch users: ${result.error}</div>`;
+      }
+    }
+
+    // Auto-refresh health status every 30 seconds
+    setInterval(checkBackendHealth, 30000);
+  </script>
+</body>
+
+</html>

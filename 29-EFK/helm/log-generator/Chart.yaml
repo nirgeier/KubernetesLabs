@@ -1,0 +1,6 @@
+apiVersion: v2
+name: log-generator
+description: A Helm chart for Log Generator
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

@@ -1,0 +1,30 @@
+---
+# EncryptionConfiguration for encrypting Secrets at rest in etcd.
+#
+# IMPORTANT: This file is an EXAMPLE for educational purposes.
+# In production, use a proper KMS provider (AWS KMS, Azure Key Vault,
+# GCP Cloud KMS, or HashiCorp Vault) instead of the aescbc provider.
+#
+# This file must be placed on the control-plane node and referenced
+# by the kube-apiserver via the --encryption-provider-config flag.
+#
+# The encryption key below is a base64-encoded 32-byte random key.
+# Generate your own with:
+#   head -c 32 /dev/urandom | base64
+#
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      # First provider is used for WRITING (encryption)
+      - aescbc:
+          keys:
+            - name: key1
+              # Replace this with your own base64-encoded 32-byte key
+              secret: cEhMbzRWRkxyV2xnUjRJSm5JeHdxZnlCV0pFWTlLN3k=
+      # Identity provider is the fallback for READING unencrypted data
+      # This allows reading Secrets that were stored before encryption
+      # was enabled. Remove this once all Secrets have been re-encrypted.
+      - identity: {}

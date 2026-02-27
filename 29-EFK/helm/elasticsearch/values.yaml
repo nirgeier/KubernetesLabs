@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  repository: docker.elastic.co/elasticsearch/elasticsearch
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9200
+  nodePort: 9300
+
+resources:
+  requests:
+    memory: "2Gi"
+    cpu: "1000m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 10Gi
+
+env:
+  # Disable security for demo purposes
+  - name: discovery.type
+    value: "single-node"
+  - name: xpack.security.enabled
+    value: "false"
+  - name: ES_JAVA_OPTS
+    value: "-Xms1g -Xmx1g"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: elasticsearch.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+namespace: efk
