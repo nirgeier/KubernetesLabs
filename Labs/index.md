@@ -75,6 +75,7 @@ Welcome to the hands-on Kubernetes labs! This comprehensive series of labs will 
 | [30](30-Keda/README.md)                           | KEDA                         | Kubernetes event-driven autoscaling    |
 | [34](34-crictl/README.md)                         | crictl                       | Container runtime interface CLI        |
 | [36](36-kubectl-Deep-Dive/README.md)              | kubectl Deep Dive            | Advanced kubectl usage and techniques  |
+| [38](38-Raftt/README.md)                          | Raftt                        | Cloud-native dev-mode for Kubernetes   |
 
 ### 🧠 Practice Tasks
 

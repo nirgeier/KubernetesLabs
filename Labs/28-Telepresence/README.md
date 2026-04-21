@@ -1,6 +1,20 @@
 ---
+![](https://img.shields.io/badge/Telepresence-v2-blue)
+![](https://img.shields.io/badge/Kind-Cluster-green)
+![](https://img.shields.io/badge/Python-3.11-yellow)
 
 # Telepresence
+
+---
+
+## Official Documentation & References
+
+| Reference | Link |
+|-----------|------|
+| Telepresence Docs | [https://www.telepresence.io/docs/](https://www.telepresence.io/docs/) |
+| Telepresence GitHub | [https://github.com/telepresenceio/telepresence](https://github.com/telepresenceio/telepresence) |
+| Kind Docs | [https://kind.sigs.k8s.io/](https://kind.sigs.k8s.io/) |
+| Ambassador Docs | [https://www.getambassador.io/docs/](https://www.getambassador.io/docs/) |
 
 ---
 
@@ -11,7 +25,89 @@
 - Creating and managing different types of service intercepts
 - Debugging applications locally while connected to a cluster
 - Team collaboration using personal intercepts and preview URLs
+- Capturing cluster environment variables and volume mounts locally
 - Best practices for cloud-native development workflows
+
+---
+
+## Directory Structure
+
+```
+28-Telepresence/
+├── README.md                    # This file - full guide with exercises
+├── EXAMPLES.md                  # 12 practical Telepresence examples
+├── QUICKREF.md                  # Quick reference / cheat sheet
+├── TROUBLESHOOTING.md           # Common issues and solutions
+│
+├── run-lab.sh                   # ⭐ Master Lab script - runs EVERYTHING
+├── setup.sh                     # Deploy demo stack to existing cluster
+├── cleanup.sh                   # Tear down demo resources
+├── quickstart.sh                # Quick start for intercepting
+├── test.sh                      # Basic in-cluster tests
+├── test-all.sh                  # Comprehensive test suite (Docker + web terminal)
+│
+├── labs/                        # Interactive hands-on labs
+│   ├── index.md                 # Labs overview with architecture
+│   ├── lab1-global-intercept.md # Lab 1: Global intercept
+│   ├── lab2-volume-mounting.md  # Lab 2: Volume mounting
+│   ├── lab3-outbound-connectivity.md  # Lab 3: DNS & outbound
+│   └── lab4-troubleshooting.md  # Lab 4: Troubleshooting toolkit
+│
+├── resources/                   # Kubernetes manifests & app source
+│   ├── 01-namespace.yaml        # telepresence-demo namespace
+│   ├── 02-dataservice.yaml      # Data service (Flask :5001)
+│   ├── 03-backend.yaml          # Backend API (Flask :5000)
+│   ├── 04-frontend.yaml         # Frontend (Nginx :80)
+│   ├── backend-app/             # Backend Python source
+│   ├── dataservice-app/         # Data service Python source
+│   └── frontend-app/            # Frontend HTML + Nginx config
+│
+└── docker/                      # Docker-based web terminal lab
+    ├── Dockerfile               # Lab container image
+    ├── docker-compose.yml       # One-command lab environment
+    └── ...
+```
+
+---
+
+## :rocket: Quick Start - Master Lab Script
+
+!!! success "One Command to Rule Them All"
+    The `run-lab.sh` script creates an isolated Kind cluster, deploys all services, validates the entire stack, and demonstrates Telepresence intercepts - all in one idempotent run.
+
+```bash
+# Navigate to the lab directory
+cd Labs/28-Telepresence
+
+# Run the master lab (creates cluster + deploys + tests + intercept demo)
+./run-lab.sh
+
+# Reuse existing cluster (skip Kind creation)
+./run-lab.sh --skip-cluster
+
+# Run tests only on existing deployment
+./run-lab.sh --test-only
+
+# Tear everything down
+./run-lab.sh --cleanup
+```
+
+??? question "What does run-lab.sh do?"
+    The master lab script runs **11 phases**:
+
+    | Phase | Description |
+    |-------|-------------|
+    | 1 | **Prerequisites** - Check/install docker, kubectl, kind, telepresence |
+    | 2 | **Cluster Setup** - Create isolated Kind cluster (3 nodes, custom CIDRs) |
+    | 3 | **Deploy Stack** - Apply namespace, data service, backend, frontend |
+    | 4 | **In-Cluster Tests** - Validate all endpoints via `kubectl run curl` |
+    | 5 | **Port-Forward Tests** - Test from host via `kubectl port-forward` |
+    | 6 | **Telepresence Connect** - Connect and verify status/DNS |
+    | 7 | **Outbound DNS** - Resolve cluster services from local terminal |
+    | 8 | **Intercept Demo** - Global intercept with local backend, verify traffic |
+    | 9 | **Env Variables** - Capture cluster env vars locally |
+    | 10 | **Cleanup** - Leave intercepts, disconnect |
+    | 11 | **Validation** - YAML, script syntax, markdown checks |
 
 ---
 
@@ -697,6 +793,24 @@ telepresence quit
 # Disconnect and remove traffic manager
 telepresence uninstall --everything
 ```
+
+### Full Cleanup (Kind Cluster + Everything)
+
+```bash
+# Remove cluster, intercepts, and all resources in one command
+./run-lab.sh --cleanup
+```
+
+---
+
+## Additional Resources
+
+| Resource | Description |
+|----------|-------------|
+| [EXAMPLES.md](EXAMPLES.md) | 12 practical Telepresence examples (VS Code debugging, Docker mode, etc.) |
+| [QUICKREF.md](QUICKREF.md) | Quick reference cheat sheet |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 10 common issues with solutions |
+| [Interactive Labs](labs/index.md) | Multi-cluster hands-on labs |
 
 ### Delete Demo Resources
 

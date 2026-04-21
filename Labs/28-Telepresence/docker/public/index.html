@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telepresence Multi-Cluster Lab</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0a1628;
+      --bg-panel: #0f1f3d;
+      --bg-header: #081224;
+      --accent: #00d4ff;
+      --accent2: #7c3aed;
+      --accent3: #10b981;
+      --border: #1a2d52;
+      --text: #c8d6e5;
+      --text-dim: #4a6080;
+      --handle-w: 6px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-deep);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    #header {
+      height: 52px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    #header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #header .logo svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--accent);
+    }
+
+    #header h1 {
+      font-size: 1.05rem;
+      color: var(--accent);
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    #header h1 span {
+      color: var(--accent2);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    /* ── Lab Selector ──────────────────────────────────── */
+    #lab-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #lab-selector label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    #lab-select {
+      background: var(--bg-panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+
+    #lab-select:hover {
+      border-color: var(--accent);
+    }
+
+    /* ── Status ─────────────────────────────────────────── */
+    #status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    #status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    #status-dot.connected {
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    #status-dot.disconnected {
+      background: #ef4444;
+      box-shadow: 0 0 6px #ef4444;
+    }
+
+    /* ── Main split layout ──────────────────────────────── */
+    #main {
+      display: flex;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+
+    /* ── Docs pane ──────────────────────────────────────── */
+    #docs-pane {
+      width: 55%;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    #docs-pane-bar {
+      height: 34px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    #docs-pane-bar svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--accent2);
+      flex-shrink: 0;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 2px;
+      margin-left: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    #docs-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+      background: var(--bg-deep);
+      line-height: 1.7;
+      font-size: 0.92rem;
+    }
+
+    /* ── Markdown styling ──────────────────────────────── */
+    #docs-content h1 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    #docs-content h2 {
+      font-size: 1.2rem;
+      color: var(--accent2);
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    #docs-content h3 {
+      font-size: 1.05rem;
+      color: var(--accent3);
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+
+    #docs-content p {
+      margin-bottom: 12px;
+    }
+
+    #docs-content code {
+      background: rgba(0, 212, 255, 0.08);
+      color: #7dd3fc;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85em;
+    }
+
+    #docs-content pre {
+      background: #060e1a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    #docs-content pre code {
+      background: none;
+      color: #e2e8f0;
+      padding: 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    #docs-content .copy-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    #docs-content .copy-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    #docs-content ul,
+    #docs-content ol {
+      padding-left: 22px;
+      margin-bottom: 12px;
+    }
+
+    #docs-content li {
+      margin-bottom: 4px;
+    }
+
+    #docs-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+
+    #docs-content th,
+    #docs-content td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    #docs-content th {
+      background: var(--bg-panel);
+      color: var(--accent);
+    }
+
+    #docs-content .callout {
+      border-left: 3px solid var(--accent2);
+      background: rgba(124, 58, 237, 0.08);
+      padding: 12px 16px;
+      margin: 14px 0;
+      border-radius: 0 6px 6px 0;
+    }
+
+    #docs-content .callout.info {
+      border-left-color: var(--accent);
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    #docs-content .callout.success {
+      border-left-color: var(--accent3);
+      background: rgba(16, 185, 129, 0.06);
+    }
+
+    #docs-content .callout.warning {
+      border-left-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.06);
+    }
+
+    #docs-content .callout-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Drag handle ────────────────────────────────────── */
+    #drag-handle {
+      width: var(--handle-w);
+      background: var(--border);
+      cursor: col-resize;
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.15s;
+      z-index: 5;
+    }
+
+    #drag-handle:hover,
+    #drag-handle.dragging {
+      background: var(--accent);
+    }
+
+    #drag-handle::after {
+      content: '';
+      position: absolute;
+      inset: 0 -4px;
+    }
+
+    /* ── Terminal pane ──────────────────────────────────── */
+    #terminal-pane {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #terminal-pane-bar {
+      height: 34px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    #terminal-pane-bar svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--accent3);
+      flex-shrink: 0;
+    }
+
+    .cluster-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: auto;
+    }
+
+    .cluster-badge.east {
+      background: rgba(0, 212, 255, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(0, 212, 255, 0.25);
+    }
+
+    .cluster-badge.west {
+      background: rgba(124, 58, 237, 0.12);
+      color: #a78bfa;
+      border: 1px solid rgba(124, 58, 237, 0.25);
+    }
+
+    #terminal-container {
+      flex: 1;
+      padding: 6px 8px;
+      overflow: hidden;
+      background: var(--bg-deep);
+    }
+
+    #terminal-container .xterm {
+      height: 100%;
+    }
+
+    /* ── Scrollbar ──────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-deep);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div id="header">
+    <div class="logo">
+      <!-- Kubernetes wheel icon -->
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+      </svg>
+      <h1>Telepresence <span>Multi-Cluster Lab</span></h1>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div id="lab-selector">
+      <label for="lab-select">Lab:</label>
+      <select id="lab-select">
+        <option value="overview">Overview</option>
+        <option value="lab1">Lab 1: Global Intercept</option>
+        <option value="lab2">Lab 2: Volume Mounting</option>
+        <option value="lab3">Lab 3: Outbound Connectivity</option>
+        <option value="lab4">Lab 4: Troubleshooting</option>
+      </select>
+    </div>
+
+    <div id="status">
+      <div id="status-dot"></div>
+      <span id="status-text">Connecting...</span>
+    </div>
+  </div>
+
+  <!-- ── Main ──────────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- Left: Docs pane -->
+    <div id="docs-pane">
+      <div id="docs-pane-bar">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" />
+        </svg>
+        <span>Lab Guide</span>
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="instructions">Instructions</button>
+          <button class="tab-btn" data-tab="hints">Hints</button>
+          <button class="tab-btn" data-tab="solution">Solution</button>
+        </div>
+      </div>
+      <div id="docs-content"></div>
+    </div>
+
+    <!-- Drag handle -->
+    <div id="drag-handle"></div>
+
+    <!-- Right: Terminal pane -->
+    <div id="terminal-pane">
+      <div id="terminal-pane-bar">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M20 3H4a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm-1 16H5V5h14v14zM7.293 15.293l1.414 1.414L13.414 12l-4.707-4.707-1.414 1.414L10.586 12l-3.293 3.293z" />
+        </svg>
+        <span>Terminal</span>
+        <span class="cluster-badge east" id="cluster-badge">cluster-east</span>
+      </div>
+      <div id="terminal-container"></div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11.0/lib/addon-web-links.min.js"></script>
+  <script>
+    (function () {
+
+      /* ── Lab Content ─────────────────────────────────────── */
+      const labContent = {
+        overview: {
+          instructions: `
+<h1>Telepresence Multi-Cluster Lab</h1>
+<p>Welcome to the Telepresence hands-on lab! In this workshop you will learn to use
+<strong>Telepresence OSS</strong> to bridge your local machine with Kubernetes clusters for
+rapid inner-loop development.</p>
+
+<h2>Environment</h2>
+<table>
+  <tr><th>Component</th><th>Details</th></tr>
+  <tr><td>cluster-east</td><td>Pod CIDR: <code>10.10.0.0/16</code> &middot; Service CIDR: <code>10.110.0.0/16</code></td></tr>
+  <tr><td>cluster-west</td><td>Pod CIDR: <code>10.11.0.0/16</code> &middot; Service CIDR: <code>10.111.0.0/16</code></td></tr>
+  <tr><td>Telepresence</td><td>OSS v2 (no login required)</td></tr>
+</table>
+
+<h2>Architecture</h2>
+<pre><code>cluster-east                          cluster-west
++------------------+                  +------------------+
+|  frontend  (svc) |                  |  backend-v2 (svc)|
+|       |          |                  +------------------+
+|  backend   (svc) |
++------------------+
+
+          Your Local Machine
+     +-------------------------+
+     | Telepresence Client     |
+     | (connects to either     |
+     |  cluster via context)   |
+     +-------------------------+</code></pre>
+
+<h2>Labs Overview</h2>
+<ol>
+  <li><strong>Lab 1 &ndash; Global Intercept:</strong> Intercept the backend service and route traffic to a local process.</li>
+  <li><strong>Lab 2 &ndash; Volume Mounting:</strong> Access cluster ConfigMaps locally via Telepresence mounts.</li>
+  <li><strong>Lab 3 &ndash; Outbound Connectivity:</strong> Resolve cluster DNS from your local terminal.</li>
+  <li><strong>Lab 4 &ndash; Troubleshooting:</strong> Debug common Telepresence connectivity issues.</li>
+</ol>
+
+<div class="callout info">
+  <div class="callout-title">Getting Started</div>
+  <p>Run the setup script in the terminal to create both kind clusters and deploy the sample apps:</p>
+  <pre><code>./setup-clusters.sh</code></pre>
+</div>`,
+          hints: `
+<h2>General Hints</h2>
+<ul>
+  <li>Use <code>kubectl config use-context kind-cluster-east</code> to switch clusters.</li>
+  <li>Keep two terminal tabs open &mdash; one per cluster context.</li>
+  <li>Telepresence daemon binds to your host; only one cluster connection at a time.</li>
+  <li>If intercepts fail, check <code>telepresence status</code> first.</li>
+</ul>`,
+          solution: `
+<h2>Setup Verification</h2>
+<pre><code># Verify both clusters are running
+kind get clusters
+
+# Check pods in cluster-east
+kubectl --context kind-cluster-east get pods -n telepresence-lab
+
+# Check pods in cluster-west
+kubectl --context kind-cluster-west get pods -n telepresence-lab</code></pre>`
+        },
+
+        lab1: {
+          instructions: `
+<h1>Lab 1: The Global Intercept</h1>
+<p>In this lab, you will intercept the <code>backend</code> service running in
+<strong>cluster-east</strong> and route all its traffic to a local process on your machine.</p>
+
+<h2>Objective</h2>
+<p>Redirect traffic destined for the <code>backend</code> service (port 5000) to a local
+process, make a change, and verify the response changes &mdash; all without rebuilding
+a container.</p>
+
+<h2>Steps</h2>
+
+<h3>Step 1: Connect to cluster-east</h3>
+<pre><code># Switch kubectl context
+kubectl config use-context kind-cluster-east
+
+# Connect Telepresence to the cluster
+telepresence connect
+
+# Verify connection
+telepresence status</code></pre>
+
+<h3>Step 2: List available services</h3>
+<pre><code># See what can be intercepted
+telepresence list -n telepresence-lab</code></pre>
+
+<h3>Step 3: Start a local backend process</h3>
+<pre><code># Start a simple listener on port 5000
+# Option A: Using netcat
+echo -e "HTTP/1.1 200 OK\\r\\nContent-Type: text/plain\\r\\n\\r\\nHello from LOCAL!" | nc -l 5000
+
+# Option B: Using Python
+python3 -c "
+from http.server import HTTPServer, BaseHTTPRequestHandler
+class H(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type','text/plain')
+        self.end_headers()
+        self.wfile.write(b'Hello from LOCAL machine!')
+HTTPServer(('',5000),H).serve_forever()
+"</code></pre>
+
+<h3>Step 4: Create the intercept</h3>
+<pre><code># Intercept backend service, route port 5000 to local 5000
+telepresence intercept backend \\
+  --port 5000 \\
+  --namespace telepresence-lab</code></pre>
+
+<h3>Step 5: Verify the intercept</h3>
+<pre><code># From another terminal, curl the frontend
+curl http://frontend.telepresence-lab.svc.cluster.local
+
+# The response should come from your LOCAL process
+# instead of the cluster backend</code></pre>
+
+<h3>Step 6: Cleanup</h3>
+<pre><code>telepresence leave backend-telepresence-lab
+telepresence quit</code></pre>
+
+<div class="callout success">
+  <div class="callout-title">Success Criteria</div>
+  <p>You should see your local response ("Hello from LOCAL") when curling the frontend,
+  proving traffic was intercepted and routed to your machine.</p>
+</div>`,
+          hints: `
+<h2>Hints</h2>
+<ul>
+  <li>Make sure your local process is listening <strong>before</strong> creating the intercept.</li>
+  <li>If <code>nc</code> exits after one request, wrap it in a <code>while true</code> loop.</li>
+  <li>Use <code>telepresence list -n telepresence-lab</code> to check intercept state.</li>
+  <li>The intercept name follows the pattern: <code>&lt;deployment&gt;-&lt;namespace&gt;</code>.</li>
+</ul>`,
+          solution: `
+<h2>Full Solution</h2>
+<pre><code># 1. Connect
+kubectl config use-context kind-cluster-east
+telepresence connect
+
+# 2. Start local server (in background)
+python3 -c "
+from http.server import HTTPServer, BaseHTTPRequestHandler
+class H(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type','text/plain')
+        self.end_headers()
+        self.wfile.write(b'Hello from LOCAL machine!')
+HTTPServer(('',5000),H).serve_forever()
+" &
+
+# 3. Create intercept
+telepresence intercept backend \\
+  --port 5000 --namespace telepresence-lab
+
+# 4. Test
+curl http://frontend.telepresence-lab.svc.cluster.local
+
+# 5. Cleanup
+telepresence leave backend-telepresence-lab
+kill %1
+telepresence quit</code></pre>`
+        },
+
+        lab2: {
+          instructions: `
+<h1>Lab 2: Volume Mounting</h1>
+<p>Telepresence can mount remote volumes (including ConfigMaps and Secrets) to your
+local filesystem. This lets you develop with the exact same configuration the pod uses.</p>
+
+<h2>Objective</h2>
+<p>Mount the <code>backend-config</code> ConfigMap locally and read its values from your
+development environment.</p>
+
+<h2>Steps</h2>
+
+<h3>Step 1: Examine the ConfigMap in the cluster</h3>
+<pre><code>kubectl config use-context kind-cluster-east
+kubectl get configmap backend-config -n telepresence-lab -o yaml</code></pre>
+
+<h3>Step 2: Connect and intercept with volume mount</h3>
+<pre><code>telepresence connect
+
+# Create intercept with mount
+telepresence intercept backend \\
+  --port 5000 \\
+  --namespace telepresence-lab \\
+  --mount /tmp/tel-mount</code></pre>
+
+<h3>Step 3: Explore the mounted volumes</h3>
+<pre><code># List the mounted directory
+ls -la /tmp/tel-mount
+
+# Read the ConfigMap values
+cat /tmp/tel-mount/var/run/secrets/kubernetes.io/serviceaccount/token
+ls /tmp/tel-mount/etc/config/
+
+# View ConfigMap data
+cat /tmp/tel-mount/etc/config/app.conf</code></pre>
+
+<h3>Step 4: Use the config in local development</h3>
+<pre><code># Your local app can read the same config files
+# the pod would see in the cluster
+python3 -c "
+import json
+with open('/tmp/tel-mount/etc/config/app.conf') as f:
+    print('Config from cluster:', f.read())
+"</code></pre>
+
+<h3>Step 5: Cleanup</h3>
+<pre><code>telepresence leave backend-telepresence-lab
+telepresence quit</code></pre>
+
+<div class="callout warning">
+  <div class="callout-title">Note</div>
+  <p>The mount path structure mirrors the pod's filesystem. Paths depend on how
+  volumes are defined in the Deployment spec.</p>
+</div>`,
+          hints: `
+<h2>Hints</h2>
+<ul>
+  <li>Use <code>--mount=true</code> to auto-mount to a temp directory (printed in output).</li>
+  <li>Use <code>--mount=/path</code> to specify where to mount.</li>
+  <li>The <code>TELEPRESENCE_ROOT</code> env var is set to the mount path.</li>
+  <li>Check <code>telepresence status</code> to see active mounts.</li>
+</ul>`,
+          solution: `
+<h2>Full Solution</h2>
+<pre><code>kubectl config use-context kind-cluster-east
+telepresence connect
+
+# Intercept with auto-mount
+telepresence intercept backend \\
+  --port 5000 \\
+  --namespace telepresence-lab \\
+  --mount /tmp/tel-mount
+
+# Explore
+find /tmp/tel-mount -type f | head -20
+cat /tmp/tel-mount/etc/config/app.conf
+
+# Cleanup
+telepresence leave backend-telepresence-lab
+telepresence quit</code></pre>`
+        },
+
+        lab3: {
+          instructions: `
+<h1>Lab 3: Outbound Connectivity</h1>
+<p>When connected via Telepresence, your local machine can resolve Kubernetes DNS names
+and reach cluster-internal services &mdash; as if you were inside the cluster.</p>
+
+<h2>Objective</h2>
+<p>Demonstrate that cluster DNS (<code>*.svc.cluster.local</code>) resolves from your
+local terminal, and connect to services in both clusters.</p>
+
+<h2>Steps</h2>
+
+<h3>Step 1: Connect to cluster-east</h3>
+<pre><code>kubectl config use-context kind-cluster-east
+telepresence connect</code></pre>
+
+<h3>Step 2: Test DNS resolution</h3>
+<pre><code># These should resolve to cluster IPs
+curl http://backend.telepresence-lab.svc.cluster.local:5000/health
+curl http://frontend.telepresence-lab.svc.cluster.local/api</code></pre>
+
+<h3>Step 3: Test service-to-service connectivity</h3>
+<pre><code># Curl the backend directly
+curl http://backend.telepresence-lab:5000/
+
+# Short form also works when connected
+curl http://backend.telepresence-lab:5000/data</code></pre>
+
+<h3>Step 4: Disconnect and switch to cluster-west</h3>
+<pre><code># Disconnect from cluster-east
+telepresence quit
+
+# Switch context and connect to cluster-west
+kubectl config use-context kind-cluster-west
+telepresence connect
+
+# Now test cluster-west DNS
+curl http://backend-v2.telepresence-lab.svc.cluster.local:5000/health</code></pre>
+
+<h3>Step 5: Verify isolation</h3>
+<pre><code># cluster-east DNS should NOT resolve while connected to cluster-west
+# This should fail/timeout:
+curl --max-time 3 http://backend.telepresence-lab.svc.cluster.local:5000/ || echo "Expected: cannot reach cluster-east"</code></pre>
+
+<div class="callout info">
+  <div class="callout-title">Key Insight</div>
+  <p>Telepresence modifies your local DNS to route <code>*.cluster.local</code> queries
+  through the connected cluster. This enables seamless local development against
+  cluster services.</p>
+</div>`,
+          hints: `
+<h2>Hints</h2>
+<ul>
+  <li>DNS resolution happens via the Telepresence daemon &mdash; ensure it is running.</li>
+  <li><code>telepresence status</code> shows the DNS configuration.</li>
+  <li>Only one cluster connection at a time unless using Docker mode.</li>
+  <li>Short DNS: <code>svc-name.namespace</code> works when connected.</li>
+</ul>`,
+          solution: `
+<h2>Full Solution</h2>
+<pre><code># cluster-east
+kubectl config use-context kind-cluster-east
+telepresence connect
+curl http://backend.telepresence-lab.svc.cluster.local:5000/health
+telepresence quit
+
+# cluster-west
+kubectl config use-context kind-cluster-west
+telepresence connect
+curl http://backend-v2.telepresence-lab.svc.cluster.local:5000/health
+telepresence quit</code></pre>`
+        },
+
+        lab4: {
+          instructions: `
+<h1>Lab 4: Troubleshooting</h1>
+<p>Things don't always work on the first try. This lab covers the most common
+Telepresence issues and how to diagnose them.</p>
+
+<h2>Objective</h2>
+<p>Learn to use Telepresence diagnostic tools to identify and resolve connectivity problems.</p>
+
+<h2>Diagnostic Commands</h2>
+
+<h3>1. Check Telepresence status</h3>
+<pre><code># Full status including daemon, DNS, and connected cluster
+telepresence status
+
+# Expected output includes:
+# - Root Daemon: Running
+# - User Daemon: Running
+# - DNS: connected
+# - Cluster context and server</code></pre>
+
+<h3>2. View and adjust log levels</h3>
+<pre><code># Set verbose logging for debugging
+telepresence loglevel debug
+
+# Collect logs for analysis
+telepresence gather-logs -o /tmp/tel-logs.zip
+
+# Reset log level after debugging
+telepresence loglevel info</code></pre>
+
+<h3>3. Check Traffic Manager</h3>
+<pre><code># Verify the traffic manager is installed
+kubectl get pods -n ambassador
+
+# Check traffic manager logs
+kubectl logs -n ambassador deploy/traffic-manager</code></pre>
+
+<h3>4. Common Issues &amp; Fixes</h3>
+<table>
+  <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+  <tr>
+    <td>DNS not resolving</td>
+    <td>Daemon not running</td>
+    <td><code>telepresence quit</code> then <code>telepresence connect</code></td>
+  </tr>
+  <tr>
+    <td>Intercept fails</td>
+    <td>Traffic Manager missing</td>
+    <td><code>telepresence helm install</code></td>
+  </tr>
+  <tr>
+    <td>Port conflict</td>
+    <td>Local port in use</td>
+    <td><code>lsof -i :5000</code> then kill or use different port</td>
+  </tr>
+  <tr>
+    <td>Stale connection</td>
+    <td>Context switched without quit</td>
+    <td><code>telepresence quit</code> and reconnect</td>
+  </tr>
+  <tr>
+    <td>Permission denied</td>
+    <td>Daemon needs root</td>
+    <td><code>sudo telepresence connect</code> (first time only)</td>
+  </tr>
+</table>
+
+<h3>5. Nuclear reset</h3>
+<pre><code># Full reset if everything is broken
+telepresence quit
+telepresence uninstall --everything
+telepresence helm install
+telepresence connect</code></pre>
+
+<div class="callout warning">
+  <div class="callout-title">Pro Tip</div>
+  <p>When using two kind clusters, always <code>telepresence quit</code> before switching
+  contexts. The daemon caches the cluster connection and won't auto-switch.</p>
+</div>`,
+          hints: `
+<h2>Hints</h2>
+<ul>
+  <li><code>telepresence gather-logs</code> collects daemon + traffic-manager logs into a zip.</li>
+  <li>Check <code>/tmp/telepresence.log</code> for daemon-level errors.</li>
+  <li>The traffic-manager runs in the <code>ambassador</code> namespace by default.</li>
+  <li>Kind clusters may need <code>--docker</code> flag for Telepresence in some setups.</li>
+</ul>`,
+          solution: `
+<h2>Diagnostic Walkthrough</h2>
+<pre><code># 1. Check everything
+telepresence status
+telepresence version
+
+# 2. Verify traffic manager
+kubectl get pods -n ambassador
+kubectl get svc -n ambassador
+
+# 3. Debug with logs
+telepresence loglevel debug
+telepresence connect
+# ... reproduce issue ...
+telepresence gather-logs -o /tmp/tel-debug.zip
+
+# 4. Examine logs
+unzip -l /tmp/tel-debug.zip
+# Look for ERROR or WARN entries
+
+# 5. Reset if needed
+telepresence quit
+telepresence loglevel info</code></pre>`
+        }
+      };
+
+      /* ── Render Lab Content ──────────────────────────────── */
+      const docsContent = document.getElementById('docs-content');
+      const labSelect = document.getElementById('lab-select');
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      let currentLab = 'overview';
+      let currentTab = 'instructions';
+
+      function renderContent() {
+        const lab = labContent[currentLab];
+        if (lab && lab[currentTab]) {
+          docsContent.innerHTML = lab[currentTab];
+          addCopyButtons();
+        }
+      }
+
+      function addCopyButtons() {
+        docsContent.querySelectorAll('pre').forEach(pre => {
+          const btn = document.createElement('button');
+          btn.className = 'copy-btn';
+          btn.textContent = 'Copy';
+          btn.onclick = () => {
+            const code = pre.querySelector('code');
+            navigator.clipboard.writeText(code ? code.textContent : pre.textContent);
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 1500);
+          };
+          pre.style.position = 'relative';
+          pre.appendChild(btn);
+        });
+      }
+
+      labSelect.addEventListener('change', e => {
+        currentLab = e.target.value;
+        renderContent();
+        docsContent.scrollTop = 0;
+      });
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentTab = btn.dataset.tab;
+          renderContent();
+        });
+      });
+
+      renderContent();
+
+      /* ── Resizable split ─────────────────────────────────── */
+      const mainEl = document.getElementById('main');
+      const docsPane = document.getElementById('docs-pane');
+      const handle = document.getElementById('drag-handle');
+      let dragging = false;
+      let startX, startW;
+
+      handle.addEventListener('mousedown', e => {
+        dragging = true;
+        startX = e.clientX;
+        startW = docsPane.getBoundingClientRect().width;
+        handle.classList.add('dragging');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const totalW = mainEl.getBoundingClientRect().width;
+        const newW = Math.max(200, Math.min(startW + (e.clientX - startX), totalW - 200));
+        docsPane.style.width = newW + 'px';
+        fitTerminal();
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        handle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        fitTerminal();
+      });
+
+      /* ── xterm.js terminal ───────────────────────────────── */
+      const termContainer = document.getElementById('terminal-container');
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+
+      const term = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: '"JetBrains Mono", "Cascadia Code", "Fira Code", Menlo, Monaco, monospace',
+        theme: {
+          background: '#0a1628',
+          foreground: '#c8d6e5',
+          cursor: '#00d4ff',
+          cursorAccent: '#0a1628',
+          selectionBackground: '#1a2d52',
+          black: '#0a1628',
+          red: '#ef4444',
+          green: '#10b981',
+          yellow: '#f59e0b',
+          blue: '#3b82f6',
+          magenta: '#8b5cf6',
+          cyan: '#06b6d4',
+          white: '#c8d6e5',
+          brightBlack: '#4a6080',
+          brightRed: '#f87171',
+          brightGreen: '#34d399',
+          brightYellow: '#fbbf24',
+          brightBlue: '#60a5fa',
+          brightMagenta: '#a78bfa',
+          brightCyan: '#22d3ee',
+          brightWhite: '#e2e8f0',
+        },
+        allowProposedApi: true,
+        scrollback: 5000,
+      });
+
+      const fitAddon = new FitAddon.FitAddon();
+      const webLinksAddon = new WebLinksAddon.WebLinksAddon();
+
+      term.loadAddon(fitAddon);
+      term.loadAddon(webLinksAddon);
+      term.open(termContainer);
+
+      function fitTerminal() {
+        requestAnimationFrame(() => fitAddon.fit());
+      }
+      fitTerminal();
+
+      /* ── WebSocket connection ────────────────────────────── */
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = protocol + '//' + location.host;
+      let ws;
+
+      function setStatus(connected) {
+        statusDot.className = connected ? 'connected' : 'disconnected';
+        statusText.textContent = connected ? 'Connected' : 'Disconnected';
+      }
+
+      function connect() {
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+          setStatus(true);
+          ws.send(JSON.stringify({ type: 'resize', cols: term.cols, rows: term.rows }));
+        };
+
+        ws.onmessage = function (event) {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'output') term.write(msg.data);
+            if (msg.type === 'exit') {
+              term.writeln('\r\n\x1b[31m[Session ended]\x1b[0m');
+              setStatus(false);
+            }
+          } catch (e) { /* ignore */ }
+        };
+
+        ws.onclose = function () {
+          setStatus(false);
+          term.writeln('\r\n\x1b[33m[Connection lost - reconnecting in 3s...]\x1b[0m');
+          setTimeout(connect, 3000);
+        };
+
+        ws.onerror = function () { setStatus(false); };
+      }
+
+      term.onData(data => {
+        if (ws && ws.readyState === WebSocket.OPEN)
+          ws.send(JSON.stringify({ type: 'input', data }));
+      });
+
+      term.onResize(size => {
+        if (ws && ws.readyState === WebSocket.OPEN)
+          ws.send(JSON.stringify({ type: 'resize', cols: size.cols, rows: size.rows }));
+      });
+
+      window.addEventListener('resize', fitTerminal);
+      connect();
+
+    })();
+  </script>
+</body>
+
+</html>

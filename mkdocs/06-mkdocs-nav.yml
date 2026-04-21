@@ -45,7 +45,16 @@ nav:
                   - 24 Kubebuilder: 24-kubebuilder/README.md
                   - 25 Krew: 25-krew/README.md
                   - 27 kubeadm: 27-kubeadm/README.md
-                  - 28 Telepresence: 28-Telepresence/README.md
+                  - 28 Telepresence:
+                          - Overview: 28-Telepresence/README.md
+                          - Examples: 28-Telepresence/EXAMPLES.md
+                          - Quick Reference: 28-Telepresence/QUICKREF.md
+                          - Troubleshooting: 28-Telepresence/TROUBLESHOOTING.md
+                          - Interactive Labs: 28-Telepresence/labs/index.md
+                          - "Lab 1: Global Intercept": 28-Telepresence/labs/lab1-global-intercept.md
+                          - "Lab 2: Volume Mounting": 28-Telepresence/labs/lab2-volume-mounting.md
+                          - "Lab 3: Outbound Connectivity": 28-Telepresence/labs/lab3-outbound-connectivity.md
+                          - "Lab 4: Troubleshooting": 28-Telepresence/labs/lab4-troubleshooting.md
                   - 30 KEDA: 30-Keda/README.md
                   - 34 crictl: 34-crictl/README.md
                   - 36 kubectl Deep Dive: 36-kubectl-Deep-Dive/README.md
