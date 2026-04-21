@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: log-processor-initial
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: log-processor
+    job-type: initial
+spec:
+  template:
+    metadata:
+      labels:
+        app: log-processor
+        job-type: initial
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: log-processor
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/bin/bash"]
+        args: ["/scripts/process-logs.sh"]
+        env:
+        - name: ELASTICSEARCH_HOST
+          value: {{ .Values.elasticsearch.host | quote }}
+        - name: ELASTICSEARCH_PORT
+          value: {{ .Values.elasticsearch.port | quote }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+        - name: filebeat-logs
+          mountPath: /filebeat-logs
+      volumes:
+      - name: scripts
+        configMap:
+          name: log-processor-script
+          defaultMode: 0755
+      - name: filebeat-logs
+        persistentVolumeClaim:
+          claimName: filebeat-logs-pvc
+  backoffLimit: 3

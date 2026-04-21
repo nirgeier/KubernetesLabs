@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "alertmanager-summary-demo",
+    "title": "Alertmanager Summary - Demo",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "panels": [
+      {
+        "type": "table",
+        "title": "Active Alerts",
+        "targets": [
+          {
+            "expr": "count(alerts{alertstate=\"firing\"}) by (alertname,severity)",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

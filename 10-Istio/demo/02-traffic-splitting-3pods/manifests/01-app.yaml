@@ -1,0 +1,154 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: istio02
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: echo
+  name: echo
+  namespace: istio02
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5678
+  selector:
+    app: echo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-v1
+  namespace: istio02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: echo
+        version: v1
+    spec:
+      containers:
+        - args: ["-text=v1", "-listen=:5678"]
+          image: hashicorp/http-echo:1.0
+          name: echo
+          ports:
+            - containerPort: 5678
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-v2
+  namespace: istio02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: echo
+        version: v2
+    spec:
+      containers:
+        - args: ["-text=v2", "-listen=:5678"]
+          image: hashicorp/http-echo:1.0
+          name: echo
+          ports:
+            - containerPort: 5678
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-v3
+  namespace: istio02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo
+      version: v3
+  template:
+    metadata:
+      labels:
+        app: echo
+        version: v3
+    spec:
+      containers:
+        - args: ["-text=v3", "-listen=:5678"]
+          image: hashicorp/http-echo:1.0
+          name: echo
+          ports:
+            - containerPort: 5678
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traffic-generator
+  namespace: istio02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traffic-generator
+  template:
+    metadata:
+      labels:
+        app: traffic-generator
+    spec:
+      containers:
+        - args:
+            - |
+              echo "Starting traffic generator (curl echo every ${SLEEP_SECONDS}s)";
+              while true; do
+                date;
+                printf "Response: ";
+                curl -sS --max-time 2 http://echo/ || true;
+                echo;
+                sleep "${SLEEP_SECONDS}";
+              done
+          command: ["/bin/sh", "-c"]
+          env:
+            - name: SLEEP_SECONDS
+              value: "3"
+          image: curlimages/curl:8.6.0
+          name: curl
+          resources:
+            limits:
+              cpu: 50m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi

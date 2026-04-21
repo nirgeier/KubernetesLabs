@@ -1,0 +1,102 @@
+---
+# ScaledJob: Batch processing - one Job per event batch
+#
+# Unlike ScaledObject (which adjusts replicas of a running Deployment),
+# ScaledJob creates a NEW Kubernetes Job for every N messages in the queue.
+# Each Job runs to completion, then terminates.
+#
+# Use case: batch video encoding, report generation, ML inference, etc.
+#
+# Prerequisites:
+#   kubectl apply -f 04-redis-stack.yaml  (Redis must be running)
+#
+# Apply:
+#   kubectl apply -f 09-scaled-job.yaml
+#
+# Load test:
+#   kubectl exec -it deployment/redis -n keda-demo -- \
+#       redis-cli RPUSH batch:queue $(seq -f "task-%g" 1 25 | tr '\n' ' ')
+#
+# Watch Jobs:
+#   kubectl get jobs -n keda-demo -w
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: redis-batch-job
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  # ──────────────────────────────────────────────────────────────────
+  # Job template: instantiated for each batch of events
+  # ──────────────────────────────────────────────────────────────────
+  jobTargetRef:
+    parallelism: 1 # How many pods run in parallel within one Job
+    completions: 1 # How many pods must succeed before Job is "Complete"
+    backoffLimit: 2 # Retry the Job pod up to 2 times on failure
+
+    template:
+      metadata:
+        labels:
+          app: batch-processor
+      spec:
+        restartPolicy: Never # Never restart failed containers (use backoffLimit)
+        containers:
+          - name: batch-processor
+            image: redis:7-alpine
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                echo "=== Batch Job started at $(date) ==="
+                PROCESSED=0
+                # Pop and process up to 5 items per Job execution
+                for i in $(seq 1 5); do
+                  TASK=$(redis-cli -h redis.keda-demo.svc LPOP batch:queue)
+                  if [ -n "$TASK" ]; then
+                    echo "[$(date +%H:%M:%S)] Processing: $TASK"
+                    # Simulate work
+                    sleep 1
+                    PROCESSED=$((PROCESSED + 1))
+                  fi
+                done
+                echo "=== Batch Job completed. Processed $PROCESSED tasks. ==="
+            resources:
+              requests:
+                cpu: "50m"
+                memory: "32Mi"
+              limits:
+                cpu: "100m"
+                memory: "64Mi"
+
+  # ──────────────────────────────────────────────────────────────────
+  # Scaling configuration
+  # ──────────────────────────────────────────────────────────────────
+  minReplicaCount: 0 # 0 Jobs when queue is empty
+  maxReplicaCount: 50 # Never run more than 50 parallel Jobs
+  pollingInterval: 10 # Check every 10 seconds
+
+  # How many completed/failed Jobs to keep for debugging
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 3
+
+  # ──────────────────────────────────────────────────────────────────
+  # Scaling strategy
+  # ──────────────────────────────────────────────────────────────────
+  scalingStrategy:
+    # "default"  - Use the standard HPA-like calculation
+    # "custom"   - Manually control how running jobs count toward desired replicas
+    # "accurate" - Count only completed jobs, not running ones
+    strategy: "accurate"
+
+  # ──────────────────────────────────────────────────────────────────
+  # Triggers
+  # ──────────────────────────────────────────────────────────────────
+  triggers:
+    - type: redis
+      metadata:
+        address: redis.keda-demo.svc.cluster.local:6379
+        listName: batch:queue
+        # One Job handles 5 items → 25 items = 5 Jobs created
+        listLength: "5"
+        activationListLength: "1"

@@ -1,0 +1,157 @@
+{{- if .Values.dashboards.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-dashboards
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: kibana
+    component: dashboards
+data:
+  {{- range .Values.dashboards.files }}
+  {{ . }}: |
+{{ $.Files.Get (printf "dashboards/%s" .) | indent 4 }}
+  {{- end }}
+  import-dashboards.sh: |
+    #!/bin/sh
+
+    KIBANA_URL="http://kibana.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.service.port }}"
+    ES_URL="http://{{ .Values.elasticsearch.host }}:{{ .Values.elasticsearch.port }}"
+    MAX_RETRIES=30
+    RETRY_DELAY=10
+
+    echo "=== Kibana Dashboard Importer ==="
+    echo ""
+
+    # Step 1: Wait for Kibana to be ready
+    echo "Step 1: Waiting for Kibana to be ready..."
+    for i in $(seq 1 $MAX_RETRIES); do
+      if curl -f -s "${KIBANA_URL}/api/status" > /dev/null 2>&1; then
+        echo "Kibana is ready!"
+        break
+      fi
+      echo "  Attempt $i/$MAX_RETRIES: waiting ${RETRY_DELAY}s..."
+      sleep $RETRY_DELAY
+    done
+
+    if ! curl -f -s "${KIBANA_URL}/api/status" > /dev/null 2>&1; then
+      echo "ERROR: Kibana not available"
+      exit 1
+    fi
+
+    echo ""
+
+    # Step 2: Wait for Elasticsearch data
+    echo "Step 2: Waiting for data in Elasticsearch..."
+    DATA_READY=0
+    for i in $(seq 1 20); do
+      DOC_COUNT=$(curl -s "${ES_URL}/filebeat-*/_count" 2>/dev/null | grep -o '"count":[0-9]*' | cut -d: -f2 || echo "0")
+      if [ "$DOC_COUNT" -gt 0 ]; then
+        echo "Found $DOC_COUNT documents in filebeat-* indices"
+        DATA_READY=1
+        break
+      fi
+      echo "  Attempt $i/20: No data yet, waiting 15s..."
+      sleep 15
+    done
+
+    if [ $DATA_READY -eq 0 ]; then
+      echo "No data found yet - dashboards may show 'no data' initially"
+    fi
+
+    echo ""
+
+    # Step 3: Create data view
+    echo "Step 3: Creating data view..."
+    curl -X DELETE "${KIBANA_URL}/api/data_views/data_view/filebeat-*" \
+      -H "kbn-xsrf: true" > /dev/null 2>&1 || true
+    curl -X DELETE "${KIBANA_URL}/api/data_views/data_view/filebeat-index-pattern" \
+      -H "kbn-xsrf: true" > /dev/null 2>&1 || true
+    curl -s -X DELETE "${KIBANA_URL}/api/saved_objects/index-pattern/filebeat-index-pattern" \
+      -H "kbn-xsrf: true" > /dev/null 2>&1 || true
+
+    sleep 2
+
+    curl -s -X POST "${KIBANA_URL}/api/data_views/data_view" \
+      -H "kbn-xsrf: true" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "data_view": {
+          "id": "filebeat-index-pattern",
+          "title": "filebeat-*",
+          "name": "Filebeat Logs",
+          "timeFieldName": "@timestamp"
+        }
+      }' > /dev/null 2>&1
+
+    sleep 3
+    curl -s -X POST "${KIBANA_URL}/api/data_views/data_view/filebeat-index-pattern/fields" \
+      -H "kbn-xsrf: true" -d '{}' > /dev/null 2>&1 || true
+
+    echo "Data view created"
+    echo ""
+
+    # Step 4: Delete existing saved objects (clean slate for import)
+    echo "Step 4: Cleaning existing dashboard objects..."
+    for OBJ_TYPE in dashboard visualization search; do
+      IDS=$(curl -s "${KIBANA_URL}/api/saved_objects/_find?type=${OBJ_TYPE}&per_page=200" \
+        -H "kbn-xsrf: true" | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+      for OBJ_ID in $IDS; do
+        curl -s -X DELETE "${KIBANA_URL}/api/saved_objects/${OBJ_TYPE}/${OBJ_ID}?force=true" \
+          -H "kbn-xsrf: true" > /dev/null 2>&1 || true
+      done
+    done
+    echo "Existing objects cleaned"
+    echo ""
+
+    # Step 5: Import dashboards
+    echo "Step 5: Importing dashboards..."
+    {{- range .Values.dashboards.files }}
+    echo "  Importing {{ . }}..."
+    IMPORT_RESULT=$(curl -s -X POST "${KIBANA_URL}/api/saved_objects/_import?overwrite=true" \
+      -H "kbn-xsrf: true" \
+      --form file=@/dashboards/{{ . }})
+    echo "    Result: $(echo $IMPORT_RESULT | grep -o '"success":[a-z]*' || echo 'unknown')"
+    {{- end }}
+
+    echo "All dashboards imported"
+    echo ""
+
+    # Step 6: Re-create data view (NDJSON imports may overwrite without timeFieldName)
+    echo "Step 6: Re-creating data view with timeFieldName..."
+    curl -X DELETE "${KIBANA_URL}/api/data_views/data_view/filebeat-index-pattern" \
+      -H "kbn-xsrf: true" > /dev/null 2>&1 || true
+    sleep 1
+    curl -s -X POST "${KIBANA_URL}/api/data_views/data_view" \
+      -H "kbn-xsrf: true" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "data_view": {
+          "id": "filebeat-index-pattern",
+          "title": "filebeat-*",
+          "name": "Filebeat Logs",
+          "timeFieldName": "@timestamp"
+        }
+      }' > /dev/null 2>&1
+    echo "Data view re-created with @timestamp"
+    echo ""
+
+    # Step 7: Set default data view
+    echo "Step 7: Setting default data view..."
+    curl -X POST "${KIBANA_URL}/api/kibana/settings/defaultIndex" \
+      -H "kbn-xsrf: true" \
+      -H "Content-Type: application/json" \
+      -d '{"value": "filebeat-index-pattern"}' \
+      > /dev/null 2>&1
+    echo "Configuration complete"
+
+    echo ""
+    echo "=== Import Complete ==="
+    echo ""
+    echo "Available Dashboards:"
+    {{- range .Values.dashboards.files }}
+    echo "  - {{ . | replace "-dashboard.ndjson" "" | replace "-" " " | title }}"
+    {{- end }}
+    echo ""
+    echo "Access Kibana: http://{{ (index .Values.ingress.hosts 0).host }}"
+{{- end }}

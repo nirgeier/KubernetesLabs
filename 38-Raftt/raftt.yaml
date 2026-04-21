@@ -1,0 +1,41 @@
+# raftt.yaml - Raftt Dev-Mode Configuration for Lab 38
+version: "1"
+
+# Environment name
+name: raftt-lab
+
+# Kubernetes context to use
+context: kind-raftt-lab
+
+# Namespace for the dev environment
+namespace: raftt-lab
+
+# Services to manage
+services:
+  backend:
+    # Which deployment to target
+    deployment: backend
+
+    # Map local source → container path
+    sync:
+      - local: ./app
+        remote: /usr/src/app
+        exclude:
+          - node_modules
+          - .git
+          - .dockerignore
+
+    # Override the container command for development (hot-reload)
+    command: ["npx", "nodemon", "--legacy-watch", "server.js"]
+
+    # Ports to expose locally
+    ports:
+      - local: 3000
+        remote: 3000
+      - local: 9229
+        remote: 9229
+
+    # Environment variable overrides for development
+    env:
+      NODE_ENV: development
+      LOG_LEVEL: debug

@@ -1,0 +1,4 @@
+image:
+  repository: harbor.local/efk/filebeat
+  tag: "8.11.0"
+  pullPolicy: IfNotPresent

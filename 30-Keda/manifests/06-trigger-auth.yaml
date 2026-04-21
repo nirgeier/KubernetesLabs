@@ -1,0 +1,31 @@
+---
+# TriggerAuthentication: externalizes Redis credentials from the ScaledObject
+#
+# This CRD maps Kubernetes Secret keys to scaler parameters,
+# keeping credentials out of ScaledObject manifests.
+#
+# Step 1 - Create the Secret (run this command first):
+#
+#   kubectl create secret generic redis-auth-secret \
+#       --namespace keda-demo \
+#       --from-literal=redis-password='super-secret-password'
+#
+# Step 2 - Apply this file:
+#   kubectl apply -f 06-trigger-auth.yaml
+#
+# Step 3 - Reference it in a ScaledObject via authenticationRef:
+#   see 07-scaled-object-redis-auth.yaml
+
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: redis-auth
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  secretTargetRef:
+    # Each entry maps a scaler-specific parameter to a Kubernetes Secret key
+    - parameter: password # The Redis scaler's "password" parameter
+      name: redis-auth-secret # Kubernetes Secret name in this namespace
+      key: redis-password # Key inside the Secret data map

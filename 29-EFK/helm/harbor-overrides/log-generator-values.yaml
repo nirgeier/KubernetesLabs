@@ -1,0 +1,4 @@
+image:
+  repository: harbor.local/efk/busybox
+  tag: "1.36.1"
+  pullPolicy: IfNotPresent

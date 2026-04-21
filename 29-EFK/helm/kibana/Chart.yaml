@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kibana
+description: A Helm chart for Kibana
+type: application
+version: 1.0.0
+appVersion: "8.11.0"

@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  telepresence-lab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telepresence-lab
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../resources:/app/resources:ro
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - PORT=3000

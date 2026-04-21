@@ -1,0 +1,107 @@
+---
+# Redis deployment for the queue-based scaling demo
+#
+# Deploys:
+#   1. A Redis 7 instance (Deployment + Service)
+#   2. A "redis-worker" Deployment that consumes jobs from a Redis list
+#      - Starts at 0 replicas (KEDA controls it)
+#      - Pops one item from "jobs:queue" every 2 seconds
+
+# ─────────────────────────────────────────────────────────────
+# Redis Deployment
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: keda-demo
+  labels:
+    app: redis
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          args: ["--save", "", "--appendonly", "no"] # Disable persistence for demo
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: keda-demo
+  labels:
+    app: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+---
+# ─────────────────────────────────────────────────────────────
+# Redis Worker Deployment
+# Starts at 0 replicas - KEDA will scale this up when jobs arrive
+# ─────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-worker
+  namespace: keda-demo
+  labels:
+    app: redis-worker
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  replicas: 0 # IMPORTANT: Start at zero. KEDA controls the replica count.
+  selector:
+    matchLabels:
+      app: redis-worker
+  template:
+    metadata:
+      labels:
+        app: redis-worker
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: worker
+          image: redis:7-alpine
+          # Simulates a job worker: pops and "processes" one job every 2 seconds
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Worker started, waiting for jobs on jobs:queue ..."
+              while true; do
+                JOB=$(redis-cli -h redis LPOP jobs:queue)
+                if [ -n "$JOB" ]; then
+                  echo "[$(date +%H:%M:%S)] Processing job: $JOB"
+                  sleep 2
+                else
+                  sleep 1
+                fi
+              done
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

@@ -1,0 +1,67 @@
+---
+# ScaledObject: Prometheus scaler
+#
+# Scales nginx-demo based on a Prometheus PromQL query result.
+# The query counts HTTP requests per second across the namespace.
+# Adjust serverAddress to match your Prometheus installation.
+#
+# Common Prometheus addresses in different setups:
+#   - kube-prometheus-stack (Helm):  http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090
+#   - prometheus-community chart:    http://prometheus-server.monitoring.svc:9090
+#   - Prometheus Operator:           http://prometheus-operated.monitoring.svc:9090
+#
+# Apply:
+#   kubectl apply -f 08-prometheus-scaler.yaml
+#
+# Test PromQL query manually:
+#   kubectl port-forward svc/prometheus-server -n monitoring 9090:80 &
+#   curl 'http://localhost:9090/api/v1/query?query=sum(rate(http_requests_total{namespace="keda-demo"}[1m]))'
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: prometheus-scaler
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  scaleTargetRef:
+    name: nginx-demo
+
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  pollingInterval: 30
+
+  # Fallback: if Prometheus is unreachable, hold at 3 replicas
+  fallback:
+    failureThreshold: 3
+    replicas: 3
+
+  triggers:
+    - type: prometheus
+      metadata:
+        # Prometheus server URL (in-cluster service)
+        # Change this to match your Prometheus deployment
+        serverAddress: http://prometheus-server.monitoring.svc.cluster.local:9090
+
+        # PromQL query - MUST return a single scalar value
+        # Example: scale on HTTP request rate (reqs/sec)
+        #
+        # NOTE: The default nginx image does NOT export http_requests_total.
+        # To use this scaler, you need either:
+        #   1. An nginx image with the stub_status module + a Prometheus exporter sidecar
+        #   2. A different metric exposed by your application
+        #   3. Use the nginx-prometheus-exporter (https://github.com/nginxinc/nginx-prometheus-exporter)
+        query: |
+          sum(rate(http_requests_total{namespace="keda-demo",job="nginx-demo"}[1m]))
+
+        # Scale threshold: add 1 replica per 100 req/sec
+        # Formula: desiredReplicas = ceil(queryResult / threshold)
+        threshold: "100"
+
+        # activationThreshold: minimum query result before KEDA activates scaling
+        # Below this value KEDA stays at minReplicaCount (avoids micro-scaling)
+        activationThreshold: "10"
+
+        # Optional: Prometheus namespace label for multi-tenant setups
+        # namespace: keda-demo

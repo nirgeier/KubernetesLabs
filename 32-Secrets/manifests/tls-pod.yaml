@@ -1,0 +1,71 @@
+---
+# Nginx ConfigMap for TLS termination
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-tls-config
+  namespace: secrets-lab
+  labels:
+    app: tls-demo
+    lab: "34"
+data:
+  default.conf: |
+    server {
+        listen 443 ssl;
+        server_name localhost;
+
+        ssl_certificate     /etc/nginx/ssl/tls.crt;
+        ssl_certificate_key /etc/nginx/ssl/tls.key;
+
+        location / {
+            return 200 'TLS is working! Served by nginx with a self-signed certificate.\n';
+            add_header Content-Type text/plain;
+        }
+    }
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-tls-demo
+  namespace: secrets-lab
+  labels:
+    app: tls-demo
+    lab: "34"
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.25-alpine
+      ports:
+        - containerPort: 443
+          name: https
+        - containerPort: 80
+          name: http
+      volumeMounts:
+        # Mount the TLS Secret containing tls.crt and tls.key
+        - name: tls-certs
+          mountPath: /etc/nginx/ssl
+          readOnly: true
+        # Mount the custom nginx configuration
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+          readOnly: true
+  volumes:
+    # The TLS Secret (created via kubectl create secret tls)
+    - name: tls-certs
+      secret:
+        secretName: tls-secret
+        defaultMode: 0400
+    # Nginx configuration from ConfigMap
+    - name: nginx-config
+      configMap:
+        name: nginx-tls-config
+  restartPolicy: Never

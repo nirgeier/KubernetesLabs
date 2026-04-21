@@ -1,0 +1,61 @@
+---
+# ScaledObject: Cron-based scheduled scaling
+#
+# This example uses multiple cron triggers to implement a business-hours scaling pattern:
+#
+#   - Weekdays 08:00-18:00 (Asia/Jerusalem): scale to 5 replicas
+#   - Weekdays 12:00-14:00 (lunch peak):    scale to 8 replicas
+#   - Otherwise:                             stay at minReplicaCount (1)
+#
+# KEDA evaluates ALL active triggers and uses the MAXIMUM desired replica count.
+# So during lunchtime the scaleObject has both the business-hours trigger (5)
+# AND the lunch trigger (8) active → scales to 8.
+#
+# Apply:
+#   kubectl apply -f 03-scaled-object-cron.yaml
+#
+# Inspect active trigger:
+#   kubectl describe scaledobject nginx-cron-scaler -n keda-demo
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: nginx-cron-scaler
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  scaleTargetRef:
+    name: nginx-demo
+
+  minReplicaCount: 1 # Outside business hours
+  maxReplicaCount: 10
+
+  pollingInterval: 30
+
+  triggers:
+    # Business hours: Monday-Friday, 08:00 → 18:00
+    - type: cron
+      metadata:
+        # Any valid IANA timezone string
+        # Full list: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        timezone: "Asia/Jerusalem"
+        start: "0 8 * * 1-5" # At 08:00 on Mon-Fri
+        end: "0 18 * * 1-5" # At 18:00 on Mon-Fri
+        desiredReplicas: "5" # 5 replicas during business hours
+
+    # Lunch peak: Monday-Friday, 12:00 → 14:00
+    - type: cron
+      metadata:
+        timezone: "Asia/Jerusalem"
+        start: "0 12 * * 1-5"
+        end: "0 14 * * 1-5"
+        desiredReplicas: "8" # Scale higher for lunch traffic peak
+
+    # Weekend reduced capacity: Saturday-Sunday, 10:00 → 16:00
+    - type: cron
+      metadata:
+        timezone: "Asia/Jerusalem"
+        start: "0 10 * * 6,0"
+        end: "0 16 * * 6,0"
+        desiredReplicas: "2" # Minimal weekend coverage

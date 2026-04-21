@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-pod
+  namespace: kubectl-lab
+  labels:
+    app: multi-container-demo
+    tier: backend
+    environment: training
+  annotations:
+    description: "Multi-container pod for exec, logs, and debug exercises"
+spec:
+  containers:
+    - name: app
+      image: nginx:1.25-alpine
+      ports:
+        - containerPort: 80
+          name: http
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+      volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/app
+    - name: sidecar
+      image: busybox:1.36
+      command:
+        - /bin/sh
+        - -c
+        - |
+          ## Sidecar container that writes timestamped log entries
+          ## to a shared volume every 5 seconds
+          while true; do
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - sidecar heartbeat" >> /var/log/app/sidecar.log
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - sidecar is alive"
+            sleep 5
+          done
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 50m
+          memory: 32Mi
+      volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/app
+  volumes:
+    - name: shared-logs
+      emptyDir: {}
+  restartPolicy: Always

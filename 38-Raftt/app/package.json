@@ -1,0 +1,16 @@
+{
+  "name": "raftt-lab-backend",
+  "version": "1.0.0",
+  "description": "Backend service for Raftt Dev-Mode Lab",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon --legacy-watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

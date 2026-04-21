@@ -1,0 +1,38 @@
+apiVersion: apps.codewizard.io/v1
+kind: WebApp
+metadata:
+  name: webapp-production
+  namespace: default
+spec:
+  replicas: 3
+  image: nginx:1.25.3
+  message: "Production WebApp - managed by the WebApp Operator"
+  port: 80
+  serviceType: LoadBalancer
+  maxUnavailable: 1
+---
+apiVersion: apps.codewizard.io/v1
+kind: WebApp
+metadata:
+  name: webapp-staging
+  namespace: default
+spec:
+  replicas: 1
+  image: nginx:1.26.0
+  message: "Staging WebApp - please do not use in production"
+  port: 8080
+  serviceType: ClusterIP
+  maxUnavailable: 0
+---
+apiVersion: apps.codewizard.io/v1
+kind: WebApp
+metadata:
+  name: webapp-paused
+  namespace: default
+spec:
+  replicas: 2
+  image: nginx:1.25.3
+  message: "This WebApp reconciliation is paused"
+  port: 80
+  serviceType: ClusterIP
+  paused: true

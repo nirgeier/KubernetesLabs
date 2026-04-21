@@ -1,0 +1,26 @@
+apiVersion: apps.codewizard.io/v1
+kind: WebApp
+metadata:
+  name: my-webapp
+  namespace: default
+spec:
+  # Number of nginx Pods (1-10)
+  replicas: 2
+
+  # nginx container image
+  image: nginx:1.25.3
+
+  # Text displayed on the HTML index page
+  message: "Hello from the WebApp Operator!"
+
+  # Port nginx listens on inside the container
+  port: 80
+
+  # How the Service is exposed: ClusterIP | NodePort | LoadBalancer
+  serviceType: ClusterIP
+
+  # Set to true to pause all reconciliation (operator will not touch child resources)
+  paused: false
+
+  # Max pods unavailable during a rolling update
+  maxUnavailable: 1

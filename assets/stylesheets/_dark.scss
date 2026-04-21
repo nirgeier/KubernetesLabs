@@ -1,0 +1,62 @@
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Change color and style as needed */
+  border-radius: 10px; /* Optional: rounded corners */
+  box-shadow: 0 0 1px whitesmoke;
+}
+.md-typeset h1 {
+  border-radius: 10px;
+  color: #03dac5;
+  margin: 0 -10px;
+  padding: 0 10px;
+}
+
+.md-typeset h2 {
+  padding-top: 0.5em;
+  color: var(--color-yellow-light);
+}
+
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5 {
+  color: var(--color-yellow-light);
+}
+
+/* When URL contains 'api' */
+body[data-path*="02"] .md-content {
+  background-color: #f8f9fa;
+  border-left: none;
+}
+
+.headline {
+  color: var(--color-headers);
+}
+
+.white-text {
+  color: #f7d078 !important;
+}
+
+.md-typeset table {
+  line-height: 1.25em !important;
+}
+
+.md-typeset code,
+.md-typeset kbd,
+.md-typeset pre {
+  color: var(--color-code);
+  font-weight: bold;
+}
+
+.md-tabs {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.md-main__inner {
+  margin-top: 0rem;
+}
+
+.md-content__inner {
+  border-left: 0.05rem solid var(--color-borders);
+  padding: 0 25px;
+}

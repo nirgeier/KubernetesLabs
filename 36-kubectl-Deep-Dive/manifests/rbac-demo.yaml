@@ -1,0 +1,79 @@
+---
+## ServiceAccount for RBAC demonstration
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lab-viewer
+  namespace: kubectl-lab
+  labels:
+    app: rbac-demo
+    purpose: training
+  annotations:
+    description: "Service account with read-only access for RBAC exercises"
+---
+## Role granting read-only access to core resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: kubectl-lab
+  labels:
+    app: rbac-demo
+    purpose: training
+rules:
+  ## Allow reading pods and their logs
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  ## Allow reading services
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+  ## Allow reading configmaps
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+## Bind the pod-reader Role to the lab-viewer ServiceAccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lab-viewer-pod-reader
+  namespace: kubectl-lab
+  labels:
+    app: rbac-demo
+    purpose: training
+subjects:
+  - kind: ServiceAccount
+    name: lab-viewer
+    namespace: kubectl-lab
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+## A more restrictive Role that only allows listing pods
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-lister
+  namespace: kubectl-lab
+  labels:
+    app: rbac-demo
+    purpose: training
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"]
+---
+## ServiceAccount with no permissions (for testing denied access)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lab-restricted
+  namespace: kubectl-lab
+  labels:
+    app: rbac-demo
+    purpose: training
+  annotations:
+    description: "Service account with no permissions for RBAC denial testing"

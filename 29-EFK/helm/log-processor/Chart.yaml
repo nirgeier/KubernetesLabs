@@ -1,0 +1,6 @@
+apiVersion: v2
+name: log-processor
+description: A Helm chart for Log Processor Job
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

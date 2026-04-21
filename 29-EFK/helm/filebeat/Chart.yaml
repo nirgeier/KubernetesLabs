@@ -1,0 +1,6 @@
+apiVersion: v2
+name: filebeat
+description: A Helm chart for Filebeat
+type: application
+version: 1.0.0
+appVersion: "8.11.0"

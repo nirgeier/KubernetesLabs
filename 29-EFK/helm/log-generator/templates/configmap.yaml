@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-generator-script
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: log-generator
+data:
+  generate-logs.sh: |
+    #!/bin/sh
+
+    # Log levels
+    LOG_LEVELS="DEBUG INFO WARN ERROR"
+
+    # Sample messages (space-separated, use indexes)
+    get_message() {
+      case $1 in
+        1) echo "Processing user request" ;;
+        2) echo "Database connection established" ;;
+        3) echo "Cache hit for key" ;;
+        4) echo "API endpoint called" ;;
+        5) echo "Transaction completed" ;;
+        6) echo "Authentication successful" ;;
+        7) echo "Configuration loaded" ;;
+        8) echo "Service started" ;;
+        9) echo "Health check passed" ;;
+        10) echo "Metrics collected" ;;
+        11) echo "Task scheduled" ;;
+        12) echo "File uploaded" ;;
+        13) echo "Session created" ;;
+        14) echo "Payment processed" ;;
+        15) echo "Email sent" ;;
+        16) echo "Connection timeout" ;;
+        17) echo "Invalid input received" ;;
+        18) echo "Resource not found" ;;
+        19) echo "Permission denied" ;;
+        20) echo "Retry attempt" ;;
+        *) echo "Operation completed" ;;
+      esac
+    }
+
+    # Components
+    COMPONENTS="UserService OrderService PaymentService AuthService DatabaseService CacheService"
+
+    echo "Starting log generator..."
+
+    counter=0
+    while true; do
+      # Random log level (1-4)
+      level_num=$(( (RANDOM % 4) + 1 ))
+      level=$(echo $LOG_LEVELS | cut -d' ' -f$level_num)
+
+      # Random message (1-20)
+      msg_num=$(( (RANDOM % 20) + 1 ))
+      message=$(get_message $msg_num)
+
+      # Random component (1-6)
+      comp_num=$(( (RANDOM % 6) + 1 ))
+      component=$(echo $COMPONENTS | cut -d' ' -f$comp_num)
+
+      # Generate request ID
+      request_id="req-$(date +%s)-$RANDOM"
+
+      # Current timestamp
+      timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+      # Increment counter
+      counter=$((counter + 1))
+
+      # Generate JSON formatted log
+      echo "{\"timestamp\":\"$timestamp\",\"level\":\"$level\",\"component\":\"$component\",\"message\":\"$message\",\"request_id\":\"$request_id\",\"counter\":$counter}"
+
+      # Wait between logs
+      sleep {{ .Values.logInterval }}
+    done

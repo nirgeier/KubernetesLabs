@@ -1,0 +1,133 @@
+/*
+ * --------------------------------------------------
+ * GitHub Committers Avatar Styles
+ * --------------------------------------------------
+ */
+
+/* Container for source file information */
+.md-source-file {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 0.75rem 0;
+  margin-top: 1.5rem;
+}
+
+/* Individual source file facts */
+.md-source-file__fact {
+  align-items: center;
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.64rem;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+  vertical-align: middle;
+}
+
+/* Navigation container for authors/committers */
+.md-source-file__fact nav {
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+/* Author avatar styling */
+.md-typeset a.md-author img {
+  border-radius: 50%;
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.md-author:hover {
+  transform: scale(1.1);
+}
+
+.md-author img {
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* "More authors" indicator */
+.md-author--more {
+  background: rgba(0, 0, 0, 0.07);
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.64rem;
+  font-weight: 700;
+  line-height: 1.6rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.md-author--more:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.87);
+}
+
+/* Dark mode styles for committers */
+.md-source-file {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.md-source-file__fact {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.md-author img {
+  border: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.md-author--more {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.54);
+}
+
+.md-author--more:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* Large avatar variant for important pages */
+.md-source-file--large .md-author {
+  height: 2rem;
+  width: 2rem;
+}
+
+/* Tooltip styles for author names */
+.md-author[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-top: 2rem;
+  margin-left: -1rem;
+}
+
+.md-author[title]:hover::after {
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .md-source-file__fact {
+    font-size: 0.6rem;
+  }
+
+  .md-author {
+    height: 1.4rem;
+    width: 1.4rem;
+  }
+
+  .md-source-file--large .md-author {
+    height: 1.8rem;
+    width: 1.8rem;
+  }
+}

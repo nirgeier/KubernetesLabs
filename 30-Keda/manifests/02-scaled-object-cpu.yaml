@@ -1,0 +1,61 @@
+---
+# ScaledObject: CPU-based scaling
+#
+# KEDA creates a managed HPA that scales nginx-demo based on CPU utilization.
+# This is the simplest KEDA example - equivalent to a native HPA,
+# but ready to be combined with other KEDA triggers.
+#
+# Apply:
+#   kubectl apply -f 02-scaled-object-cpu.yaml
+#
+# Verify:
+#   kubectl get scaledobject -n keda-demo
+#   kubectl get hpa -n keda-demo
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: demo-cpu-scaler
+  namespace: keda-demo
+  labels:
+    app.kubernetes.io/part-of: keda-lab
+spec:
+  # The Deployment to scale
+  scaleTargetRef:
+    apiVersion: apps/v1 # optional (default: apps/v1)
+    kind: Deployment # optional (default: Deployment)
+    name: nginx-demo
+
+  # Scaling bounds
+  minReplicaCount: 1 # Minimum pod count (use 0 for scale-to-zero)
+  maxReplicaCount: 10 # Maximum pod count KEDA may scale to
+
+  # How often KEDA polls the metric source
+  pollingInterval: 15 # seconds (default: 30)
+
+  # Advanced HPA behavior tuning
+  advanced:
+    restoreToOriginalReplicaCount: false # On ScaledObject deletion, keep current replicas
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 0 # Scale up immediately
+          policies:
+            - type: Percent
+              value: 100 # Double pods per period if needed
+              periodSeconds: 15
+        scaleDown:
+          stabilizationWindowSeconds: 120 # Wait 2 min before scaling down
+          policies:
+            - type: Pods
+              value: 1 # Remove 1 pod at a time
+              periodSeconds: 30
+
+  # Triggers define WHEN to scale
+  triggers:
+    - type: cpu
+      metadata:
+        # "Utilization" scales on aggregate CPU percentage across all pods
+        # "AverageValue" scales on absolute milli-cores (e.g., "200m")
+        type: Utilization
+        value: "60" # Scale when average CPU utilization > 60%

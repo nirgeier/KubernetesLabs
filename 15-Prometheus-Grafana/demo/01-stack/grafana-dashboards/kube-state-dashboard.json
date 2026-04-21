@@ -1,0 +1,64 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "kube-state-overview-demo",
+    "title": "Kube-State Overview - Demo",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "15s",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Deployments",
+        "targets": [
+          {
+            "expr": "count(kube_deployment_labels{})",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "type": "stat",
+        "title": "DaemonSets",
+        "targets": [
+          {
+            "expr": "count(kube_daemonset_labels{})",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "type": "stat",
+        "title": "StatefulSets",
+        "targets": [
+          {
+            "expr": "count(kube_statefulset_labels{})",
+            "refId": "A"
+          }
+        ],
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}
